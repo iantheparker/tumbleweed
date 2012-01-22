@@ -23,7 +23,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    CGSize screenSize = CGSizeMake(10000.0, 320.0);
+    CGSize screenSize = CGSizeMake(10000.0, 640.0);
     
     UIImage *image = [UIImage imageNamed:@"map.jpg"];
     map = [[UIImageView alloc] initWithImage:image];
@@ -36,8 +36,7 @@
     scrollView.showsVerticalScrollIndicator = NO;
     [scrollView addSubview:map];
     
-   // scrollView.minimumZoomScale = 0.2;
-   // scrollView.maximumZoomScale = 4.0;
+   
     
    scrollView.bounces = NO;
     
