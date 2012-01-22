@@ -10,7 +10,7 @@
 
 @implementation ViewController
 
-@synthesize scrollView, crazyLabel;
+@synthesize scrollView, map;
 
 - (void)didReceiveMemoryWarning
 {
@@ -23,8 +23,23 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [crazyLabel setText:@"sup"];
-	// Do any additional setup after loading the view, typically from a nib.
+    CGSize screenSize = CGSizeMake(10000.0, 320.0);
+    
+    UIImage *image = [UIImage imageNamed:@"map.jpg"];
+    map = [[UIImageView alloc] initWithImage:image];
+        
+    
+    
+    scrollView.contentSize = screenSize;
+                         
+    scrollView.showsHorizontalScrollIndicator = NO;
+    scrollView.showsVerticalScrollIndicator = NO;
+    [scrollView addSubview:map];
+    
+   // scrollView.minimumZoomScale = 0.2;
+   // scrollView.maximumZoomScale = 4.0;
+    
+   scrollView.bounces = NO;
     
 }
 

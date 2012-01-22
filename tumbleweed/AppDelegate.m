@@ -24,6 +24,7 @@
     self.viewController = [[ViewController alloc]initWithNibName:@"ViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     return YES;
 }
 

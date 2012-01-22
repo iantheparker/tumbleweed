@@ -11,11 +11,11 @@
 @interface ViewController : UIViewController
 {
     IBOutlet UIScrollView *scrollView;
-    IBOutlet UILabel *crazyLabel;
+    IBOutlet UIImageView *map;
     
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
-@property (nonatomic, retain) UILabel *crazyLabel;
+@property (nonatomic, retain) UIImageView *map;
 
 @end
