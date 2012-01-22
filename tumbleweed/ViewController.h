@@ -11,9 +11,11 @@
 @interface ViewController : UIViewController
 {
     IBOutlet UIScrollView *scrollView;
+    IBOutlet UILabel *crazyLabel;
     
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
+@property (nonatomic, retain) UILabel *crazyLabel;
 
 @end

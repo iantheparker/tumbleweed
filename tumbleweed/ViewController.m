@@ -10,7 +10,7 @@
 
 @implementation ViewController
 
-@synthesize scrollView;
+@synthesize scrollView, crazyLabel;
 
 - (void)didReceiveMemoryWarning
 {
@@ -23,7 +23,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [crazyLabel setText:@"sup"];
 	// Do any additional setup after loading the view, typically from a nib.
+    
 }
 
 - (void)viewDidUnload
