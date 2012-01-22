@@ -30,7 +30,7 @@
 				<string key="IBProxiedObjectIdentifier">IBFirstResponder</string>
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 			</object>
-			<object class="IBUIView" id="688665632">
+			<object class="IBUIView" id="103644459">
 				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">292</int>
 				<string key="NSFrameSize">{785, 10000}</string>
@@ -45,7 +45,6 @@
 						<int key="NSID">2</int>
 					</object>
 				</object>
-				<int key="IBUIContentMode">1</int>
 				<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
 					<int key="IBUIInterfaceOrientation">3</int>
 					<int key="interfaceOrientation">3</int>
@@ -59,7 +58,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">view</string>
 						<reference key="source" ref="372490531"/>
-						<reference key="destination" ref="688665632"/>
+						<reference key="destination" ref="103644459"/>
 					</object>
 					<int key="connectionID">26</int>
 				</object>
@@ -67,7 +66,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">scrollView</string>
 						<reference key="source" ref="372490531"/>
-						<reference key="destination" ref="688665632"/>
+						<reference key="destination" ref="103644459"/>
 					</object>
 					<int key="connectionID">34</int>
 				</object>
@@ -93,7 +92,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">23</int>
-						<reference key="object" ref="688665632"/>
+						<reference key="object" ref="103644459"/>
 						<array class="NSMutableArray" key="children"/>
 						<reference key="parent" ref="0"/>
 					</object>
