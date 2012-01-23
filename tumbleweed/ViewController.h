@@ -8,14 +8,19 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <UIScrollViewDelegate>
 {
     IBOutlet UIScrollView *scrollView;
     IBOutlet UIImageView *map;
+    IBOutlet UIImageView *avatar;
     
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
 @property (nonatomic, retain) UIImageView *map;
+@property (nonatomic, retain) UIImageView *avatar;
+
+//-- instance methods
+- (void) renderJane;
 
 @end

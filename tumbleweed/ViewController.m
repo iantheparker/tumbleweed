@@ -10,7 +10,37 @@
 
 @implementation ViewController
 
-@synthesize scrollView, map;
+@synthesize scrollView, map, avatar;
+
+//-- scrolling handlers
+
+- (void)scrollViewDidScroll:(UIScrollView *)sView
+{
+    NSLog(@"scroll view %f", [sView contentOffset].x);
+    NSLog(@"scroll view %f", [sView contentOffset].y);
+    
+    [self renderJane];
+    
+}
+
+//-- end scrolling handlers
+
+- (void) renderJane
+{
+    double avatar_offset = 200;
+    
+    NSLog(@"rendering Jane");
+    UIImage *img = [UIImage imageNamed:@"jane.png"];
+    CGRect imageFrame = CGRectMake(0, 0, 150, 150);
+    if(!avatar){
+        avatar = [[UIImageView alloc] initWithFrame:imageFrame];
+        [map addSubview:avatar];
+    }
+    CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, 100);
+    [avatar setCenter:center];
+    [avatar setImage:img];
+    
+}
 
 - (void)didReceiveMemoryWarning
 {
@@ -37,7 +67,7 @@
     scrollView.showsVerticalScrollIndicator = NO;
     
     [scrollView addSubview:map];
-    
+    [scrollView setDelegate:self];
    
     
    scrollView.bounces = NO;
