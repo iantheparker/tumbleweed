@@ -20,7 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2A8862BA14CDEE2800DA87A1 /* appicon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appicon_114.png; sourceTree = "<group>"; };
+		2A8862BA14CDEE2800DA87A1 /* appicon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = appicon_114.png; path = ../appicon_114.png; sourceTree = "<group>"; };
 		554DAB3A14CC92AF0053E8CE /* tumbleweed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tumbleweed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		554DAB3E14CC92AF0053E8CE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		554DAB4014CC92AF0053E8CE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -54,7 +54,6 @@
 		554DAB2F14CC92AF0053E8CE = {
 			isa = PBXGroup;
 			children = (
-				2A8862BA14CDEE2800DA87A1 /* appicon_114.png */,
 				554DAB4414CC92AF0053E8CE /* tumbleweed */,
 				554DAB3D14CC92AF0053E8CE /* Frameworks */,
 				554DAB3B14CC92AF0053E8CE /* Products */,
@@ -106,6 +105,7 @@
 		554DAB5B14CC93D00053E8CE /* assets */ = {
 			isa = PBXGroup;
 			children = (
+				2A8862BA14CDEE2800DA87A1 /* appicon_114.png */,
 				554DAB6914CCAE120053E8CE /* map.jpg */,
 			);
 			name = assets;
