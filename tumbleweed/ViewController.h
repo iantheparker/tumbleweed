@@ -13,14 +13,17 @@
     IBOutlet UIScrollView *scrollView;
     IBOutlet UIImageView *map;
     IBOutlet UIImageView *avatar;
+    NSMutableArray *sprites;
     
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
 @property (nonatomic, retain) UIImageView *map;
 @property (nonatomic, retain) UIImageView *avatar;
+@property (nonatomic, retain) NSMutableArray *sprites;
 
 //-- instance methods
 - (void) renderJane;
+-(UIImage *) selectAvatarImage:(float) position;
 
 @end
