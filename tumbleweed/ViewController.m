@@ -16,8 +16,8 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)sView
 {
-    NSLog(@"scroll view %f", [sView contentOffset].x);
-    NSLog(@"scroll view %f", [sView contentOffset].y);
+    NSLog(@"scroll view x %f", [sView contentOffset].x);
+    NSLog(@"scroll view y %f", [sView contentOffset].y);
     
     [self renderJane];
     
@@ -31,12 +31,12 @@
     
     NSLog(@"rendering Jane");
     UIImage *img = [UIImage imageNamed:@"jane.png"];
-    CGRect imageFrame = CGRectMake(0, 0, 150, 150);
+    CGRect imageFrame = CGRectMake(0, 0, 200, 300);
     if(!avatar){
         avatar = [[UIImageView alloc] initWithFrame:imageFrame];
         [map addSubview:avatar];
     }
-    CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, 100);
+    CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, 175);
     [avatar setCenter:center];
     [avatar setImage:img];
     

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A8862BB14CDEE2800DA87A1 /* appicon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 2A8862BA14CDEE2800DA87A1 /* appicon_114.png */; };
+		2ABC3A9814CE7EC6008721EA /* bubble5.png in Resources */ = {isa = PBXBuildFile; fileRef = 2ABC3A9714CE7EC6008721EA /* bubble5.png */; };
 		551880D914CDF1E300FFE72A /* jane.png in Resources */ = {isa = PBXBuildFile; fileRef = 551880D814CDF1E300FFE72A /* jane.png */; };
 		554DAB3F14CC92AF0053E8CE /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 554DAB3E14CC92AF0053E8CE /* UIKit.framework */; };
 		554DAB4114CC92AF0053E8CE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 554DAB4014CC92AF0053E8CE /* Foundation.framework */; };
@@ -22,6 +23,7 @@
 
 /* Begin PBXFileReference section */
 		2A8862BA14CDEE2800DA87A1 /* appicon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = appicon_114.png; path = ../appicon_114.png; sourceTree = "<group>"; };
+		2ABC3A9714CE7EC6008721EA /* bubble5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bubble5.png; sourceTree = "<group>"; };
 		551880D814CDF1E300FFE72A /* jane.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jane.png; sourceTree = "<group>"; };
 		554DAB3A14CC92AF0053E8CE /* tumbleweed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tumbleweed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		554DAB3E14CC92AF0053E8CE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -107,6 +109,7 @@
 		554DAB5B14CC93D00053E8CE /* assets */ = {
 			isa = PBXGroup;
 			children = (
+				2ABC3A9714CE7EC6008721EA /* bubble5.png */,
 				551880D814CDF1E300FFE72A /* jane.png */,
 				2A8862BA14CDEE2800DA87A1 /* appicon_114.png */,
 				554DAB6914CCAE120053E8CE /* map.jpg */,
@@ -179,6 +182,7 @@
 				554DAB6A14CCAE120053E8CE /* map.jpg in Resources */,
 				2A8862BB14CDEE2800DA87A1 /* appicon_114.png in Resources */,
 				551880D914CDF1E300FFE72A /* jane.png in Resources */,
+				2ABC3A9814CE7EC6008721EA /* bubble5.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
