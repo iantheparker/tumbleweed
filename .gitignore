@@ -4,6 +4,7 @@ _Store
 
 build/
 
+*.pbxproj
 *.pbxuser
 *.perspective
 *.perspectivev3
