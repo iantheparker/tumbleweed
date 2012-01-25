@@ -130,9 +130,10 @@
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
     
-    [scrollView addSubview:map];
+    
     [scrollView setDelegate:self];
     
+    [scrollView addSubview:map];
     [scrollView addSubview:gasStationButton];
     
     
