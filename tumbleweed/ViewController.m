@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "SceneController.h"
 
 @implementation ViewController
 
@@ -93,6 +94,8 @@
 
 - (IBAction)gasStationPressed:(UIButton *)sender{
     NSLog(@"pressed");
+    SceneController *sc = [[SceneController alloc] init];
+    [self presentModalViewController:sc animated:YES];
 }
 
 
@@ -131,7 +134,7 @@
     [scrollView setDelegate:self];
     
     [scrollView addSubview:gasStationButton];
-    [self renderJane:walkingForward];
+    
     
 }
 
@@ -150,6 +153,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    [self renderJane:walkingForward];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
