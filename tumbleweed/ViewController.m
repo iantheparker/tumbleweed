@@ -10,13 +10,13 @@
 
 @implementation ViewController
 
-@synthesize scrollView, map, avatar, sprites;
+@synthesize scrollView, map, avatar, sprites, walkingForward;
 
 - (void) initSprites
 {
     if(sprites == nil){
         sprites = [[NSMutableArray alloc] initWithObjects:
-                   [UIImage imageNamed:@"JANE_walkcycle0.png"],
+                   //[UIImage imageNamed:@"JANE_walkcycle0.png"],
                    [UIImage imageNamed:@"JANE_walkcycle1.png"],
                    [UIImage imageNamed:@"JANE_walkcycle2.png"],
                    [UIImage imageNamed:@"JANE_walkcycle3.png"],
@@ -38,7 +38,8 @@
 -(UIImage *) selectAvatarImage:(float) position
 {
     int y = 20;
-    int z = 7;
+    //int z = 7;
+    int z = 6;
     int c = (int) position;
     int r = (c + (y * z)) % (y * z) / y;
     return [sprites objectAtIndex:r];
@@ -49,12 +50,19 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)sView
 {
-    [self renderJane];
+    if (lastContentOffset > scrollView.contentOffset.x)
+        walkingForward = NO;
+    else if (lastContentOffset < scrollView.contentOffset.x) 
+        walkingForward = YES;    
+    lastContentOffset = scrollView.contentOffset.x;
+    NSLog(walkingForward ? @"Yes" : @"No");
+    [self renderJane:walkingForward];
+
+
 }
 
 //-- end scrolling handlers
-
-- (void) renderJane
+- (void) renderJane: (BOOL) direction
 {
     double avatar_offset = 200;
 
@@ -67,10 +75,29 @@
     }
     
     CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
+    CGPoint buttonOffset = CGPointMake(130, 20);
     [avatar setCenter:center];
-    [avatar setImage:img];
+    if (walkingForward){
+        [avatar setImage:img];
+
+    }else{
+        UIImage *flippedImage = [UIImage imageWithCGImage:img.CGImage scale:1.0 orientation: UIImageOrientationUpMirrored];
+        [avatar setImage:flippedImage];
+    }
+    [avatar addSubview:gasStationButton];
+    [gasStationButton setCenter:buttonOffset];
     
 }
+
+//location detail handlers
+
+- (IBAction)gasStationPressed:(UIButton *)sender{
+    NSLog(@"pressed");
+}
+
+
+//end location detail handlers
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -84,26 +111,36 @@
 {
     [super viewDidLoad];  
     [self initSprites];
+    walkingForward = YES;
+
+    UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];
     
-    UIImage *image = [UIImage imageNamed:@"map.jpg"];
+    CGRect mapFrame = CGRectMake(0, 0, 5782, 320);
     
-    CGRect imageFrame = CGRectMake(0, 0, 5782, 320);
-    
-    map = [[UIImageView alloc] initWithFrame:imageFrame];
-    [map setImage:image];
+    map = [[UIImageView alloc] initWithFrame:mapFrame];
+    [map setImage:maplayer1];
     
     CGSize screenSize = CGSizeMake(5782, 320.0);
     scrollView.contentSize = screenSize;
                          
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.showsVerticalScrollIndicator = NO;
+    scrollView.bounces = NO;
+    
+    //gasStationButton = [[UIButton alloc] init]; 
+    
+    //[gasStationButton setTitle:@"word!" forState: UIControlStateNormal];
+    //UIImage *gasBubble = [UIImage imageNamed:@"bubble5.png"];
+    //[gasStationButton setBackgroundImage :gasBubble forState: UIControlStateNormal];
+    
     
     [scrollView addSubview:map];
     [scrollView setDelegate:self];
-   
     
-    scrollView.bounces = NO;
-    [self renderJane];
+    
+    //[map addSubview:gasStationBubble];
+    //[map addSubview:gasStationButton];
+    [self renderJane:walkingForward];
     
 }
 
