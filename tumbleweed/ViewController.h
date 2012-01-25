@@ -14,6 +14,8 @@
     IBOutlet UIImageView *map;
     IBOutlet UIImageView *avatar;
     NSMutableArray *sprites;
+    IBOutlet UIButton *gasStationButton;
+    //IBOutlet UIImageView *gasStationBubble;
     
 }
 
@@ -21,9 +23,12 @@
 @property (nonatomic, retain) UIImageView *map;
 @property (nonatomic, retain) UIImageView *avatar;
 @property (nonatomic, retain) NSMutableArray *sprites;
+//@property (nonatomic, retain) UIButton *gasStationButton;
+//@property (nonatomic, retain) UIImageView *gasStationBubble;
 
 //-- instance methods
 - (void) renderJane;
 -(UIImage *) selectAvatarImage:(float) position;
+- (IBAction)gasStationPressed:(UIButton *)sender;
 
 @end
