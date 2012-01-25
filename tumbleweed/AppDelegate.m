@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 AI Capital. All rights reserved.
 //
 
+#import "FlurryAnalytics.h"
 #import "AppDelegate.h"
-
 #import "ViewController.h"
 
 @implementation AppDelegate
@@ -15,8 +15,17 @@
 @synthesize window = _window;
 @synthesize viewController = _viewController;
 
+/**
+  * Catch any exceptions that leak through and report
+  */
+void uncaughtExceptionHandler(NSException *exception) {
+    [FlurryAnalytics logError:@"Uncaught" message:@"Crash!" exception:exception];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
+    [FlurryAnalytics startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     
