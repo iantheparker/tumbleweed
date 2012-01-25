@@ -10,13 +10,13 @@
 
 @implementation ViewController
 
-@synthesize scrollView, map, avatar, sprites;
+@synthesize scrollView, map, avatar, sprites, walkingForward;
 
 - (void) initSprites
 {
     if(sprites == nil){
         sprites = [[NSMutableArray alloc] initWithObjects:
-                   [UIImage imageNamed:@"JANE_walkcycle0.png"],
+                   //[UIImage imageNamed:@"JANE_walkcycle0.png"],
                    [UIImage imageNamed:@"JANE_walkcycle1.png"],
                    [UIImage imageNamed:@"JANE_walkcycle2.png"],
                    [UIImage imageNamed:@"JANE_walkcycle3.png"],
@@ -38,7 +38,8 @@
 -(UIImage *) selectAvatarImage:(float) position
 {
     int y = 20;
-    int z = 7;
+    //int z = 7;
+    int z = 6;
     int c = (int) position;
     int r = (c + (y * z)) % (y * z) / y;
     return [sprites objectAtIndex:r];
@@ -49,12 +50,19 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)sView
 {
-    [self renderJane];
+    if (lastContentOffset > scrollView.contentOffset.x)
+        walkingForward = NO;
+    else if (lastContentOffset < scrollView.contentOffset.x) 
+        walkingForward = YES;    
+    lastContentOffset = scrollView.contentOffset.x;
+    NSLog(walkingForward ? @"Yes" : @"No");
+    [self renderJane:walkingForward];
+
+
 }
 
 //-- end scrolling handlers
-
-- (void) renderJane
+- (void) renderJane: (BOOL) direction
 {
     double avatar_offset = 200;
 
@@ -69,7 +77,13 @@
     CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
     CGPoint buttonOffset = CGPointMake(130, 20);
     [avatar setCenter:center];
-    [avatar setImage:img];
+    if (walkingForward){
+        [avatar setImage:img];
+
+    }else{
+        UIImage *flippedImage = [UIImage imageWithCGImage:img.CGImage scale:1.0 orientation: UIImageOrientationUpMirrored];
+        [avatar setImage:flippedImage];
+    }
     [avatar addSubview:gasStationButton];
     [gasStationButton setCenter:buttonOffset];
     
@@ -97,6 +111,7 @@
 {
     [super viewDidLoad];  
     [self initSprites];
+    walkingForward = YES;
 
     UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];
     
@@ -125,7 +140,7 @@
     
     //[map addSubview:gasStationBubble];
     //[map addSubview:gasStationButton];
-    [self renderJane];
+    [self renderJane:walkingForward];
     
 }
 
