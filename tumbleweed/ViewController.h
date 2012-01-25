@@ -17,8 +17,6 @@
     IBOutlet UIButton *gasStationButton;
     int lastContentOffset;
     BOOL walkingForward;
-    //IBOutlet UIImageView *gasStationBubble;
-    
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
@@ -26,12 +24,14 @@
 @property (nonatomic, retain) UIImageView *avatar;
 @property (nonatomic, retain) NSMutableArray *sprites;
 @property BOOL walkingForward;
-//@property (nonatomic, retain) UIButton *gasStationButton;
-//@property (nonatomic, retain) UIImageView *gasStationBubble;
+@property (nonatomic, retain) UIButton *gasStationButton;
 
 //-- instance methods
 - (void) renderJane: (BOOL) direction;
 - (UIImage *) selectAvatarImage:(float) position;
-- (IBAction)gasStationPressed:(UIButton *)sender;
+
+//-- event handlers
+- (IBAction) gasStationPressed:(UIButton *)sender;
+
 
 @end

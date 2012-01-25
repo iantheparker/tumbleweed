@@ -10,7 +10,7 @@
 
 @implementation ViewController
 
-@synthesize scrollView, map, avatar, sprites, walkingForward;
+@synthesize scrollView, map, avatar, sprites, gasStationButton, walkingForward;
 
 - (void) initSprites
 {
@@ -55,10 +55,7 @@
     else if (lastContentOffset < scrollView.contentOffset.x) 
         walkingForward = YES;    
     lastContentOffset = scrollView.contentOffset.x;
-    NSLog(walkingForward ? @"Yes" : @"No");
     [self renderJane:walkingForward];
-
-
 }
 
 //-- end scrolling handlers
@@ -75,28 +72,31 @@
     }
     
     CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
-    CGPoint buttonOffset = CGPointMake(130, 20);
+    
     [avatar setCenter:center];
-    if (walkingForward){
+    
+    if (walkingForward) {
         [avatar setImage:img];
 
-    }else{
+    } else {
         UIImage *flippedImage = [UIImage imageWithCGImage:img.CGImage scale:1.0 orientation: UIImageOrientationUpMirrored];
         [avatar setImage:flippedImage];
     }
-    [avatar addSubview:gasStationButton];
+    
+    // adjust thought bubble position
+    CGPoint buttonOffset = CGPointMake(center.x + 50, center.y - 80);
     [gasStationButton setCenter:buttonOffset];
     
 }
 
-//location detail handlers
+// event handlers
 
 - (IBAction)gasStationPressed:(UIButton *)sender{
     NSLog(@"pressed");
 }
 
 
-//end location detail handlers
+// event handlers
 
 
 - (void)didReceiveMemoryWarning
@@ -127,19 +127,10 @@
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
     
-    //gasStationButton = [[UIButton alloc] init]; 
-    
-    //[gasStationButton setTitle:@"word!" forState: UIControlStateNormal];
-    //UIImage *gasBubble = [UIImage imageNamed:@"bubble5.png"];
-    //[gasStationButton setBackgroundImage :gasBubble forState: UIControlStateNormal];
-    
-    
     [scrollView addSubview:map];
     [scrollView setDelegate:self];
     
-    
-    //[map addSubview:gasStationBubble];
-    //[map addSubview:gasStationButton];
+    [scrollView addSubview:gasStationButton];
     [self renderJane:walkingForward];
     
 }
