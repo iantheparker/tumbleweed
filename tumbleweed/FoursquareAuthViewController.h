@@ -15,4 +15,7 @@
 
 @property (nonatomic, retain) UIWebView *webView;
 
+- (IBAction) dismissModal:(id)sender;
+
+
 @end

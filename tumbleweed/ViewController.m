@@ -103,8 +103,8 @@
 
 
 
-- (IBAction)gasStationPressed:(UIButton *)sender{
-    
+- (IBAction)gasStationPressed:(UIButton *)sender
+{    
     NSLog(@"pressed");
     SceneController *sc = [[SceneController alloc] init];
     [self presentModalViewController:sc animated:YES];

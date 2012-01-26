@@ -76,6 +76,13 @@
     }
 }
 
+- (IBAction) dismissModal:(id)sender
+{
+    NSLog(@"cancelling Foursquare Connect");
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
