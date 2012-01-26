@@ -69,7 +69,7 @@
     
     if(!avatar){
         avatar = [[UIImageView alloc] initWithFrame:imageFrame];
-        [map addSubview:avatar];
+        [scrollView addSubview:avatar];
     }
     
     CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
@@ -115,27 +115,26 @@
     [super viewDidLoad];  
     [self initSprites];
     walkingForward = YES;
-
-    UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];
     
+    CGSize screenSize = CGSizeMake(5782, 320.0);
+    scrollView.contentSize = screenSize;
+    
+    scrollView.showsHorizontalScrollIndicator = NO;
+    scrollView.showsVerticalScrollIndicator = NO;
+    scrollView.bounces = NO;
+    [scrollView setDelegate:self];
+    [scrollView addSubview:gasStationButton];
+
+/**
+    UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];
     CGRect mapFrame = CGRectMake(0, 0, 5782, 320);
     
     map = [[UIImageView alloc] initWithFrame:mapFrame];
     [map setImage:maplayer1];
-    
-    CGSize screenSize = CGSizeMake(5782, 320.0);
-    scrollView.contentSize = screenSize;
                          
-    scrollView.showsHorizontalScrollIndicator = NO;
-    scrollView.showsVerticalScrollIndicator = NO;
-    scrollView.bounces = NO;
-    
-    
-    [scrollView setDelegate:self];
-    
     [scrollView addSubview:map];
-    [scrollView addSubview:gasStationButton];
     
+    */
     
 }
 
