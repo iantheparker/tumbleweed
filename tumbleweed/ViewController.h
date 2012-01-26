@@ -32,6 +32,7 @@
 
 //-- event handlers
 - (IBAction) gasStationPressed:(UIButton *)sender;
+- (IBAction) foursquareConnect:(UIButton *)sender;
 
 
 @end

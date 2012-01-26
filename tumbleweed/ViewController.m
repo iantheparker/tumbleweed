@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "SceneController.h"
+#import "FoursquareAuth.h"
 
 @implementation ViewController
 
@@ -92,7 +93,18 @@
 
 // event handlers
 
+- (IBAction) foursquareConnect:(UIButton *)sender
+{
+    NSLog(@"pressed");
+    FoursquareAuth *fsq = [[FoursquareAuth alloc] init];
+    [self presentModalViewController:fsq animated:YES];    
+
+}
+
+
+
 - (IBAction)gasStationPressed:(UIButton *)sender{
+    
     NSLog(@"pressed");
     SceneController *sc = [[SceneController alloc] init];
     [self presentModalViewController:sc animated:YES];
