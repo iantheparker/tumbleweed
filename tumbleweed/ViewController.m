@@ -58,6 +58,7 @@
         walkingForward = YES;    
     lastContentOffset = scrollView.contentOffset.x;
     [self renderJane:walkingForward];
+    NSLog(@"storedPosition %f", [[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"]);
 }
 
 //-- end scrolling handlers
@@ -97,7 +98,9 @@
 {
     NSLog(@"pressed");
     FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
-    [self presentModalViewController:fsq animated:YES];    
+    [self presentModalViewController:fsq animated:YES];  
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
 
 }
 
@@ -108,6 +111,8 @@
     NSLog(@"pressed");
     SceneController *sc = [[SceneController alloc] init];
     [self presentModalViewController:sc animated:YES];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
 }
 
 

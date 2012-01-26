@@ -72,8 +72,11 @@
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:accessToken forKey:@"access_token"];
         [defaults synchronize];
+       // if we want a web splash "succes page" 
+        NSLog(@"got access token, closing modal %@", accessToken);
         [self dismissModalViewControllerAnimated:YES];
-    }
+    } 
+    // [self dismissModalViewControllerAnimated:YES];
 }
 
 - (IBAction) dismissModal:(id)sender
