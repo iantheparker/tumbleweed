@@ -8,6 +8,9 @@
 
 #import "SceneController.h"
 
+#import "CJSONDeserializer.h"
+#import "NSDictionary_JSONExtensions.h"
+
 @implementation SceneController
 
 //-- Event Handlers
@@ -40,6 +43,25 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    
+    NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
+    
+    // build the url with query string
+    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&ll=%@",access_token, @"40.759011,-73.9844722"];
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSError *err;
+    
+    // fetch the data (TODO async)
+    NSString *venues = [NSString stringWithContentsOfURL:url 
+                                                encoding:NSUTF8StringEncoding 
+           
+                                                   error:&err];
+    // parse into dict
+    NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:venues 
+                                                                error:&err];
+    
+    NSLog(@"venues %@", venuesDict);
 }
 
 - (void)viewDidUnload

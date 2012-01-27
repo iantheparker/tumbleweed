@@ -58,7 +58,6 @@
         walkingForward = YES;    
     lastContentOffset = scrollView.contentOffset.x;
     [self renderJane:walkingForward];
-    NSLog(@"storedPosition %f", [[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"]);
 }
 
 //-- end scrolling handlers
