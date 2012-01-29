@@ -61,6 +61,8 @@
     NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:venues 
                                                                 error:&err];
     
+    // loop through each venue and add a label to the venue
+    
     NSLog(@"venues %@", venuesDict);
 }
 
