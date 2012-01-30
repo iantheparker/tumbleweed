@@ -8,7 +8,7 @@
 
 #import "SceneController.h"
 
-#import "CJSONDeserializer.h"
+//#import "CJSONDeserializer.h"
 #import "NSDictionary_JSONExtensions.h"
 
 @implementation SceneController
@@ -51,6 +51,7 @@
     
     NSURL *url = [NSURL URLWithString:urlString];
     NSError *err;
+    NSLog(@"urlstring %@", urlString);
     
     // fetch the data (TODO async)
     NSString *venues = [NSString stringWithContentsOfURL:url 
@@ -60,8 +61,21 @@
     // parse into dict
     NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:venues 
                                                                 error:&err];
+
     
-    NSLog(@"venues %@", venuesDict);
+    //NSLog(@"venues %@", venuesDict);
+    NSLog(@"venues keys%@", venuesDict.allKeys);
+    //NSLog(@"venues values%@", venuesDict.allValues);
+    NSLog(@"venues total %d", venuesDict.count);
+    NSLog(@"value for notifcations key%@", [venuesDict valueForKey:@"notifications"]);
+    NSLog(@"value for meta key%@", [venuesDict valueForKey:@"meta"]);
+    //NSLog(@"value for response key%@", [venuesDict valueForKey:@"response"]);
+    NSLog(@"value for response key%@", [[venuesDict valueForKey:@"response"] allKeys]);
+    //NSLog(@"value for response values%@", [[venuesDict valueForKey:@"response"] allValues]);
+
+
+
+
 }
 
 - (void)viewDidUnload

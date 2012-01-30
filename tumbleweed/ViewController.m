@@ -77,7 +77,7 @@
     
     [avatar setCenter:center];
     
-    if (walkingForward) {
+    if (direction) {
         [avatar setImage:img];
 
     } else {
@@ -98,8 +98,6 @@
     NSLog(@"pressed");
     FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
     [self presentModalViewController:fsq animated:YES];  
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
 
 }
 
@@ -110,8 +108,6 @@
     NSLog(@"pressed");
     SceneController *sc = [[SceneController alloc] init];
     [self presentModalViewController:sc animated:YES];
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
 }
 
 
@@ -164,17 +160,22 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
+    scrollView.contentOffset = center;
+    [self renderJane:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [self renderJane:walkingForward];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[super viewWillDisappear:animated];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
+    [defaults setBool:walkingForward forKey:@"walkingForward"];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
