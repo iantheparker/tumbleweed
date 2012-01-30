@@ -8,7 +8,7 @@
 
 #import "SceneController.h"
 
-//#import "CJSONDeserializer.h"
+#import "CJSONDeserializer.h"
 #import "NSDictionary_JSONExtensions.h"
 
 @implementation SceneController
@@ -63,6 +63,7 @@
                                                                 error:&err];
 
     
+
     //NSLog(@"venues %@", venuesDict);
     NSLog(@"venues keys%@", venuesDict.allKeys);
     //NSLog(@"venues values%@", venuesDict.allValues);
@@ -73,9 +74,9 @@
     NSLog(@"value for response key%@", [[venuesDict valueForKey:@"response"] allKeys]);
     //NSLog(@"value for response values%@", [[venuesDict valueForKey:@"response"] allValues]);
 
-
-
-
+    // loop through each venue and add a label to the venue
+    
+    NSLog(@"venues %@", venuesDict);
 }
 
 - (void)viewDidUnload
