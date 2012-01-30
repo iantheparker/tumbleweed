@@ -79,7 +79,9 @@
 
     // loop through each venue and add a label to the venue
     
+    
     //NSLog(@"venues %@", venuesDict);
+    NSLog(@"venues %@", venues);
 }
 
 - (void)viewDidUnload
