@@ -9,6 +9,13 @@
 #import <UIKit/UIKit.h>
 
 @interface SceneController : UIViewController
+{
+    IBOutlet UIScrollView *venueScrollView;
+    IBOutlet UIView *venueView;
+}
+
+@property (nonatomic, retain) UIScrollView *venueScrollView;
+@property (nonatomic, retain) UIView *venueView;
 
 - (IBAction) dismissModal:(id)sender;
 

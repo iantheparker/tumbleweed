@@ -13,6 +13,8 @@
 
 @implementation SceneController
 
+@synthesize venueView, venueScrollView;
+
 //-- Event Handlers
 - (IBAction)dismissModal:(id)sender
 {
@@ -48,6 +50,7 @@
     
     // build the url with query string
     NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&ll=%@",access_token, @"40.759011,-73.9844722"];
+    NSLog(@"hitting %@", urlString);
     
     NSURL *url = [NSURL URLWithString:urlString];
     NSError *err;
@@ -62,39 +65,29 @@
                                                                 error:&err];
 
 
-    
-
-    //NSLog(@"venues %@", venuesDict);
-    //NSLog(@"venues keys%@", venuesDict.allKeys);
-    //NSLog(@"venues values%@", venuesDict.allValues);
-    //NSLog(@"venues total %d", venuesDict.count);
-    //NSLog(@"value for notifcations key%@", [venuesDict valueForKey:@"notifications"]);
-    //NSLog(@"value for meta key%@", [venuesDict valueForKey:@"meta"]);
-    //NSLog(@"value for response key%@", [venuesDict valueForKey:@"response"]);
-    //NSLog(@"value for response key%@", [[venuesDict valueForKey:@"response"] allKeys]);
+    NSLog(@"processing foursquare venues");
     NSDictionary *response = [venuesDict objectForKey:@"response"];
     NSArray *groups = [response objectForKey:@"groups"];
     NSDictionary *group1 = [groups objectAtIndex:0];
     NSArray *items = [group1 objectForKey:@"items"];
+    
+    float scrollWidth = [items count] * 120;
+    CGSize screenSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
+    
+    venueScrollView.contentSize = screenSize;
+    
+    int offset = 0;
     for (int i = 0; i < [items count]; i++) {
         NSDictionary *ven = [items objectAtIndex:i];
         NSString *name = [ven objectForKey:@"name"];
-        NSLog(@"item %d is called %@", i, name);
+        UILabel *venueLabel = [ [UILabel alloc ] initWithFrame:CGRectMake(offset, 0.0, 100.0, 30.0) ];
+        
+        offset += 120;
+        [venueLabel setText:name];
+        [venueView addSubview:venueLabel];
+        // NSLog(@"item %d is called %@", i, name);
     }
-    
-    //NSArray *items = [[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectForKey:@"items"];
-    
-    
-    
-    //NSLog(@"value for response values%@", [[venuesDict valueForKey:@"response"] allValues]);
-    //NSLog(@"response = %d", items.count);
-    
-    NSLog(@"%d", [items count]);
-    
-    // loop through each venue and add a label to the venue
-    
-    //NSLog(@"venues %@", venuesDict);
-    //NSLog(@"venues %@", venues);
+   
 }
 
 - (void)viewDidUnload
