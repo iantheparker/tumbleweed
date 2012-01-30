@@ -29,6 +29,7 @@
 //-- instance methods
 - (void) renderJane: (BOOL) direction;
 - (UIImage *) selectAvatarImage:(float) position;
+- (void) saveAvatarPosition;
 
 //-- event handlers
 - (IBAction) gasStationPressed:(UIButton *)sender;

@@ -47,6 +47,13 @@
     return [sprites objectAtIndex:r];
 }
 
+- (void) saveAvatarPosition
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
+    [defaults setBool:walkingForward forKey:@"walkingForward"];
+    NSLog(@"saving Jane's position");
+}
 
 //-- scrolling handlers
 
@@ -173,9 +180,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[super viewWillDisappear:animated];
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
-    [defaults setBool:walkingForward forKey:@"walkingForward"];
+    [self saveAvatarPosition];
 }
 
 - (void)viewDidDisappear:(BOOL)animated

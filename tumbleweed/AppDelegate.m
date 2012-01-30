@@ -13,7 +13,7 @@
 @implementation AppDelegate
 
 @synthesize window = _window;
-@synthesize viewController = _viewController;
+@synthesize viewController;
 
 /**
   * Catch any exceptions that leak through and report
@@ -51,6 +51,8 @@ void uncaughtExceptionHandler(NSException *exception) {
      Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
      If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
      */
+
+    [viewController saveAvatarPosition];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
