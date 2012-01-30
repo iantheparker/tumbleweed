@@ -72,11 +72,14 @@
     NSLog(@"value for meta key%@", [venuesDict valueForKey:@"meta"]);
     //NSLog(@"value for response key%@", [venuesDict valueForKey:@"response"]);
     NSLog(@"value for response key%@", [[venuesDict valueForKey:@"response"] allKeys]);
+    NSDictionary *response = [[venuesDict valueForKey:@"response"] objectForKey:@"groups"];
     //NSLog(@"value for response values%@", [[venuesDict valueForKey:@"response"] allValues]);
+    NSLog(@"response = %@", response);
+    
 
     // loop through each venue and add a label to the venue
     
-    NSLog(@"venues %@", venuesDict);
+    //NSLog(@"venues %@", venuesDict);
 }
 
 - (void)viewDidUnload
