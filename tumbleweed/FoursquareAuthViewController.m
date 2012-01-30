@@ -76,6 +76,7 @@
         NSLog(@"got access token, closing modal %@", accessToken);
         [self dismissModalViewControllerAnimated:YES];
     } 
+    NSLog(@"no access token, ignoring");
     // [self dismissModalViewControllerAnimated:YES];
 }
 
