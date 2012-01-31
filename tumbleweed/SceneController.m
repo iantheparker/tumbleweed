@@ -13,12 +13,12 @@
 
 @implementation SceneController
 
-@synthesize venueView, venueScrollView, venueDetailNib;
+@synthesize venueView, venueScrollView, venueDetailNib, locationManager;
 
 //-- Event Handlers
 - (IBAction)dismissModal:(id)sender
 {
-    NSLog(@"dismissing modal");
+    //NSLog(@"dismissing modal");
     [self dismissModalViewControllerAnimated:YES];
 }
 
@@ -75,27 +75,31 @@
         
         [venueDetailNib setCenter:nibCenter];
         [venueView addSubview:venueDetailNib];
-        NSLog(@"venue %d is named %@, is at %@, which is %@ miles from you", i, name, address, distance);
+        //NSLog(@"venue %d is named %@, is at %@, which is %@ miles from you", i, name, address, distance);
     }
     
 }
+// Required CoreLocation methods
 
-
-- (void)viewDidLoad
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    NSLog(@"location update is called");
+    [locationManager stopUpdatingLocation];
+    
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
+    float latitude = newLocation.coordinate.latitude;
+    float longitude = newLocation.coordinate.longitude;
+
     
     // build the url with query string
-    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&ll=%@",access_token, @"40.759011,-73.9844722"];
-    NSLog(@"hitting %@", urlString);
+    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&ll=%f,%f",access_token, latitude, longitude];
+    //NSLog(@"hitting %@", urlString);
     
     // fetch the data asyncronously
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSURL *url = [NSURL URLWithString:urlString];
         NSError *err;
-        NSLog(@"the url is %@", url);
+        //NSLog(@"the url is %@", url);
         
         NSString *venues = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&err];
         // parse into dict
@@ -105,9 +109,20 @@
             [self processVenues:venuesDict];
         });
     });
-    
-    
+}
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+    NSLog(@"location errors is called");
 
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    locationManager = [[CLLocationManager alloc] init];
+    [locationManager setDelegate:self];
+    [locationManager startUpdatingLocation];
     
 }
 

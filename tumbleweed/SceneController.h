@@ -7,17 +7,21 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 
-@interface SceneController : UIViewController
+@interface SceneController : UIViewController <CLLocationManagerDelegate>
 {
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueView;
     IBOutlet UIView *venueDetailNib;
+    CLLocationManager *locationManager;
+    
 }
 
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, retain) UIView *venueDetailNib;
+@property (nonatomic, retain) CLLocationManager *locationManager; 
 
 - (IBAction) dismissModal:(id)sender;
 - (void) processVenues: (NSDictionary *) dict;
