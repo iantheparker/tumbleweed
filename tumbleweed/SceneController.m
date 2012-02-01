@@ -13,7 +13,7 @@
 
 @implementation SceneController
 
-@synthesize venueView, venueScrollView, venueDetailNib, locationManager;
+@synthesize venueView, venueScrollView, venueDetailNib, locationManager, categoryId;
 
 //-- Event Handlers
 - (IBAction)dismissModal:(id)sender
@@ -102,11 +102,10 @@
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
     float latitude = newLocation.coordinate.latitude;
     float longitude = newLocation.coordinate.longitude;
-
     
     // build the url with query string
-    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&ll=%f,%f",access_token, latitude, longitude];
-    //NSLog(@"hitting %@", urlString);
+    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&categoryId=%@&ll=%f,%f",access_token, categoryId, latitude, longitude];
+    NSLog(@"hitting %@", urlString);
     
     // fetch the data asyncronously
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -133,6 +132,9 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    NSString *gasStationCategory = @"4bf58dd8d48988d113951735";
+    [self setCategoryId:gasStationCategory];
+    
     locationManager = [[CLLocationManager alloc] init];
     [locationManager setDelegate:self];
     [locationManager startUpdatingLocation];
