@@ -61,11 +61,22 @@
         NSString *name = [ven objectForKey:@"name"];
         NSDictionary *location = [ven objectForKey:@"location"];
         NSString *address = [location objectForKey:@"address"];
-        NSString *distance = [location objectForKey:@"distance"];
-        
+        NSString *distance = [location valueForKey:@"distance"];
+        NSDictionary *herenow = [ven valueForKey:@"hereNow"];
+        NSString *herecount = [herenow valueForKey:@"count"];
+
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
+        UILabel *addressLabel = (UILabel *)[venueDetailNib viewWithTag:2];
+        UILabel *distanceLabel = (UILabel *)[venueDetailNib viewWithTag:3];
+        UILabel *peopleLabel = (UILabel *)[venueDetailNib viewWithTag:4];
+        UIImageView *icon = (UIImageView *) [venueDetailNib viewWithTag:5];
+        
         [nameLabel setText:name];
+        [addressLabel setText:address];
+        //[distanceLabel setText:distance];
+        //[peopleLabel setText:herecount];
+        [icon setImage:[UIImage imageNamed:@"bubble5"]];
         
         float nibwidth = venueDetailNib.frame.size.width;
         float nibheight = venueDetailNib.frame.size.height; 
@@ -75,7 +86,7 @@
         
         [venueDetailNib setCenter:nibCenter];
         [venueView addSubview:venueDetailNib];
-        //NSLog(@"venue %d is named %@, is at %@, which is %@ miles from you", i, name, address, distance);
+        NSLog(@"venue %d is named %@, is at %@, which is %@ meters from you, and there are %@ people there now", i, name, address, distance, herecount);
     }
     
 }
