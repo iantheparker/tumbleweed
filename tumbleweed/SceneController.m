@@ -68,8 +68,10 @@
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
         UILabel *addressLabel = (UILabel *)[venueDetailNib viewWithTag:2];
-        UILabel *distanceLabel = (UILabel *)[venueDetailNib viewWithTag:3];
-        UILabel *peopleLabel = (UILabel *)[venueDetailNib viewWithTag:4];
+        
+        //UILabel *distanceLabel = (UILabel *)[venueDetailNib viewWithTag:3];
+        //UILabel *peopleLabel = (UILabel *)[venueDetailNib viewWithTag:4];
+        
         UIImageView *icon = (UIImageView *) [venueDetailNib viewWithTag:5];
         
         [nameLabel setText:name];
@@ -82,7 +84,7 @@
         float nibheight = venueDetailNib.frame.size.height; 
         int padding = 2;
         offset = (int)(nibwidth + padding) * i; 
-        CGPoint nibCenter = CGPointMake(offset, nibheight/2);
+        CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
         
         [venueDetailNib setCenter:nibCenter];
         [venueView addSubview:venueDetailNib];
