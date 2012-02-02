@@ -14,3 +14,4 @@ build/
 *.mode2v3
 *.xcuserdatad
 *.xcuserstate
+*.xcscheme

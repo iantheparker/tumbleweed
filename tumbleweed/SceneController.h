@@ -15,6 +15,7 @@
     IBOutlet UIView *venueView;
     IBOutlet UIView *venueDetailNib;
     CLLocationManager *locationManager;
+    NSString *categoryId;
     
 }
 
@@ -22,6 +23,7 @@
 @property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
+@property (nonatomic, retain) NSString *categoryId; 
 
 - (IBAction) dismissModal:(id)sender;
 - (void) processVenues: (NSDictionary *) dict;
