@@ -88,7 +88,7 @@
         
         [venueDetailNib setCenter:nibCenter];
         [venueView addSubview:venueDetailNib];
-        NSLog(@"venue %d is named %@, is at %@, which is %@ meters from you, and there are %@ people there now", i, name, address, distance, herecount);
+        // NSLog(@"venue %d is named %@, is at %@, which is %@ meters from you, and there are %@ people there now", i, name, address, distance, herecount);
     }
     
 }

@@ -10,6 +10,8 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
+#import "TestFlight.h"
+
 @implementation AppDelegate
 
 @synthesize window = _window;
@@ -25,7 +27,11 @@ void uncaughtExceptionHandler(NSException *exception) {
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
+    
+    // analytics
     [FlurryAnalytics startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
+    [TestFlight takeOff:@"bb371df0e59558721f4be65bc1cd34b2_NTg5NDgyMDEyLTAyLTAyIDA5OjIyOjM0LjM0Nzk3MQ"];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     
