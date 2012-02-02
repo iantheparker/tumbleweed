@@ -47,13 +47,17 @@
 {
     NSLog(@"checking in to %@", venueId);
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
-    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/checkins/add?oauth_token=%@",access_token];
+    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/checkins/add"];
     NSURL *url = [NSURL URLWithString:urlString];
     ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
+    [request setPostValue:access_token forKey:@"oauth_token"];
     [request setPostValue:venueId forKey:@"venueId"];
-    [request startSynchronous];
-    NSString *response = [request responseString];
-    NSLog(@"res%@", response);
+    //[request startSynchronous];
+    [request setDelegate:self];
+    [request startAsynchronous];
+    NSLog(@"started async request");
+
+    
 }
 
 - (void) processVenues: (NSDictionary *) dict
@@ -79,14 +83,11 @@
         int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
 
 
-
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
         UILabel *addressLabel = (UILabel *)[venueDetailNib viewWithTag:2];
-        
         UILabel *distanceLabel = (UILabel *)[venueDetailNib viewWithTag:3];
         UILabel *peopleLabel = (UILabel *)[venueDetailNib viewWithTag:4];
-        
         UIImageView *icon = (UIImageView *) [venueDetailNib viewWithTag:5];
         
         [nameLabel setText:name];
@@ -143,6 +144,29 @@
 
 }
 
+// end Required CoreLocation methods
+
+
+// Required ASI Asynchronous request methods 
+
+- (void)requestFinished:(ASIHTTPRequest *)request
+{
+    // Use when fetching text data
+    NSString *responseString = [request responseString];
+    NSLog(@"responsestring from 4sq %@", responseString);
+
+    
+}
+
+- (void)requestFailed:(ASIHTTPRequest *)request
+{
+    NSError *error = [request error];
+    NSLog(@"error! %@", error);
+    // Must add graceful network error like a pop-up saying, get internet!
+}
+
+//end Required ASI Asychronous request methods
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -160,6 +184,8 @@
     [locationManager startUpdatingLocation];
     
 }
+
+
 
 - (void)viewDidUnload
 {

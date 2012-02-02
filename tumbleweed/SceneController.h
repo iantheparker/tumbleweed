@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "ASIHTTPRequestDelegate.h"
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate>
 {
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueView;
