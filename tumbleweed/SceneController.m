@@ -11,6 +11,8 @@
 #import "CJSONDeserializer.h"
 #import "NSDictionary_JSONExtensions.h"
 
+#import "ASIFormDataRequest.h"
+
 @implementation SceneController
 
 @synthesize venueView, venueScrollView, venueDetailNib, locationManager, categoryId;
@@ -40,6 +42,19 @@
 }
 
 #pragma mark - View lifecycle
+
+-(void) checkInFoursquare:(NSString *) venueId
+{
+    NSLog(@"checking in to %@", venueId);
+    NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
+    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/checkins/add?oauth_token=%@",access_token];
+    NSURL *url = [NSURL URLWithString:urlString];
+    ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
+    [request setPostValue:venueId forKey:@"venueId"];
+    [request startSynchronous];
+    NSString *response = [request responseString];
+    NSLog(@"res%@", response);
+}
 
 - (void) processVenues: (NSDictionary *) dict
 {
@@ -133,6 +148,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     NSString *gasStationCategory = @"4bf58dd8d48988d113951735";
+   
+    // just testing foursquare checkin code
+    NSString *venueID = @"4871"; // McCarren Park
+    [self checkInFoursquare:venueID];
+    
     [self setCategoryId:gasStationCategory];
     
     locationManager = [[CLLocationManager alloc] init];

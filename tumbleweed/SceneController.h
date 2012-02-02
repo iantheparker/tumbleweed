@@ -27,5 +27,6 @@
 
 - (IBAction) dismissModal:(id)sender;
 - (void) processVenues: (NSDictionary *) dict;
+- (void) checkInFoursquare:(NSString *) venueID;
 
 @end
