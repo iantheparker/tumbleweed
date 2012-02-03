@@ -8,25 +8,37 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "ASIHTTPRequestDelegate.h"
+#import <MediaPlayer/MediaPlayer.h>
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate>
 {
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueView;
     IBOutlet UIView *venueDetailNib;
+    IBOutlet UIScrollView *rewardScrollView;
+    IBOutlet UIView *rewardView;
     CLLocationManager *locationManager;
     NSString *categoryId;
+    MPMoviePlayerViewController *moviePlayer;
     
 }
 
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, retain) UIView *venueDetailNib;
+@property (nonatomic, retain) UIScrollView *rewardScrollView;
+@property (nonatomic, retain) UIView *rewardView;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) NSString *categoryId; 
+@property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
+
 
 - (IBAction) dismissModal:(id)sender;
 - (void) processVenues: (NSDictionary *) dict;
+- (void) processRewards;
 - (void) checkInFoursquare:(NSString *) venueID;
+- (IBAction) checkInPressed:(UIButton *)sender;
+
 
 @end
