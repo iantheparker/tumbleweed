@@ -14,24 +14,24 @@
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate>
 {
     IBOutlet UIScrollView *venueScrollView;
-    IBOutlet UIView *venueView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIScrollView *rewardScrollView;
     IBOutlet UIView *rewardView;
     CLLocationManager *locationManager;
     NSString *categoryId;
     MPMoviePlayerViewController *moviePlayer;
+    NSMutableDictionary *allVenues;
     
 }
 
 @property (nonatomic, retain) UIScrollView *venueScrollView;
-@property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIScrollView *rewardScrollView;
 @property (nonatomic, retain) UIView *rewardView;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) NSString *categoryId; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
+@property (nonatomic, retain) NSMutableDictionary *allVenues;
 
 
 - (IBAction) dismissModal:(id)sender;
