@@ -15,7 +15,7 @@
 
 @implementation SceneController
 
-@synthesize venueView, venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, categoryId, moviePlayer;
+@synthesize venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, categoryId, moviePlayer, allVenues;
 
 //-- Event Handlers
 - (IBAction)dismissModal:(id)sender
@@ -29,6 +29,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        allVenues = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -42,9 +43,11 @@
 }
 
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
-    CGPoint tapPoint = [sender locationInView:sender.view];
-    NSLog(@"view touched %f x %f", tapPoint.x, tapPoint.y);    
-    NSLog(@"object id %d", [sender.view hash]);
+    NSString *viewId = [NSString stringWithFormat:@"%d", [sender.view hash]];    ;
+    NSDictionary *venueDetails = [allVenues objectForKey:viewId];
+    NSString *venueName = [venueDetails objectForKey:@"name"];
+    NSString *venueId = [venueDetails objectForKey:@"id"];
+    NSLog(@"venue name %@ : id %@", venueName, venueId);
 }
 
 #pragma mark - View lifecycle
@@ -83,10 +86,23 @@
     NSDictionary *group1 = [groups objectAtIndex:0];
     NSArray *items = [group1 objectForKey:@"items"];
     
-    float scrollWidth = [items count] * 120;
-    CGSize screenSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
-    venueScrollView.contentSize = screenSize;
-    //[venueView setBounds: CGRectMake(0, 0, screenSize.width, screenSize.height)];
+    [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
+    
+    float nibwidth = venueDetailNib.frame.size.width;
+    float nibheight = venueDetailNib.frame.size.height;
+    int padding = 2;
+    
+    float scrollWidth = (nibwidth + padding) * [items count];
+    CGSize contentSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
+    
+    NSLog(@"screen width %f", scrollWidth);
+    
+    UIView *venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, 800)];
+    
+    [venueScrollView addSubview:venueView];
+    
+    // let the scrollview know how big the content size is
+    venueScrollView.contentSize = contentSize;
     
     int offset = 0;
     for (int i = 0; i < [items count]; i++) {
@@ -95,7 +111,6 @@
         NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
         int distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] intValue];
         int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
-
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
@@ -111,18 +126,21 @@
         [peopleLabel setText:[NSString stringWithFormat:@"%d people here now", hereCount]];
         [icon setImage:[UIImage imageNamed:@"bubble5"]];
         
-        float nibwidth = venueDetailNib.frame.size.width;
-        float nibheight = venueDetailNib.frame.size.height; 
-        int padding = 2;
         offset = (int)(nibwidth + padding) * i; 
         CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
+        [venueDetailNib setCenter:nibCenter];
         
+        // push venue details into a dictionary for future lookup
+        NSString *viewId = [NSString stringWithFormat:@"%d", [venueDetailNib hash]];
+        [allVenues setObject:ven forKey:viewId];
+        
+        // capture events
         UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
         [venueDetailNib addGestureRecognizer:tapHandler];
         
-        [venueDetailNib setCenter:nibCenter];
+        // add it to the content view
         [venueView addSubview:venueDetailNib];
-        // NSLog(@"venue %d is named %@, is at %@, which is %@ meters from you, and there are %@ people there now", i, name, address, distance, herecount);
+
     }
     
 }
@@ -196,11 +214,8 @@
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
-    // Use when fetching text data
-    NSString *responseString = [request responseString];
-    NSLog(@"responsestring from 4sq %@", responseString);
-
-    
+    // TODO use for processing venue data
+    // NSString *responseString = [request responseString];
 }
 
 - (void)requestFailed:(ASIHTTPRequest *)request
