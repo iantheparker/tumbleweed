@@ -41,6 +41,12 @@
     // Release any cached data, images, etc that aren't in use.
 }
 
+- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
+    CGPoint tapPoint = [sender locationInView:sender.view];
+    NSLog(@"view touched %f x %f", tapPoint.x, tapPoint.y);    
+    NSLog(@"object id %d", [sender.view hash]);
+}
+
 #pragma mark - View lifecycle
 
 -(void) checkInFoursquare:(NSString *) venueId
@@ -80,6 +86,7 @@
     float scrollWidth = [items count] * 120;
     CGSize screenSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
     venueScrollView.contentSize = screenSize;
+    //[venueView setBounds: CGRectMake(0, 0, screenSize.width, screenSize.height)];
     
     int offset = 0;
     for (int i = 0; i < [items count]; i++) {
@@ -109,6 +116,9 @@
         int padding = 2;
         offset = (int)(nibwidth + padding) * i; 
         CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
+        
+        UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
+        [venueDetailNib addGestureRecognizer:tapHandler];
         
         [venueDetailNib setCenter:nibCenter];
         [venueView addSubview:venueDetailNib];

@@ -40,5 +40,8 @@
 - (void) checkInFoursquare:(NSString *) venueID;
 - (IBAction) checkInPressed:(UIButton *)sender;
 
+// touch events
+- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;
+
 
 @end
