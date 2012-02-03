@@ -15,7 +15,7 @@
 
 @implementation SceneController
 
-@synthesize venueView, venueScrollView, venueDetailNib, locationManager, categoryId;
+@synthesize venueView, venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, categoryId, moviePlayer;
 
 //-- Event Handlers
 - (IBAction)dismissModal:(id)sender
@@ -52,13 +52,21 @@
     ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
     [request setPostValue:access_token forKey:@"oauth_token"];
     [request setPostValue:venueId forKey:@"venueId"];
-    //[request startSynchronous];
     [request setDelegate:self];
     [request startAsynchronous];
     NSLog(@"started async request");
 
     
 }
+
+-(IBAction)checkInPressed:(UIButton *)sender
+{
+    NSString *moviePath = [[NSBundle mainBundle] pathForResource:@"videoTest1" ofType:@"mp4"];    
+    NSURL *movieURL = [NSURL fileURLWithPath:moviePath];
+    moviePlayer =[[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
+}
+
 
 - (void) processVenues: (NSDictionary *) dict
 {
@@ -71,7 +79,6 @@
     
     float scrollWidth = [items count] * 120;
     CGSize screenSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
-    
     venueScrollView.contentSize = screenSize;
     
     int offset = 0;
@@ -108,6 +115,33 @@
     }
     
 }
+
+- (void) processRewards
+{
+    NSLog(@"processing rewards");
+    int rewardsForScene = 4;
+    float scrollWidth = 1200;
+    CGSize rewardSize = CGSizeMake(scrollWidth, rewardScrollView.contentSize.height);    
+    rewardScrollView.contentSize = rewardSize;
+    int offset = 0;
+    for (int i = 0; i < rewardsForScene; i++) {        
+        NSLog(@"processing rewards for loop");
+        UIImageView *rewardicon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bubble5"]];
+        float nibwidth = 100;
+        float nibheight = 100; 
+        int padding = 2;
+        offset = (int)(nibwidth + padding) * i; 
+        CGPoint rewardCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
+        [rewardicon setFrame:CGRectMake(0, 0, 100, 100)];
+        [rewardicon setCenter:rewardCenter];
+        [rewardView addSubview:rewardicon];
+        
+        
+    }
+
+}
+
+
 // Required CoreLocation methods
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
@@ -171,17 +205,19 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    NSString *gasStationCategory = @"4bf58dd8d48988d113951735";
-   
-    // just testing foursquare checkin code
-    NSString *venueID = @"4871"; // McCarren Park
-    [self checkInFoursquare:venueID];
-    
-    [self setCategoryId:gasStationCategory];
     
     locationManager = [[CLLocationManager alloc] init];
     [locationManager setDelegate:self];
     [locationManager startUpdatingLocation];
+    [self processRewards];
+    // just testing foursquare checkin code
+    NSString *gasStationCategory = @"4bf58dd8d48988d113951735";
+    NSString *venueID = @"4871"; // McCarren Park
+    
+    [self checkInFoursquare:venueID];
+    [self setCategoryId:gasStationCategory];
+
+
     
 }
 
