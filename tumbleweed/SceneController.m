@@ -7,6 +7,7 @@
 //
 
 #import "SceneController.h"
+#import "CheckInController.h"
 
 #import "CJSONDeserializer.h"
 #import "NSDictionary_JSONExtensions.h"
@@ -61,6 +62,7 @@
     [request setDelegate:self];
     [request startAsynchronous];
     NSLog(@"started async request");
+    
 
     
 }
@@ -69,8 +71,10 @@
 {
     NSString *moviePath = [[NSBundle mainBundle] pathForResource:@"videoTest1" ofType:@"mp4"];    
     NSURL *movieURL = [NSURL fileURLWithPath:moviePath];
-    moviePlayer =[[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
-    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
+    //moviePlayer =[[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    //[self presentMoviePlayerViewControllerAnimated:moviePlayer];
+    CheckInController *checkIn = [[CheckInController alloc] init];
+    [self presentModalViewController:checkIn animated:YES];
 }
 
 
