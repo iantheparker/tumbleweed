@@ -81,6 +81,7 @@
 
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
+       
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
         UILabel *addressLabel = (UILabel *)[venueDetailNib viewWithTag:2];
         
