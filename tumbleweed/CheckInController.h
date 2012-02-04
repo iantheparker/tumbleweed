@@ -12,7 +12,12 @@
     IBOutlet UIButton *backButton;
     IBOutlet UIButton *photoButton;
     IBOutlet UILabel *characterCounter;
+    NSDictionary *venueDetails;
+    IBOutlet UILabel *venueNameLabel;
 }
+
+@property (nonatomic, retain) NSDictionary *venueDetails;
+@property (nonatomic, retain) UILabel *venueNameLabel;
 
 - (IBAction)checkIn:(id)sender;
 - (IBAction)dismissModal:(id)sender;

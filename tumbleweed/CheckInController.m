@@ -10,6 +10,8 @@
 
 @implementation CheckInController
 
+@synthesize venueDetails, venueNameLabel;
+
 
 - (IBAction)dismissModal:(id)sender
 {
@@ -46,10 +48,13 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    NSString *venueName = [venueDetails objectForKey:@"name"];
+    [venueNameLabel setText:venueName];
 }
 
 - (void)viewDidUnload
 {
+    venueNameLabel = nil;
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
