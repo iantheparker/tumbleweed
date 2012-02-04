@@ -73,17 +73,6 @@
     
 }
 
--(IBAction)checkInPressed:(UIButton *)sender
-{
-    //NSString *moviePath = [[NSBundle mainBundle] pathForResource:@"videoTest1" ofType:@"mp4"];    
-    //NSURL *movieURL = [NSURL fileURLWithPath:moviePath];
-    //moviePlayer =[[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
-    //[self presentMoviePlayerViewControllerAnimated:moviePlayer];
-    CheckInController *checkIn = [[CheckInController alloc] init];
-    [self presentModalViewController:checkIn animated:YES];
-}
-
-
 - (void) processVenues: (NSDictionary *) dict
 {
         
