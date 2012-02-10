@@ -21,9 +21,33 @@
 
 - (IBAction)checkIn:(id)sender
 {
+    NSLog(@"checkin clicked");
+    ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"]];
+    [request setDelegate:self];
+    [request startAsynchronous];
     [self dismissModalViewControllerAnimated:YES];
 }
 
+// Required ASI Asynchronous request methods 
+
+- (void)requestFinished:(ASIHTTPRequest *)request
+{
+    NSString *responseString = [request responseString];
+    NSError *err;
+    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"checkin"]) {
+        NSLog(@"checkin requestFinished"); 
+        NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        //[self attachPhotoToCheckin:[[[venuesDict objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]];
+        
+    }    
+}
+
+- (void)requestFailed:(ASIHTTPRequest *)request
+{
+    NSError *error = [request error];
+    NSLog(@"error! %@", error);
+    // Must add graceful network error like a pop-up saying, get internet!
+}
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

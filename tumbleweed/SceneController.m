@@ -8,6 +8,7 @@
 
 #import "SceneController.h"
 #import "CheckInController.h"
+#import "Foursquare.h"
 
 #import "CJSONDeserializer.h"
 #import "NSDictionary_JSONExtensions.h"
@@ -16,7 +17,7 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, categoryId, moviePlayer, allVenues;
+@synthesize venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, moviePlayer, allVenues;
 
 //-- Event Handlers
 - (IBAction)dismissModal:(id)sender
@@ -56,31 +57,11 @@
 
 #pragma mark - View lifecycle
 
--(void) checkInFoursquare:(NSString *) venueId
-{
-    NSLog(@"checking in to %@", venueId);
-    NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
-    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/checkins/add"];
-    NSURL *url = [NSURL URLWithString:urlString];
-    ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
-    [request setPostValue:access_token forKey:@"oauth_token"];
-    [request setPostValue:venueId forKey:@"venueId"];
-    [request setDelegate:self];
-    [request startAsynchronous];
-    NSLog(@"started async request");
-    
 
-    
-}
-
-- (void) processVenues: (NSDictionary *) dict
+- (void) processVenues: (NSArray*) items
 {
-        
+    
     NSLog(@"processing foursquare venues");
-    NSDictionary *response = [dict objectForKey:@"response"];
-    NSArray *groups = [response objectForKey:@"groups"];
-    NSDictionary *group1 = [groups objectAtIndex:0];
-    NSArray *items = [group1 objectForKey:@"items"];
     
     [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
     
@@ -120,8 +101,12 @@
         [addressLabel setText:address];
         [distanceLabel setText:[NSString stringWithFormat:@"%d meters", distance]];
         [peopleLabel setText:[NSString stringWithFormat:@"%d people here now", hereCount]];
-        [icon setImage:[UIImage imageNamed:@"bubble5"]];
-        
+
+        //[icon setImage:[UIImage imageNamed:@"bubble5"]];
+        NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
+        NSLog(@"iconpath %@", iconURL);
+        [icon setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]]];
+                        
         offset = (int)(nibwidth + padding) * i; 
         CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
         [venueDetailNib setCenter:nibCenter];
@@ -174,28 +159,13 @@
     NSLog(@"location update is called");
     [locationManager stopUpdatingLocation];
     
-    NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
-    float latitude = newLocation.coordinate.latitude;
-    float longitude = newLocation.coordinate.longitude;
+    NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
+    NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
     
-    // build the url with query string
-    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&categoryId=%@&ll=%f,%f",access_token, categoryId, latitude, longitude];
-    NSLog(@"hitting %@", urlString);
-    
-    // fetch the data asyncronously
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSURL *url = [NSURL URLWithString:urlString];
-        NSError *err;
-        //NSLog(@"the url is %@", url);
-        
-        NSString *venues = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&err];
-        // parse into dict
-        NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:venues error:&err];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self processVenues:venuesDict];
-        });
-    });
+    ASIHTTPRequest *request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:GAS_TRAVEL_catId];
+    [request setDelegate:self];
+    [request startAsynchronous];    
+     
 }
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
@@ -210,8 +180,13 @@
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
-    // TODO use for processing venue data
-    // NSString *responseString = [request responseString];
+    NSString *responseString = [request responseString];
+    NSError *err;
+    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"searchVenues"]) {
+        NSLog(@"searchVenues requestFinished");        
+        NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
+    }    
 }
 
 - (void)requestFailed:(ASIHTTPRequest *)request
@@ -232,17 +207,8 @@
     [locationManager setDelegate:self];
     [locationManager startUpdatingLocation];
     [self processRewards];
-    // just testing foursquare checkin code
-    NSString *gasStationCategory = @"4bf58dd8d48988d113951735";
-    NSString *venueID = @"4871"; // McCarren Park
-    
-    [self checkInFoursquare:venueID];
-    [self setCategoryId:gasStationCategory];
-
-
     
 }
-
 
 
 - (void)viewDidUnload

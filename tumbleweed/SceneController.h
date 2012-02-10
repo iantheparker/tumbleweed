@@ -11,6 +11,7 @@
 #import "ASIHTTPRequestDelegate.h"
 #import <MediaPlayer/MediaPlayer.h>
 
+
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate>
 {
     IBOutlet UIScrollView *venueScrollView;
@@ -18,7 +19,6 @@
     IBOutlet UIScrollView *rewardScrollView;
     IBOutlet UIView *rewardView;
     CLLocationManager *locationManager;
-    NSString *categoryId;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
     
@@ -29,15 +29,13 @@
 @property (nonatomic, retain) UIScrollView *rewardScrollView;
 @property (nonatomic, retain) UIView *rewardView;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
-@property (nonatomic, retain) NSString *categoryId; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
 
 
 - (IBAction) dismissModal:(id)sender;
-- (void) processVenues: (NSDictionary *) dict;
+- (void) processVenues: (NSArray *) items;
 - (void) processRewards;
-- (void) checkInFoursquare:(NSString *) venueID;
 
 // touch events
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;

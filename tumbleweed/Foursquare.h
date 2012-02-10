@@ -7,13 +7,28 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ASIHTTPRequest.h"
+#import "ASIFormDataRequest.h"
 
-@interface Foursquare : NSObject{
+//Foursquare Categories
+
+#define GAS_TRAVEL_catId    @"4bf58dd8d48988d113951735,4d4b7105d754a06379d81259"
+#define DEAL_catId          @"4d4b7105d754a06378d81259"
+#define NIGHTLIFE_catId     @"4d4b7105d754a06376d81259"
+#define OUTDOORS_catId      @"4d4b7105d754a06377d81259"
+
+
+
+@interface Foursquare : NSObject 
+{
     
 }
 
 
--(void) checkInFoursquare:(NSString *) venueId;
++(ASIFormDataRequest*) checkInFoursquare:(NSString *) venueId;
++(ASIHTTPRequest*)searchVenuesNearByLatitude:(NSString*)lat
+						longitude:(NSString*)lon
+                       categoryId:(NSString*)category;
 
 
 @end
