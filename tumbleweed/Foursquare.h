@@ -25,7 +25,8 @@
 }
 
 
-+(ASIFormDataRequest*) checkInFoursquare:(NSString *) venueId;
++(ASIFormDataRequest*) checkInFoursquare:(NSString *) venueId 
+                                shout:(NSString *) shoutText;
 +(ASIHTTPRequest*)searchVenuesNearByLatitude:(NSString*)lat
 						longitude:(NSString*)lon
                        categoryId:(NSString*)category;

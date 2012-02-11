@@ -10,7 +10,7 @@
 
 @implementation CheckInController
 
-@synthesize venueDetails, venueNameLabel;
+@synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView;
 
 
 - (IBAction)dismissModal:(id)sender
@@ -22,7 +22,7 @@
 - (IBAction)checkIn:(id)sender
 {
     NSLog(@"checkin clicked");
-    ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"]];
+    ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"] shout:shoutText];
     [request setDelegate:self];
     [request startAsynchronous];
     [self dismissModalViewControllerAnimated:YES];
@@ -37,7 +37,7 @@
     if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"checkin"]) {
         NSLog(@"checkin requestFinished"); 
         NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        //[self attachPhotoToCheckin:[[[venuesDict objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]];
+        NSLog(@"checkin id %@", [[[checkinResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
         
     }    
 }
@@ -58,6 +58,26 @@
     return self;
 }
 
+// required text field protocol
+
+
+- (BOOL)textView:(UITextView *)txtView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text 
+{    
+    if( [text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location == NSNotFound ) {
+        return YES;
+    }
+    shoutText = shoutTextView.text;
+    NSLog(@"%@", shoutText);
+
+    [txtView resignFirstResponder];
+    return NO;
+}
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    characterCounter.text = [NSString stringWithFormat:@"%d", (140 - shoutTextView.text.length)];    
+}
+
 - (void)didReceiveMemoryWarning
 {
     // Releases the view if it doesn't have a superview.
@@ -74,6 +94,7 @@
     // Do any additional setup after loading the view from its nib.
     NSString *venueName = [venueDetails objectForKey:@"name"];
     [venueNameLabel setText:venueName];
+    //shoutTextView.clearsOnBeginEditing = YES;
 }
 
 - (void)viewDidUnload

@@ -14,6 +14,7 @@
 #import "NSDictionary_JSONExtensions.h"
 
 #import "ASIFormDataRequest.h"
+#import "ASIHTTPRequest.h"
 
 @implementation SceneController
 
@@ -162,7 +163,10 @@
     NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
     NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
     
+    //add logic so that if you haven't moved very far you'll get the most recently requested venues array
+    
     ASIHTTPRequest *request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:GAS_TRAVEL_catId];
+
     [request setDelegate:self];
     [request startAsynchronous];    
      

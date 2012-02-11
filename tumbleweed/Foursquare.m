@@ -12,7 +12,7 @@
 
 @implementation Foursquare
 
-+(ASIFormDataRequest*) checkInFoursquare:(NSString *) venueId
++(ASIFormDataRequest*) checkInFoursquare:(NSString *) venueId shout:(NSString *)shoutText
 {
     NSLog(@"checking in to %@", venueId);
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
@@ -21,6 +21,7 @@
     ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
     [request setPostValue:access_token forKey:@"oauth_token"];
     [request setPostValue:venueId forKey:@"venueId"];
+    [request setPostValue:shoutText forKey:@"shout"];
     request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"checkin", @"operation", nil]; 
     return request;
 
