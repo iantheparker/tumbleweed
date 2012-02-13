@@ -18,7 +18,7 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, moviePlayer, allVenues;
+@synthesize venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, moviePlayer, allVenues, lockedRewards;
 
 //-- Event Handlers
 - (IBAction)dismissModal:(id)sender
@@ -27,12 +27,24 @@
     [self dismissModalViewControllerAnimated:YES];
 }
 
+- (id) initWithCategoryId:(NSString *)category
+{
+    self = [super init];
+    // Did the superclass's designated initializer succeed?
+    if (self) {
+        categoryId = category;
+    }
+    return self;
+}
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
         allVenues = [[NSMutableDictionary alloc] init];
+        lockedRewards = TRUE;
+        NSLog(@"are the rewards locked? %@", lockedRewards ? @"YES": @"NO");
     }
     return self;
 }
@@ -51,21 +63,21 @@
     NSString *venueName = [venueDetails objectForKey:@"name"];
     NSString *venueId = [venueDetails objectForKey:@"id"];
     NSLog(@"venue name %@ : id %@", venueName, venueId);
-    CheckInController *checkIn = [[CheckInController alloc] init];
+    CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     [checkIn setVenueDetails:venueDetails];
     [self presentModalViewController:checkIn animated:YES];
 }
 
-#pragma mark - View lifecycle
 
 
 - (void) processVenues: (NSArray*) items
 {
-    
+    [activityIndicator stopAnimating];
+    [activityIndicator removeFromSuperview];
     NSLog(@"processing foursquare venues");
     
     [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
-    
+
     float nibwidth = venueDetailNib.frame.size.width;
     float nibheight = venueDetailNib.frame.size.height;
     int padding = 2;
@@ -87,7 +99,7 @@
         NSDictionary *ven = [items objectAtIndex:i];
         NSString *name = [ven objectForKey:@"name"];
         NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
-        int distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] intValue];
+        float distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] floatValue] *.00062;
         int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
@@ -100,12 +112,11 @@
         
         [nameLabel setText:name];
         [addressLabel setText:address];
-        [distanceLabel setText:[NSString stringWithFormat:@"%d meters", distance]];
+        [distanceLabel setText:[NSString stringWithFormat:@"%.1f mi", distance]];
         [peopleLabel setText:[NSString stringWithFormat:@"%d people here now", hereCount]];
 
         //[icon setImage:[UIImage imageNamed:@"bubble5"]];
         NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
-        NSLog(@"iconpath %@", iconURL);
         [icon setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]]];
                         
         offset = (int)(nibwidth + padding) * i; 
@@ -131,12 +142,12 @@
 {
     NSLog(@"processing rewards");
     int rewardsForScene = 4;
-    float scrollWidth = 1200;
+    float scrollWidth = 500;
     CGSize rewardSize = CGSizeMake(scrollWidth, rewardScrollView.contentSize.height);    
     rewardScrollView.contentSize = rewardSize;
     int offset = 0;
     for (int i = 0; i < rewardsForScene; i++) {        
-        NSLog(@"processing rewards for loop");
+        //NSLog(@"processing rewards for loop");
         UIImageView *rewardicon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bubble5"]];
         float nibwidth = 100;
         float nibheight = 100; 
@@ -152,8 +163,33 @@
 
 }
 
+- (void) animateRewards
+{
+    [UIView animateWithDuration:1.0 animations:^{
+        venueScrollView.alpha = 0.0;
+        UILabel *venuename = (UILabel *) [self.view viewWithTag:1];
+        [venuename setText:@"you checked in here"];
+        //UIView *rewardsBar = (UIView *) [self.view viewWithTag:3];
+        //[rewardsBar setAlpha:0.0];
+        //[rewardsBar removeFromSuperview];
+        rewardBar.alpha = 0.0;
+        
+    }];
+    [UIView animateWithDuration:1.0
+                          delay:1.0
+                        options: UIViewAnimationCurveEaseOut
+                     animations:^{
+                         CGPoint rewardorigin = CGPointMake(rewardScrollView.center.x, 135);     
+                         rewardScrollView.center = rewardorigin;
+                     } 
+                     completion:^(BOOL finished){
+                         NSLog(@"Done!");
+                     }];
+    
+}
 
-// Required CoreLocation methods
+#pragma mark - Required CoreLocation methods
+
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
@@ -163,10 +199,8 @@
     NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
     NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
     
-    //add logic so that if you haven't moved very far you'll get the most recently requested venues array
-    
-    ASIHTTPRequest *request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:GAS_TRAVEL_catId];
-
+    //add logic so that if you haven't moved very far you'll get the most recently requested venues array    
+    ASIHTTPRequest *request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:categoryId];
     [request setDelegate:self];
     [request startAsynchronous];    
      
@@ -177,10 +211,9 @@
 
 }
 
-// end Required CoreLocation methods
 
+#pragma mark - Required ASIHTTP Asynchronous request methods 
 
-// Required ASI Asynchronous request methods 
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
@@ -200,13 +233,17 @@
     // Must add graceful network error like a pop-up saying, get internet!
 }
 
-//end Required ASI Asychronous request methods
+
+#pragma mark - View lifecycle
+
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
+    [activityIndicator setHidden:NO];
+    [activityIndicator startAnimating];
     locationManager = [[CLLocationManager alloc] init];
     [locationManager setDelegate:self];
     [locationManager startUpdatingLocation];
@@ -214,12 +251,21 @@
     
 }
 
-
 - (void)viewDidUnload
 {
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    NSLog(@"are the rewards locked? %@", lockedRewards ? @"YES": @"NO");
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"unlocked"]){
+        NSLog(@"gas station is unlocked");
+    }
+     
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

@@ -12,7 +12,7 @@
 
 @implementation ViewController
 
-@synthesize scrollView, map, avatar, sprites, gasStationButton, walkingForward;
+@synthesize scrollView, map, avatar, sprites, gasStationButton, foursquareConnectButton, walkingForward;
 
 - (void) initSprites
 {
@@ -93,12 +93,13 @@
     }
     
     // adjust thought bubble position
-    CGPoint buttonOffset = CGPointMake(center.x + 50, center.y - 80);
-    [gasStationButton setCenter:buttonOffset];
+    //CGPoint buttonOffset = CGPointMake(center.x + 50, center.y - 80);
+    //[gasStationButton setCenter:buttonOffset];
     
 }
 
-// event handlers
+#pragma mark button handlers
+
 
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
@@ -109,14 +110,32 @@
 }
 
 
-
 - (IBAction)gasStationPressed:(UIButton *)sender
 {    
-    NSLog(@"pressed");
-    SceneController *sc = [[SceneController alloc] init];
-    [self presentModalViewController:sc animated:YES];
+    //NSLog(@"pressed");
+    SceneController *gasStationScene = [[SceneController alloc] initWithCategoryId:GAS_TRAVEL_catId];
+    [self presentModalViewController:gasStationScene animated:YES];
 }
 
+- (IBAction)dealPressed:(UIButton *)sender
+{
+    //NSLog(@"pressed");
+    SceneController *dealScene = [[SceneController alloc] initWithCategoryId:DEAL_catId];
+    [self presentModalViewController:dealScene animated:YES];
+}
+
+- (IBAction) barPressed:(UIButton *)sender
+{
+    //NSLog(@"pressed");
+    SceneController *barScene = [[SceneController alloc] initWithCategoryId:NIGHTLIFE_catId];
+    [self presentModalViewController:barScene animated:YES];
+}
+
+- (IBAction)riverbedPressed:(UIButton *)sender
+{
+    SceneController *riverbedScene = [[SceneController alloc] initWithCategoryId:OUTDOORS_catId];
+    [self presentModalViewController:riverbedScene animated:YES];
+}
 
 // event handlers
 
@@ -170,6 +189,10 @@
     CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
     scrollView.contentOffset = center;
     [self renderJane:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
+        //NSLog(@"access token exists");
+        foursquareConnectButton.enabled = NO;
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated

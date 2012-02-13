@@ -10,43 +10,19 @@
 
 @implementation CheckInController
 
-@synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView;
+@synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView, sceneControllerId;
 
 
-- (IBAction)dismissModal:(id)sender
+#pragma mark Initializers
+
+- (id) initWithSenderId: (SceneController *) sender
 {
-    //NSLog(@"dismissing modal");
-    [self dismissModalViewControllerAnimated:YES];
-}
-
-- (IBAction)checkIn:(id)sender
-{
-    NSLog(@"checkin clicked");
-    ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"] shout:shoutText];
-    [request setDelegate:self];
-    [request startAsynchronous];
-    [self dismissModalViewControllerAnimated:YES];
-}
-
-// Required ASI Asynchronous request methods 
-
-- (void)requestFinished:(ASIHTTPRequest *)request
-{
-    NSString *responseString = [request responseString];
-    NSError *err;
-    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"checkin"]) {
-        NSLog(@"checkin requestFinished"); 
-        NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        NSLog(@"checkin id %@", [[[checkinResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
-        
-    }    
-}
-
-- (void)requestFailed:(ASIHTTPRequest *)request
-{
-    NSError *error = [request error];
-    NSLog(@"error! %@", error);
-    // Must add graceful network error like a pop-up saying, get internet!
+    self = [super init];
+    // Did the superclass's designated initializer succeed?
+    if (self) {
+        sceneControllerId = sender;
+    }
+    return self;
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -58,7 +34,55 @@
     return self;
 }
 
-// required text field protocol
+#pragma mark Event Handlers
+
+
+- (IBAction)dismissModal:(id)sender
+{
+    //NSLog(@"dismissing modal");
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+- (IBAction)checkIn:(id)sender
+{
+    [activityIndicator setHidden:NO];
+    [activityIndicator startAnimating];
+    ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"] shout:shoutText];
+    [request setDelegate:self];
+    [request startAsynchronous];
+    
+}
+
+#pragma mark ASIHTTPRequest Protocol
+
+- (void)requestFinished:(ASIHTTPRequest *)request
+{
+    NSString *responseString = [request responseString];
+    NSError *err;
+    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"checkin"]) {
+        NSLog(@"checkin requestFinished"); 
+        NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        sceneControllerId.lockedRewards = false;
+        NSLog(@"checkin id %@", [[[checkinResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:checkinResponse forKey:@"unlocked"];
+        [defaults synchronize];
+        [self dismissModalViewControllerAnimated:YES];
+        [sceneControllerId animateRewards];
+        
+    }    
+}
+
+- (void)requestFailed:(ASIHTTPRequest *)request
+{
+    NSError *error = [request error];
+    NSLog(@"error! %@", error);
+    // Must add graceful network error like a pop-up saying, get internet!
+}
+
+
+
+#pragma mark UITextViewDelegate protocol
 
 
 - (BOOL)textView:(UITextView *)txtView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text 
@@ -94,7 +118,6 @@
     // Do any additional setup after loading the view from its nib.
     NSString *venueName = [venueDetails objectForKey:@"name"];
     [venueNameLabel setText:venueName];
-    //shoutTextView.clearsOnBeginEditing = YES;
 }
 
 - (void)viewDidUnload

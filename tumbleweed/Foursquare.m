@@ -22,6 +22,8 @@
     [request setPostValue:access_token forKey:@"oauth_token"];
     [request setPostValue:venueId forKey:@"venueId"];
     [request setPostValue:shoutText forKey:@"shout"];
+    [request setPostValue:@"private" forKey:@"broadcast"];
+    NSLog(@"%@", [NSString stringWithFormat:@"%@?oauth_token=%@&venueId=%@&broadcast=private",urlString, access_token, venueId]);
     request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"checkin", @"operation", nil]; 
     return request;
 
@@ -33,7 +35,8 @@
 {
 	
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
-    NSString *urlString = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search?oauth_token=%@&categoryId=%@&ll=%@,%@&limit=5",access_token, category, lat, lon];
+    NSString *searchVenueURL = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search"];
+    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@&categoryId=%@&ll=%@,%@&limit=5",searchVenueURL, access_token, category, lat, lon];
     NSLog(@"hitting %@", urlString);    
     NSURL *url = [NSURL URLWithString:urlString];
     ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];

@@ -11,6 +11,7 @@
 #import "ASIHTTPRequestDelegate.h"
 #import "ASIFormDataRequest.h"
 #import "NSDictionary_JSONExtensions.h"
+#import "SceneController.h"
 
 
 @interface CheckInController : UIViewController <ASIHTTPRequestDelegate, UITextViewDelegate>{
@@ -21,6 +22,8 @@
     NSDictionary *venueDetails;
     IBOutlet UILabel *venueNameLabel;
     NSString *shoutText;
+    SceneController *sceneControllerId;
+    IBOutlet UIActivityIndicatorView *activityIndicator;
 }
 
 @property (nonatomic, retain) NSDictionary *venueDetails;
@@ -28,9 +31,12 @@
 @property (nonatomic, retain) NSString *shoutText;
 @property (nonatomic, retain) UILabel *characterCounter;
 @property (nonatomic, retain) UITextView *shoutTextView;
+@property (nonatomic, strong) SceneController *sceneControllerId;
 
 - (IBAction)checkIn:(id)sender;
 - (IBAction)dismissModal:(id)sender;
+- (id) initWithSenderId: (SceneController *)sender;
+
 
 
 

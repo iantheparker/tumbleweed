@@ -14,13 +14,17 @@
 
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate>
 {
+    IBOutlet UIView *rewardBar;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIScrollView *rewardScrollView;
     IBOutlet UIView *rewardView;
+    IBOutlet UIActivityIndicatorView *activityIndicator;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
+    BOOL lockedRewards;
+    NSString *categoryId;
     
 }
 
@@ -31,11 +35,16 @@
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
+@property BOOL lockedRewards;
+
+//initializers
+- (id) initWithCategoryId: (NSString *) category;
 
 
 - (IBAction) dismissModal:(id)sender;
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;
+- (void) animateRewards;
 
 // touch events
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;
