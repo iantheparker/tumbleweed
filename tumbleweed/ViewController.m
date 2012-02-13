@@ -161,7 +161,7 @@
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
     [scrollView setDelegate:self];
-    [scrollView addSubview:gasStationButton];
+    //[scrollView addSubview:gasStationButton];
 
 /**
     UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];

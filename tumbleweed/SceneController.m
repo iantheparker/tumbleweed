@@ -10,7 +10,6 @@
 #import "CheckInController.h"
 #import "Foursquare.h"
 
-#import "CJSONDeserializer.h"
 #import "NSDictionary_JSONExtensions.h"
 
 #import "ASIFormDataRequest.h"
@@ -45,6 +44,8 @@
         allVenues = [[NSMutableDictionary alloc] init];
         lockedRewards = TRUE;
         NSLog(@"are the rewards locked? %@", lockedRewards ? @"YES": @"NO");
+        
+        
     }
     return self;
 }
@@ -141,13 +142,16 @@
 - (void) processRewards
 {
     NSLog(@"processing rewards");
-    int rewardsForScene = 4;
+    int rewardsForScene = 1;
     float scrollWidth = 500;
     CGSize rewardSize = CGSizeMake(scrollWidth, rewardScrollView.contentSize.height);    
     rewardScrollView.contentSize = rewardSize;
-    int offset = 0;
+    
+    //int offset = 0;
     for (int i = 0; i < rewardsForScene; i++) {        
         //NSLog(@"processing rewards for loop");
+        /*
+        
         UIImageView *rewardicon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bubble5"]];
         float nibwidth = 100;
         float nibheight = 100; 
@@ -157,6 +161,7 @@
         [rewardicon setFrame:CGRectMake(0, 0, 100, 100)];
         [rewardicon setCenter:rewardCenter];
         [rewardView addSubview:rewardicon];
+         */
         
         
     }
@@ -165,6 +170,17 @@
 
 - (void) animateRewards
 {
+    UIButton *button1 = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    button1.frame = CGRectMake(0.f, 0.f, 50.f, 50.f);
+    [button1 setTitle:@"video 1" 
+             forState:(UIControlState)UIControlStateNormal];
+    [button1 addTarget:self
+                action:@selector(launchVideoPlayer:) 
+      forControlEvents:(UIControlEvents)UIControlEventTouchDown];
+    //[button1 setEnabled:NO];
+    rewardView.userInteractionEnabled = YES; // <--- this has to be set to YES
+    [rewardView addSubview:button1];
+    
     [UIView animateWithDuration:1.0 animations:^{
         venueScrollView.alpha = 0.0;
         UILabel *venuename = (UILabel *) [self.view viewWithTag:1];
@@ -184,8 +200,20 @@
                      } 
                      completion:^(BOOL finished){
                          NSLog(@"Done!");
+                         lockedRewards = FALSE;
                      }];
     
+}
+
+- (void) launchVideoPlayer:(MPMoviePlayerViewController *)mplayer
+{
+    NSString *moviePath = [[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                          ofType:@"mp4"];
+    if (moviePath) {
+        NSURL *movieURL = [NSURL fileURLWithPath:moviePath];
+        moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    }
+    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
 }
 
 #pragma mark - Required CoreLocation methods
@@ -207,7 +235,7 @@
 }
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-    NSLog(@"location errors is called");
+    NSLog(@"location error is called");
 
 }
 

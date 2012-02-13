@@ -42,6 +42,7 @@
 
 
 - (IBAction) dismissModal:(id)sender;
+- (void) launchVideoPlayer: (MPMoviePlayerViewController *) mplayer;
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;
 - (void) animateRewards;
