@@ -11,34 +11,42 @@
 #import "ASIHTTPRequestDelegate.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "Scene.h"
+#import "FoursquareAnnotation.h"
+#import <MapKit/MapKit.h>
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate>
 {
     IBOutlet UIView *rewardBar;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIImageView *movieThumbnailImageView;
     IBOutlet UIActivityIndicatorView *activityIndicator;
+    IBOutlet UIButton *mapButton;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
     Scene *scene;
+    MKMapView *mvFoursquare;
     
 }
 
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
+@property (nonatomic, retain) IBOutlet UIButton *mapButton;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
 @property (nonatomic, retain) Scene *scene;
+@property (nonatomic, retain) IBOutlet MKMapView *mvFoursquare;
+@property (nonatomic, getter = isPinsLoaded) BOOL pinsLoaded;
 
 //initializers
 - (id) initWithScene: (Scene *) scn;
 
 - (IBAction) dismissModal:(id)sender;
+- (IBAction) mapLaunch;
 - (void) launchVideoPlayer;
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;

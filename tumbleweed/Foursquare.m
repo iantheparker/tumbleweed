@@ -36,7 +36,7 @@
 	
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
     NSString *searchVenueURL = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search"];
-    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@&categoryId=%@&ll=%@,%@&limit=5&llAcc=1000",searchVenueURL, access_token, category, lat, lon];
+    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@&categoryId=%@&ll=%@,%@&limit=5&radius=500",searchVenueURL, access_token, category, lat, lon];
     NSLog(@"hitting %@", urlString);    
     NSURL *url = [NSURL URLWithString:urlString];
     ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];

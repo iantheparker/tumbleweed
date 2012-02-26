@@ -17,7 +17,7 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene;
+@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, mapButton;
 
 
 
@@ -26,7 +26,7 @@
     self = [super init];
     // Did the superclass's designated initializer succeed?
     if (self) {
-        scene = scn;        
+        scene = scn;      
     }
     return self;
 }
@@ -51,6 +51,21 @@
     [self dismissModalViewControllerAnimated:YES];
 
 }
+
+- (IBAction) mapLaunch
+{
+    if ([mvFoursquare isHidden]) {
+        [mvFoursquare setHidden:NO];
+        [self.view bringSubviewToFront:mvFoursquare];
+        mapButton.selected = YES;
+    }
+    else {
+        [mvFoursquare setHidden:YES];
+        [mapButton setSelected:NO];
+        
+    }
+}
+
 
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
     NSString *viewId = [NSString stringWithFormat:@"%d", [sender.view hash]];    ;
@@ -90,12 +105,16 @@
     venueScrollView.contentSize = contentSize;
     
     int offset = 0;
+    NSMutableArray *annotations = [[NSMutableArray alloc] init];
     for (int i = 0; i < [items count]; i++) {
         NSDictionary *ven = [items objectAtIndex:i];
         NSString *name = [ven objectForKey:@"name"];
         NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
         float distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] floatValue] *.00062;
         int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
+        CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
+		CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
+        NSLog(@"lat%f, long%f", latitude, longitude);
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
@@ -128,8 +147,22 @@
         
         // add it to the content view
         [venueView addSubview:venueDetailNib];
+        
+        // create and initialise the annotation
+		FoursquareAnnotation *foursquareAnnotation = [[FoursquareAnnotation alloc] init];
+		// create the map region for the coordinate
+		MKCoordinateRegion region = { { latitude , longitude } , { 0.01f , 0.01f } };
+		
+		// set all properties with the necessary details
+		[foursquareAnnotation setCoordinate: region.center];
+		[foursquareAnnotation setTitle: name];
+		[foursquareAnnotation setSubtitle: address];
+		
+		// add the annotation object to the container
+		[annotations addObject: foursquareAnnotation];
 
     }
+    [mvFoursquare addAnnotations: annotations];
     
 }
 
@@ -241,6 +274,25 @@
     // Must add graceful network error like a pop-up saying, get internet!
 }
 
+#pragma mark - Map View Delegate
+- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
+{
+	// didUpdateUserLocation tend to repeat at times
+	// so to not get a duplicated pin(s)
+	if ([self isPinsLoaded])
+	{
+		//return;
+	}
+	
+	[self setPinsLoaded: YES];
+	
+	
+	// set the mapView's region the same as the user's coordinate
+	CLLocationCoordinate2D userCoords = [userLocation coordinate];
+	// with a fixed zoom level with an animation
+	MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.009f , 0.009f } };
+	[mapView setRegion: region animated: YES];
+}
 
 #pragma mark - View lifecycle
 
@@ -256,6 +308,8 @@
     [locationManager setDelegate:self];
     [locationManager startUpdatingLocation];
     [self processRewards];
+
+
     
 }
 
