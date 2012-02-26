@@ -10,6 +10,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "ASIHTTPRequestDelegate.h"
 #import <MediaPlayer/MediaPlayer.h>
+#import "Scene.h"
 
 
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate>
@@ -17,32 +18,28 @@
     IBOutlet UIView *rewardBar;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
-    IBOutlet UIScrollView *rewardScrollView;
-    IBOutlet UIView *rewardView;
+    IBOutlet UIImageView *movieThumbnailImageView;
     IBOutlet UIActivityIndicatorView *activityIndicator;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
-    BOOL lockedRewards;
-    NSString *categoryId;
+    Scene *scene;
     
 }
 
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UIView *venueDetailNib;
-@property (nonatomic, retain) UIScrollView *rewardScrollView;
-@property (nonatomic, retain) UIView *rewardView;
+@property (nonatomic, retain) UIImageView *movieThumbnailImageView;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
-@property BOOL lockedRewards;
+@property (nonatomic, retain) Scene *scene;
 
 //initializers
-- (id) initWithCategoryId: (NSString *) category;
-
+- (id) initWithScene: (Scene *) scn;
 
 - (IBAction) dismissModal:(id)sender;
-- (void) launchVideoPlayer: (MPMoviePlayerViewController *) mplayer;
+- (void) launchVideoPlayer;
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;
 - (void) animateRewards;

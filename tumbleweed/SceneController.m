@@ -17,21 +17,16 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, rewardScrollView, rewardView, locationManager, moviePlayer, allVenues, lockedRewards;
+@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene;
 
-//-- Event Handlers
-- (IBAction)dismissModal:(id)sender
-{
-    //NSLog(@"dismissing modal");
-    [self dismissModalViewControllerAnimated:YES];
-}
 
-- (id) initWithCategoryId:(NSString *)category
+
+- (id) initWithScene:(Scene *) scn
 {
     self = [super init];
     // Did the superclass's designated initializer succeed?
     if (self) {
-        categoryId = category;
+        scene = scn;        
     }
     return self;
 }
@@ -40,22 +35,21 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
+        // assign this to scene.recentSearches when ready
         allVenues = [[NSMutableDictionary alloc] init];
-        lockedRewards = TRUE;
-        NSLog(@"are the rewards locked? %@", lockedRewards ? @"YES": @"NO");
-        
-        
     }
     return self;
 }
 
-- (void)didReceiveMemoryWarning
+
+#pragma mark Event Handlers
+
+
+- (IBAction)dismissModal:(id)sender
 {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
+    //NSLog(@"dismissing modal");
+    [self dismissModalViewControllerAnimated:YES];
+
 }
 
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
@@ -141,53 +135,31 @@
 
 - (void) processRewards
 {
-    NSLog(@"processing rewards");
-    int rewardsForScene = 1;
-    float scrollWidth = 500;
-    CGSize rewardSize = CGSizeMake(scrollWidth, rewardScrollView.contentSize.height);    
-    rewardScrollView.contentSize = rewardSize;
-    
-    //int offset = 0;
-    for (int i = 0; i < rewardsForScene; i++) {        
-        //NSLog(@"processing rewards for loop");
-        /*
-        
-        UIImageView *rewardicon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bubble5"]];
-        float nibwidth = 100;
-        float nibheight = 100; 
-        int padding = 2;
-        offset = (int)(nibwidth + padding) * i; 
-        CGPoint rewardCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
-        [rewardicon setFrame:CGRectMake(0, 0, 100, 100)];
-        [rewardicon setCenter:rewardCenter];
-        [rewardView addSubview:rewardicon];
-         */
-        
-        
-    }
+    //write logic that handles case when it's been unlocked
+    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 235, 447, 251)];
+    [movieThumbnailImageView setImage:scene.movieThumbnail];
+    [self.view addSubview:movieThumbnailImageView];
 
 }
 
 - (void) animateRewards
 {
+    
     UIButton *button1 = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    button1.frame = CGRectMake(0.f, 0.f, 50.f, 50.f);
+    button1.frame = CGRectMake(100.f, 0.f, 50.f, 50.f);
     [button1 setTitle:@"video 1" 
              forState:(UIControlState)UIControlStateNormal];
     [button1 addTarget:self
-                action:@selector(launchVideoPlayer:) 
+                action:@selector(launchVideoPlayer) 
       forControlEvents:(UIControlEvents)UIControlEventTouchDown];
     //[button1 setEnabled:NO];
-    rewardView.userInteractionEnabled = YES; // <--- this has to be set to YES
-    [rewardView addSubview:button1];
+    movieThumbnailImageView.userInteractionEnabled = YES; // <--- this has to be set to YES
+    [movieThumbnailImageView addSubview:button1];
     
     [UIView animateWithDuration:1.0 animations:^{
         venueScrollView.alpha = 0.0;
         UILabel *venuename = (UILabel *) [self.view viewWithTag:1];
         [venuename setText:@"you checked in here"];
-        //UIView *rewardsBar = (UIView *) [self.view viewWithTag:3];
-        //[rewardsBar setAlpha:0.0];
-        //[rewardsBar removeFromSuperview];
         rewardBar.alpha = 0.0;
         
     }];
@@ -195,24 +167,19 @@
                           delay:1.0
                         options: UIViewAnimationCurveEaseOut
                      animations:^{
-                         CGPoint rewardorigin = CGPointMake(rewardScrollView.center.x, 135);     
-                         rewardScrollView.center = rewardorigin;
+                         CGPoint neworigin = CGPointMake(movieThumbnailImageView.center.x, 220);     
+                         movieThumbnailImageView.center = neworigin;
                      } 
                      completion:^(BOOL finished){
                          NSLog(@"Done!");
-                         lockedRewards = FALSE;
+                         scene.unlocked = TRUE;
                      }];
     
 }
 
-- (void) launchVideoPlayer:(MPMoviePlayerViewController *)mplayer
+- (void) launchVideoPlayer
 {
-    NSString *moviePath = [[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                          ofType:@"mp4"];
-    if (moviePath) {
-        NSURL *movieURL = [NSURL fileURLWithPath:moviePath];
-        moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
-    }
+     moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:scene.moviePath];
     [self presentMoviePlayerViewControllerAnimated:moviePlayer];
 }
 
@@ -221,14 +188,26 @@
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
-    NSLog(@"location update is called");
     [locationManager stopUpdatingLocation];
+    
+    // How many seconds ago was this new location created?
+    NSTimeInterval t = [[newLocation timestamp] timeIntervalSinceNow];
+    // CLLocationManagers will return the last found location of the
+    // device first, you don't want that data in this case.
+    // If this location was made more than 2 minutes ago, ignore it.
+
+    NSLog(@"nstimeinterval %f", t);
+    CLLocationDistance meters = [newLocation distanceFromLocation:oldLocation];
+    if (meters < 100 && scene.recentSearchVenueResults) {
+        [self processVenues:[[[[scene.recentSearchVenueResults objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
+        NSLog(@"using recentSearchVenue instead of making a new call");
+        return; 
+    }
     
     NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
     NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
     
-    //add logic so that if you haven't moved very far you'll get the most recently requested venues array    
-    ASIHTTPRequest *request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:categoryId];
+    ASIHTTPRequest *request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
     [request setDelegate:self];
     [request startAsynchronous];    
      
@@ -250,6 +229,7 @@
     if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"searchVenues"]) {
         NSLog(@"searchVenues requestFinished");        
         NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        scene.recentSearchVenueResults = venuesDict;
         [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
     }    
 }
@@ -289,12 +269,21 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    NSLog(@"are the rewards locked? %@", lockedRewards ? @"YES": @"NO");
+    NSLog(@"is the scene unlocked? %@", scene.unlocked ? @"YES": @"NO");
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"unlocked"]){
-        NSLog(@"gas station is unlocked");
+        NSLog(@"%@ is unlocked", scene.name);
     }
      
 }
+
+- (void)didReceiveMemoryWarning
+{
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Release any cached data, images, etc that aren't in use.
+}
+
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {

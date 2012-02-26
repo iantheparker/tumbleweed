@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Scene.h"
 
 // Foursquare category IDs
 #define GAS_TRAVEL_catId    @"4bf58dd8d48988d113951735,4d4b7105d754a06379d81259"
@@ -24,6 +25,15 @@
     IBOutlet UIButton *foursquareConnectButton;
     int lastContentOffset;
     BOOL walkingForward;
+    //Scenes - move to Tumbleweed later
+    Scene *gasStation;
+    Scene *deal;
+    Scene *bar;
+    Scene *riverBed1;
+    Scene *riverBed2;
+    Scene *desertChase;
+    Scene *desertLynch;
+    Scene *campFire;
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
@@ -34,10 +44,12 @@
 @property (nonatomic, retain) UIButton *gasStationButton;
 @property (nonatomic, retain) UIButton *foursquareConnectButton;
 
+
 //-- instance methods
 - (void) renderJane: (BOOL) direction;
 - (UIImage *) selectAvatarImage:(float) position;
 - (void) saveAvatarPosition;
+- (void) initScenes;
 
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;

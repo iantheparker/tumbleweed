@@ -19,6 +19,7 @@
     IBOutlet UIButton *photoButton;
     IBOutlet UILabel *characterCounter;
     IBOutlet UITextView *shoutTextView;
+    IBOutlet UISwitch *publicCheckinSwitch;
     NSDictionary *venueDetails;
     IBOutlet UILabel *venueNameLabel;
     NSString *shoutText;
@@ -32,6 +33,7 @@
 @property (nonatomic, retain) UILabel *characterCounter;
 @property (nonatomic, retain) UITextView *shoutTextView;
 @property (nonatomic, strong) SceneController *sceneControllerId;
+@property (nonatomic, strong) UISwitch *publicCheckinSwitch;
 
 - (IBAction)checkIn:(id)sender;
 - (IBAction)dismissModal:(id)sender;

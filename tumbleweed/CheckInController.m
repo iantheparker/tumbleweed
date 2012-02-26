@@ -10,7 +10,7 @@
 
 @implementation CheckInController
 
-@synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView, sceneControllerId;
+@synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView, sceneControllerId, publicCheckinSwitch;
 
 
 #pragma mark Initializers
@@ -47,6 +47,7 @@
 {
     [activityIndicator setHidden:NO];
     [activityIndicator startAnimating];
+    // add publicSwitch.on to checkin method
     ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"] shout:shoutText];
     [request setDelegate:self];
     [request startAsynchronous];
@@ -60,13 +61,9 @@
     NSString *responseString = [request responseString];
     NSError *err;
     if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"checkin"]) {
-        NSLog(@"checkin requestFinished"); 
         NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        sceneControllerId.lockedRewards = false;
+        sceneControllerId.scene.checkInResponse = checkinResponse;
         NSLog(@"checkin id %@", [[[checkinResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        [defaults setObject:checkinResponse forKey:@"unlocked"];
-        [defaults synchronize];
         [self dismissModalViewControllerAnimated:YES];
         [sceneControllerId animateRewards];
         
@@ -118,6 +115,7 @@
     // Do any additional setup after loading the view from its nib.
     NSString *venueName = [venueDetails objectForKey:@"name"];
     [venueNameLabel setText:venueName];
+    
 }
 
 - (void)viewDidUnload

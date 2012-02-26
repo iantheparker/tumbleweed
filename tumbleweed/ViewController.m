@@ -14,6 +14,88 @@
 
 @synthesize scrollView, map, avatar, sprites, gasStationButton, foursquareConnectButton, walkingForward;
 
+- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        [self initScenes];
+    }
+    return self;
+}
+
+- (void) initScenes
+{
+    //Gas Station
+    gasStation = [[Scene alloc] init];
+    gasStation.name = @"gasStation";
+    gasStation.categoryId = GAS_TRAVEL_catId;
+    gasStation.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                                  ofType:@"mp4"]];
+    gasStation.movieThumbnail = [UIImage imageNamed:@"Gas_Station_thumbnail.jpg"];
+    //gasStation.movieThumbnail = [UIImage imageWithContentsOfFile: [[NSBundle mainBundle] pathForResource:@"Gas_Station_thumbnail" ofType:@"jpg"]];
+    gasStation.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    
+    //Deal Scene
+    deal  = [[Scene alloc] init];
+    deal.name = @"deal";
+    deal.categoryId = DEAL_catId;
+    deal.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                            ofType:@"mp4"]];
+    deal.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
+    deal.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    
+    //Bar Scene
+    bar = [[Scene alloc] init];
+    bar.name = @"bar";
+    bar.categoryId = NIGHTLIFE_catId;
+    bar.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                           ofType:@"mp4"]];
+    bar.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
+    bar.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    
+    //Riverbed Scene 1
+    riverBed1 = [[Scene alloc] init];
+    riverBed1.name = @"river";
+    riverBed1.categoryId = OUTDOORS_catId;
+    riverBed1.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                                 ofType:@"mp4"]];
+    riverBed1.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
+    riverBed1.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    
+    //Riverbed Scene 2
+    riverBed2 = [[Scene alloc] init];
+    riverBed2.name = @"deal";
+    riverBed2.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                                 ofType:@"mp4"]];
+    riverBed2.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
+    riverBed2.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    
+    //Desert Chase
+    desertChase = [[Scene alloc] init];
+    desertChase.name = @"desertChase";
+    desertChase.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                                   ofType:@"mp4"]];
+    desertChase.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
+    desertChase.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    
+    //Desert Lynch
+    desertLynch = [[Scene alloc] init];
+    desertLynch.name = @"desertLynch";
+    desertLynch.categoryId = OUTDOORS_catId;
+    desertLynch.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                                   ofType:@"mp4"]];
+    desertLynch.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
+    desertLynch.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    
+    //Campfire Scene
+    campFire = [[Scene alloc] init];
+    campFire.name = @"deal";
+    campFire.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+                                                                                ofType:@"mp4"]];
+    campFire.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
+    campFire.posterArt = [UIImage imageNamed:@"bubble5.png"];
+}
+
 - (void) initSprites
 {
     if(sprites == nil){
@@ -55,7 +137,7 @@
     NSLog(@"saving Jane's position");
 }
 
-//-- scrolling handlers
+#pragma mark scrollView handlers
 
 - (void)scrollViewDidScroll:(UIScrollView *)sView
 {
@@ -67,7 +149,6 @@
     [self renderJane:walkingForward];
 }
 
-//-- end scrolling handlers
 - (void) renderJane: (BOOL) direction
 {
     double avatar_offset = 200;
@@ -113,38 +194,33 @@
 - (IBAction)gasStationPressed:(UIButton *)sender
 {    
     //NSLog(@"pressed");
-    SceneController *gasStationScene = [[SceneController alloc] initWithCategoryId:GAS_TRAVEL_catId];
+    SceneController *gasStationScene = [[SceneController alloc] initWithScene:gasStation];
     [self presentModalViewController:gasStationScene animated:YES];
 }
 
 - (IBAction)dealPressed:(UIButton *)sender
 {
     //NSLog(@"pressed");
-    SceneController *dealScene = [[SceneController alloc] initWithCategoryId:DEAL_catId];
+    SceneController *dealScene = [[SceneController alloc] initWithScene:deal];
     [self presentModalViewController:dealScene animated:YES];
 }
 
 - (IBAction) barPressed:(UIButton *)sender
 {
     //NSLog(@"pressed");
-    SceneController *barScene = [[SceneController alloc] initWithCategoryId:NIGHTLIFE_catId];
+    SceneController *barScene = [[SceneController alloc] initWithScene:bar];
     [self presentModalViewController:barScene animated:YES];
 }
 
 - (IBAction)riverbedPressed:(UIButton *)sender
 {
-    SceneController *riverbedScene = [[SceneController alloc] initWithCategoryId:OUTDOORS_catId];
+    SceneController *riverbedScene = [[SceneController alloc] initWithScene:riverBed1];
     [self presentModalViewController:riverbedScene animated:YES];
 }
 
-// event handlers
 
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc that aren't in use.
-}
+
 
 #pragma mark - View lifecycle
 
@@ -209,6 +285,12 @@
 - (void)viewDidDisappear:(BOOL)animated
 {
 	[super viewDidDisappear:animated];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Release any cached data, images, etc that aren't in use.
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

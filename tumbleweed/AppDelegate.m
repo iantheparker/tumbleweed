@@ -9,6 +9,7 @@
 #import "FlurryAnalytics.h"
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "Tumbleweed.h"
 
 #import "TestFlight.h"
 
@@ -37,6 +38,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     
     
     self.viewController = [[ViewController alloc]initWithNibName:@"ViewController" bundle:nil];
+    //[[self viewController] init
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
