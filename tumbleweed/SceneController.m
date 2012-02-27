@@ -192,7 +192,7 @@
     [UIView animateWithDuration:1.0 animations:^{
         venueScrollView.alpha = 0.0;
         UILabel *venuename = (UILabel *) [self.view viewWithTag:1];
-        [venuename setText:@"you checked in here"];
+        //[venuename setText:@"you checked in here"];
         rewardBar.alpha = 0.0;
         
     }];
