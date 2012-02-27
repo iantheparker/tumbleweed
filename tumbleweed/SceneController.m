@@ -169,7 +169,7 @@
 - (void) processRewards
 {
     //write logic that handles case when it's been unlocked
-    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 235, 447, 251)];
+    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 215, 447, 251)];
     [movieThumbnailImageView setImage:scene.movieThumbnail];
     [self.view addSubview:movieThumbnailImageView];
 
