@@ -115,6 +115,7 @@
     // Do any additional setup after loading the view from its nib.
     NSString *venueName = [venueDetails objectForKey:@"name"];
     [venueNameLabel setText:venueName];
+    //characterCounter.text = [NSString stringWithFormat:@"%d", (140 - shoutTextView.text.length)]; 
     
 }
 

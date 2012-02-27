@@ -151,7 +151,7 @@
         // create and initialise the annotation
 		FoursquareAnnotation *foursquareAnnotation = [[FoursquareAnnotation alloc] init];
 		// create the map region for the coordinate
-		MKCoordinateRegion region = { { latitude , longitude } , { 0.01f , 0.01f } };
+		MKCoordinateRegion region = { { latitude , longitude } , { 0.001f , 0.001f } };
 		
 		// set all properties with the necessary details
 		[foursquareAnnotation setCoordinate: region.center];
@@ -169,7 +169,7 @@
 - (void) processRewards
 {
     //write logic that handles case when it's been unlocked
-    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 215, 447, 251)];
+    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 220, 447, 251)];
     [movieThumbnailImageView setImage:scene.movieThumbnail];
     [self.view addSubview:movieThumbnailImageView];
 
@@ -233,7 +233,6 @@
     CLLocationDistance meters = [newLocation distanceFromLocation:oldLocation];
     if (meters < 100 && scene.recentSearchVenueResults) {
         [self processVenues:[[[[scene.recentSearchVenueResults objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
-        NSLog(@"using recentSearchVenue instead of making a new call");
         return; 
     }
     
@@ -281,12 +280,10 @@
 	// so to not get a duplicated pin(s)
 	if ([self isPinsLoaded])
 	{
-		//return;
+		return;
 	}
 	
-	[self setPinsLoaded: YES];
-	
-	
+	[self setPinsLoaded: YES];	
 	// set the mapView's region the same as the user's coordinate
 	CLLocationCoordinate2D userCoords = [userLocation coordinate];
 	// with a fixed zoom level with an animation
@@ -308,8 +305,6 @@
     [locationManager setDelegate:self];
     [locationManager startUpdatingLocation];
     [self processRewards];
-
-
     
 }
 
@@ -337,7 +332,6 @@
     
     // Release any cached data, images, etc that aren't in use.
 }
-
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
