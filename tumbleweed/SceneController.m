@@ -127,7 +127,7 @@
         [nameLabel setText:name];
         [addressLabel setText:address];
         [distanceLabel setText:[NSString stringWithFormat:@"%.1f mi", distance]];
-        [peopleLabel setText:[NSString stringWithFormat:@"%d people here now", hereCount]];
+        [peopleLabel setText:[NSString stringWithFormat:@"%d", hereCount]];
 
         //[icon setImage:[UIImage imageNamed:@"bubble5"]];
         NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
