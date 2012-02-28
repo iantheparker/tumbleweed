@@ -186,7 +186,7 @@
 {
     NSLog(@"pressed");
     FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
-    [self presentModalViewController:fsq animated:YES];  
+    [self presentViewController:fsq animated:YES completion:NULL];  
 
 }
 

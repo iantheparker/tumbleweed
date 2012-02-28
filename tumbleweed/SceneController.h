@@ -41,6 +41,8 @@
 @property (nonatomic, retain) Scene *scene;
 @property (nonatomic, retain) IBOutlet MKMapView *mvFoursquare;
 @property (nonatomic, getter = isPinsLoaded) BOOL pinsLoaded;
+@property (nonatomic, retain) MKUserLocation *userCurrentLocation;
+
 
 //initializers
 - (id) initWithScene: (Scene *) scn;

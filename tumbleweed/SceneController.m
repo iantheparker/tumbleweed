@@ -17,7 +17,7 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, mapButton;
+@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, mapButton, userCurrentLocation;
 
 
 
@@ -191,7 +191,7 @@
     
     [UIView animateWithDuration:1.0 animations:^{
         venueScrollView.alpha = 0.0;
-        UILabel *venuename = (UILabel *) [self.view viewWithTag:1];
+        //UILabel *venuename = (UILabel *) [self.view viewWithTag:1];
         //[venuename setText:@"you checked in here"];
         rewardBar.alpha = 0.0;
         
@@ -284,12 +284,68 @@
 	}
 	
 	[self setPinsLoaded: YES];	
+    userCurrentLocation = userLocation;
 	// set the mapView's region the same as the user's coordinate
 	CLLocationCoordinate2D userCoords = [userLocation coordinate];
 	// with a fixed zoom level with an animation
 	MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.009f , 0.009f } };
 	[mapView setRegion: region animated: YES];
 }
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
+    
+    static NSString *identifier = @"MyLocation";
+    if ([annotation isKindOfClass:[FoursquareAnnotation class]]) {
+        
+        MKPinAnnotationView *annotationView = 
+        (MKPinAnnotationView *)[mvFoursquare dequeueReusableAnnotationViewWithIdentifier:identifier];
+        
+        if (annotationView == nil) {
+            annotationView = [[MKPinAnnotationView alloc] 
+                              initWithAnnotation:annotation 
+                              reuseIdentifier:identifier];
+        } else {
+            annotationView.annotation = annotation;
+        }
+        
+        annotationView.enabled = YES;
+        annotationView.canShowCallout = YES;
+        
+        // Create a UIButton object to add on the 
+        UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        [rightButton setTitle:annotation.title forState:UIControlStateNormal];
+        [annotationView setRightCalloutAccessoryView:rightButton];
+        
+        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
+        [leftButton setTitle:annotation.title forState:UIControlStateNormal];
+        //[annotationView setLeftCalloutAccessoryView:leftButton];
+        
+        return annotationView;
+    }
+    
+    return nil; 
+}
+
+- (void)mapView:(MKMapView *)mapView 
+ annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
+    
+    if ([(UIButton*)control buttonType] == UIButtonTypeDetailDisclosure){
+        // Do your thing when the detailDisclosureButton is touched
+        //UIViewController *mapDetailViewController = [[UIViewController alloc] init];
+        //[[self navigationController] pushViewController:mapDetailViewController animated:YES];
+        NSString *formattedAddress = [[NSString stringWithFormat:@"%@",(FoursquareAnnotation*)[view annotation].subtitle] stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+        NSString *routeString = [NSString stringWithFormat:@"http://maps.google.com/maps?saddr=%f,%f&daddr=%@&dirflg=w",userCurrentLocation.coordinate.latitude,userCurrentLocation.coordinate.longitude,formattedAddress];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:routeString]];
+        
+    } else if([(UIButton*)control buttonType] == UIButtonTypeInfoDark) {
+        // Do your thing when the infoDarkButton is touched
+        
+        NSLog(@"infoDarkButton for longitude: %f and latitude: %f and address is %@", 
+              [(FoursquareAnnotation*)[view annotation] coordinate].longitude, 
+              [(FoursquareAnnotation*)[view annotation] coordinate].latitude, (FoursquareAnnotation*)[view annotation].subtitle);
+    }
+}
+
 
 #pragma mark - View lifecycle
 
