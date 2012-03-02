@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface Scene : NSObject{
+@interface Scene : NSObject <NSCoding>{
     
     NSString *name;
     NSString *categoryId;
@@ -33,6 +33,7 @@
 @property (nonatomic, retain) NSDictionary *checkInResponse;
 @property (nonatomic, retain) NSDictionary *recentSearchVenueResults;
 @property (nonatomic, retain) NSDate *date;
+
 
 
 @end

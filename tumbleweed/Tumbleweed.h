@@ -21,8 +21,17 @@
     Scene *desertChase;
     Scene *desertLynch;
     Scene *campFire;
+    NSMutableDictionary *allScenes;
 
 
 }
+
++ (Tumbleweed *) weed;
+- (void) createScenes;
+- (void)fetchScenesIfNecessary;
+- (NSString *)sceneArchivePath;
+- (BOOL)saveChanges;
+- (NSMutableDictionary *) allScenes;
+- (void) sceneSelector;
 
 @end

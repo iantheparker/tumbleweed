@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "Scene.h"
+#import "Tumbleweed.h"
 
 // Foursquare category IDs
 #define GAS_TRAVEL_catId    @"4bf58dd8d48988d113951735,4d4b7105d754a06379d81259"
@@ -34,6 +35,8 @@
     Scene *desertChase;
     Scene *desertLynch;
     Scene *campFire;
+    Tumbleweed *weed;
+    
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;

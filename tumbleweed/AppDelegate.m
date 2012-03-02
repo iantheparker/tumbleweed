@@ -6,12 +6,12 @@
 //  Copyright (c) 2012 AI Capital. All rights reserved.
 //
 
-#import "FlurryAnalytics.h"
 #import "AppDelegate.h"
 #import "ViewController.h"
 #import "Tumbleweed.h"
 
 #import "TestFlight.h"
+#import "FlurryAnalytics.h"
 
 @implementation AppDelegate
 
@@ -61,6 +61,7 @@ void uncaughtExceptionHandler(NSException *exception) {
      */
 
     [viewController saveAvatarPosition];
+    [[Tumbleweed weed] saveChanges];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application

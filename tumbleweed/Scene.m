@@ -23,9 +23,28 @@
     return self;
 }
 
-//need to make an initializer when reading from last save
+- (id) initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super init];
+    if (self) {
+        [self setUnlocked:[aDecoder decodeBoolForKey:@"unlocked"]];
+        [self setWatched:[aDecoder decodeBoolForKey:@"watched"]];
+        [self setCheckInResponse:[aDecoder decodeObjectForKey:@"checkInResponse"]];
+        [self setRecentSearchVenueResults:[aDecoder decodeObjectForKey:@"recentSearchVenueResults"]];
+        date = [aDecoder decodeObjectForKey:@"dateCreated"];
+    }
+    return self;
+}
 
-//write accessors so that anytime unlocked, recentSearch, watched, and checkInResponse are set it also saves/archives to disk
+- (void)encodeWithCoder:(NSCoder *)encoder
+{
+    [encoder encodeBool:unlocked forKey:@"unlocked"];
+    [encoder encodeBool:watched forKey:@"watched"];
+    [encoder encodeObject:checkInResponse forKey:@"checkInResponse"];
+    [encoder encodeObject:recentSearchVenueResults forKey:@"recentSearchVenueResults"];
+    [encoder encodeObject:date forKey:@"dateCreated"];
+
+}
 
 
 @end

@@ -10,9 +10,13 @@
 #import "SceneController.h"
 #import "FoursquareAuthViewController.h"
 
+@interface ViewController ()
+@property (nonatomic, retain) Tumbleweed *weed;
+@end
+
 @implementation ViewController
 
-@synthesize scrollView, map, avatar, sprites, gasStationButton, foursquareConnectButton, walkingForward;
+@synthesize scrollView, map, avatar, sprites, gasStationButton, foursquareConnectButton, walkingForward, weed;
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -94,6 +98,12 @@
                                                                                 ofType:@"mp4"]];
     campFire.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
     campFire.posterArt = [UIImage imageNamed:@"bubble5.png"];
+}
+
+- (Tumbleweed *)weed
+{
+    if (!weed) weed = [[Tumbleweed alloc] init];
+    return weed;
 }
 
 - (void) initSprites

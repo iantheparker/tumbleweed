@@ -47,9 +47,7 @@
 
 - (IBAction)dismissModal:(id)sender
 {
-    //NSLog(@"dismissing modal");
     [self dismissModalViewControllerAnimated:YES];
-
 }
 
 - (IBAction) mapLaunch
@@ -271,9 +269,11 @@
     NSError *error = [request error];
     NSLog(@"error! %@", error);
     // Must add graceful network error like a pop-up saying, get internet!
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
+    [alert show];
 }
 
-#pragma mark - Map View Delegate
+#pragma mark - Map View Delegate methods
 - (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
 	// didUpdateUserLocation tend to repeat at times
