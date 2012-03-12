@@ -10,11 +10,6 @@
 #import "Scene.h"
 #import "Tumbleweed.h"
 
-// Foursquare category IDs
-#define GAS_TRAVEL_catId    @"4bf58dd8d48988d113951735,4d4b7105d754a06379d81259"
-#define DEAL_catId          @"4d4b7105d754a06378d81259"
-#define NIGHTLIFE_catId     @"4d4b7105d754a06376d81259"
-#define OUTDOORS_catId      @"4d4b7105d754a06377d81259"
 
 @interface ViewController : UIViewController <UIScrollViewDelegate>
 {
@@ -26,15 +21,6 @@
     IBOutlet UIButton *foursquareConnectButton;
     int lastContentOffset;
     BOOL walkingForward;
-    //Scenes - move to Tumbleweed later
-    Scene *gasStation;
-    Scene *deal;
-    Scene *bar;
-    Scene *riverBed1;
-    Scene *riverBed2;
-    Scene *desertChase;
-    Scene *desertLynch;
-    Scene *campFire;
     Tumbleweed *weed;
     
 }
@@ -46,13 +32,14 @@
 @property BOOL walkingForward;
 @property (nonatomic, retain) UIButton *gasStationButton;
 @property (nonatomic, retain) UIButton *foursquareConnectButton;
+@property (nonatomic, retain) Tumbleweed *weed;
 
 
 //-- instance methods
 - (void) renderJane: (BOOL) direction;
 - (UIImage *) selectAvatarImage:(float) position;
 - (void) saveAvatarPosition;
-- (void) initScenes;
+//- (void) initScenes;
 
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;

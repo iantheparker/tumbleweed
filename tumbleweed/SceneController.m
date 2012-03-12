@@ -202,7 +202,7 @@
                          movieThumbnailImageView.center = neworigin;
                      } 
                      completion:^(BOOL finished){
-                         NSLog(@"Done!");
+                         NSLog(@"scene image path %@", scene.moviePath);
                          scene.unlocked = TRUE;
                      }];
     
@@ -244,7 +244,7 @@
 }
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-    NSLog(@"location error is called");
+    NSLog(@"location error is called - %@", error);
 
 }
 
@@ -357,10 +357,18 @@
     
     [activityIndicator setHidden:NO];
     [activityIndicator startAnimating];
-    locationManager = [[CLLocationManager alloc] init];
-    [locationManager setDelegate:self];
-    [locationManager startUpdatingLocation];
     [self processRewards];
+    if (!scene.unlocked)
+    {
+        locationManager = [[CLLocationManager alloc] init];
+        [locationManager setDelegate:self];
+        [locationManager startUpdatingLocation];
+    }
+    else
+    {
+        [self animateRewards];
+    }
+    
     
 }
 

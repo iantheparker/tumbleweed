@@ -38,7 +38,6 @@ void uncaughtExceptionHandler(NSException *exception) {
     
     
     self.viewController = [[ViewController alloc]initWithNibName:@"ViewController" bundle:nil];
-    //[[self viewController] init
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
@@ -86,5 +85,7 @@ void uncaughtExceptionHandler(NSException *exception) {
      See also applicationDidEnterBackground:.
      */
 }
+
+
 
 @end

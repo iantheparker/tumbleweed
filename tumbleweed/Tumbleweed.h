@@ -21,17 +21,21 @@
     Scene *desertChase;
     Scene *desertLynch;
     Scene *campFire;
-    NSMutableDictionary *allScenes;
-
+    @private NSMutableDictionary *allScenes;
 
 }
 
+@property (nonatomic, retain) Scene *gasStation;
+@property (nonatomic, retain) Scene *deal;
+@property (nonatomic, retain) Scene *bar;
+@property (nonatomic, retain) Scene *riverBed1;
+@property (nonatomic, retain) Scene *riverBed2;
+@property (nonatomic, retain) Scene *desertChase;
+@property (nonatomic, retain) Scene *desertLynch;
+@property (nonatomic, retain) Scene *campFire;
+
 + (Tumbleweed *) weed;
-- (void) createScenes;
-- (void)fetchScenesIfNecessary;
-- (NSString *)sceneArchivePath;
 - (BOOL)saveChanges;
-- (NSMutableDictionary *) allScenes;
 - (void) sceneSelector;
 
 @end

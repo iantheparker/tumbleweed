@@ -10,9 +10,7 @@
 #import "SceneController.h"
 #import "FoursquareAuthViewController.h"
 
-@interface ViewController ()
-@property (nonatomic, retain) Tumbleweed *weed;
-@end
+
 
 @implementation ViewController
 
@@ -22,88 +20,9 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        [self initScenes];
+        weed = [Tumbleweed weed];
     }
     return self;
-}
-
-- (void) initScenes
-{
-    //Gas Station
-    gasStation = [[Scene alloc] init];
-    gasStation.name = @"gasStation";
-    gasStation.categoryId = GAS_TRAVEL_catId;
-    gasStation.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                  ofType:@"mp4"]];
-    gasStation.movieThumbnail = [UIImage imageNamed:@"Gas_Station_thumbnail.jpg"];
-    //gasStation.movieThumbnail = [UIImage imageWithContentsOfFile: [[NSBundle mainBundle] pathForResource:@"Gas_Station_thumbnail" ofType:@"jpg"]];
-    gasStation.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    
-    //Deal Scene
-    deal  = [[Scene alloc] init];
-    deal.name = @"deal";
-    deal.categoryId = DEAL_catId;
-    deal.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                            ofType:@"mp4"]];
-    deal.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    deal.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    
-    //Bar Scene
-    bar = [[Scene alloc] init];
-    bar.name = @"bar";
-    bar.categoryId = NIGHTLIFE_catId;
-    bar.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                           ofType:@"mp4"]];
-    bar.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    bar.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    
-    //Riverbed Scene 1
-    riverBed1 = [[Scene alloc] init];
-    riverBed1.name = @"river";
-    riverBed1.categoryId = OUTDOORS_catId;
-    riverBed1.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                 ofType:@"mp4"]];
-    riverBed1.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    riverBed1.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    
-    //Riverbed Scene 2
-    riverBed2 = [[Scene alloc] init];
-    riverBed2.name = @"deal";
-    riverBed2.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                 ofType:@"mp4"]];
-    riverBed2.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    riverBed2.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    
-    //Desert Chase
-    desertChase = [[Scene alloc] init];
-    desertChase.name = @"desertChase";
-    desertChase.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                   ofType:@"mp4"]];
-    desertChase.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    desertChase.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    
-    //Desert Lynch
-    desertLynch = [[Scene alloc] init];
-    desertLynch.name = @"desertLynch";
-    desertLynch.categoryId = OUTDOORS_catId;
-    desertLynch.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                   ofType:@"mp4"]];
-    desertLynch.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    desertLynch.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    
-    //Campfire Scene
-    campFire = [[Scene alloc] init];
-    campFire.name = @"deal";
-    campFire.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                ofType:@"mp4"]];
-    campFire.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    campFire.posterArt = [UIImage imageNamed:@"bubble5.png"];
-}
-
-- (Tumbleweed *)weed
-{
-    if (!weed) weed = [[Tumbleweed alloc] init];
-    return weed;
 }
 
 - (void) initSprites
@@ -122,21 +41,13 @@
     
 }
 
-/**
- * x = canvas_width
- * y = frame_size
- * z = image count
- * c = current position
- * r = result (image index out of z)
- */
 -(UIImage *) selectAvatarImage:(float) position
 {
-    int y = 20;
-    //int z = 7;
-    int z = 6;
-    int c = (int) position;
-    int r = (c + (y * z)) % (y * z) / y;
-    return [sprites objectAtIndex:r];
+    int frameSize = 20;
+    int imageCount = 6;
+    int currentPosition = (int) position;
+    int imageIndex = (currentPosition + (frameSize * imageCount)) % (frameSize * imageCount) / frameSize;
+    return [sprites objectAtIndex:imageIndex];
 }
 
 - (void) saveAvatarPosition
@@ -203,28 +114,29 @@
 
 - (IBAction)gasStationPressed:(UIButton *)sender
 {    
-    //NSLog(@"pressed");
-    SceneController *gasStationScene = [[SceneController alloc] initWithScene:gasStation];
+    NSLog(@"gasstation checkin response %@", weed.gasStation.checkInResponse);
+    NSLog(@"is the scene unlocked? %@", weed.gasStation.unlocked ? @"YES": @"NO");
+    SceneController *gasStationScene = [[SceneController alloc] initWithScene:weed.gasStation];
     [self presentModalViewController:gasStationScene animated:YES];
 }
 
 - (IBAction)dealPressed:(UIButton *)sender
 {
     //NSLog(@"pressed");
-    SceneController *dealScene = [[SceneController alloc] initWithScene:deal];
+    SceneController *dealScene = [[SceneController alloc] initWithScene:weed.deal];
     [self presentModalViewController:dealScene animated:YES];
 }
 
 - (IBAction) barPressed:(UIButton *)sender
 {
     //NSLog(@"pressed");
-    SceneController *barScene = [[SceneController alloc] initWithScene:bar];
+    SceneController *barScene = [[SceneController alloc] initWithScene:weed.bar];
     [self presentModalViewController:barScene animated:YES];
 }
 
 - (IBAction)riverbedPressed:(UIButton *)sender
 {
-    SceneController *riverbedScene = [[SceneController alloc] initWithScene:riverBed1];
+    SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.riverBed1];
     [self presentModalViewController:riverbedScene animated:YES];
 }
 
