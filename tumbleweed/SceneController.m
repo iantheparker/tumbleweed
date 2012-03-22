@@ -167,7 +167,7 @@
 - (void) processRewards
 {
     //write logic that handles case when it's been unlocked
-    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 220, 447, 251)];
+    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 220, 447, 200)];
     [movieThumbnailImageView setImage:scene.movieThumbnail];
     [self.view addSubview:movieThumbnailImageView];
 
@@ -189,16 +189,21 @@
     
     [UIView animateWithDuration:1.0 animations:^{
         venueScrollView.alpha = 0.0;
-        //UILabel *venuename = (UILabel *) [self.view viewWithTag:1];
-        //[venuename setText:@"you checked in here"];
-        rewardBar.alpha = 0.0;
+        UILabel *challengeText = (UILabel *) [self.view viewWithTag:-1];
+        [challengeText setText:[NSString stringWithFormat:@"You checked in at %@. Now you can watch the next scene!", [[[[scene.checkInResponse objectForKey:@"response"] objectForKey:@"checkin"] objectForKey:@"venue"] objectForKey:@"name"]]];
+        UILabel *venuename = (UILabel *) [self.view viewWithTag:2];
+        [venuename setText:@"Unlocked"];
+        UILabel *rewardBar = (UILabel *) [self.view viewWithTag:3];
+        [rewardBar setAlpha:0.0];
+        UILabel *rewardText = (UILabel *) [self.view viewWithTag:4];
+        [rewardText setAlpha:0.0];
         
     }];
     [UIView animateWithDuration:1.0
                           delay:1.0
                         options: UIViewAnimationCurveEaseOut
                      animations:^{
-                         CGPoint neworigin = CGPointMake(movieThumbnailImageView.center.x, 220);     
+                         CGPoint neworigin = CGPointMake(movieThumbnailImageView.center.x, 200);     
                          movieThumbnailImageView.center = neworigin;
                      } 
                      completion:^(BOOL finished){

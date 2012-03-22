@@ -11,7 +11,7 @@
 #import "Tumbleweed.h"
 
 
-@interface ViewController : UIViewController <UIScrollViewDelegate>
+@interface TumbleweedViewController : UIViewController <UIScrollViewDelegate>
 {
     IBOutlet UIScrollView *scrollView;
     IBOutlet UIImageView *map;
@@ -48,6 +48,8 @@
 - (IBAction) barPressed:(UIButton *)sender;
 - (IBAction) riverbedPressed:(UIButton *)sender;
 
+//--game state
+- (void) sceneSelector;
 
 
 

@@ -36,6 +36,5 @@
 
 + (Tumbleweed *) weed;
 - (BOOL)saveChanges;
-- (void) sceneSelector;
 
 @end

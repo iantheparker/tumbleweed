@@ -6,13 +6,13 @@
 //  Copyright (c) 2012 AI Capital. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "TumbleweedViewController.h"
 #import "SceneController.h"
 #import "FoursquareAuthViewController.h"
 
 
 
-@implementation ViewController
+@implementation TumbleweedViewController
 
 @synthesize scrollView, map, avatar, sprites, gasStationButton, foursquareConnectButton, walkingForward, weed;
 
@@ -141,7 +141,60 @@
 }
 
 
-
+- (void) sceneSelector
+{
+    /*
+     visible <=> accessible
+     what about tips and push notifications? the relationship between them.
+     "force tip" for the campfire scene
+     button states
+     server notifications
+     enum game state?
+     */
+     
+     
+     /*
+     start state - 
+     gasStation.visible = true; 
+     deal.visible = true; 
+     bar.visible = true;
+     allOtherScenes.visible = false;
+     allOtherScenes.hint = @"You should probably check somewhere else...1, 2, or 3";
+     
+     state 2 -
+     if ( gasStation.unlocked && deal.unlocked && bar.unlocked ) { 
+     riverbed1.visible = true; 
+     riverbed1.button.enabled = true;
+     }
+     
+     state 3 - 
+     if (riverbed1.unlocked = true) {riverbed2.visible = true;}
+     if (riverbed1 == unlocked && [riverbed1.date timeintervalSinceNow] < -3600) {
+     riverbed2.unlocked = true;
+     desertychase.visible = true;
+     }
+     
+     state 4 - 
+     if ( [newLocation distanceFromLocation:riverbed2.location] > 2000) { 
+     desertchase.unlocked = true;
+     desertLynch.visible = true;
+     }
+     
+     state 5 -
+     if (desertLynch.unlocked){
+     campfire.visible = true;
+     }
+     
+     state 6 -
+     if ( desertLynch.watched == true ) {
+     campfire.unlocked = true;
+     }
+     
+     
+     
+     
+     */
+}
 
 
 #pragma mark - View lifecycle
@@ -202,6 +255,7 @@
 {
 	[super viewWillDisappear:animated];
     [self saveAvatarPosition];
+    [self sceneSelector];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
