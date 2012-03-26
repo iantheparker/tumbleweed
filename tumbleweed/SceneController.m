@@ -47,6 +47,7 @@
 
 - (IBAction)dismissModal:(id)sender
 {
+    //[request cancel];
     [self dismissModalViewControllerAnimated:YES];
 }
 
@@ -238,6 +239,8 @@
         [self processVenues:[[[[scene.recentSearchVenueResults objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
         return; 
     }
+    
+    scene.date = [newLocation timestamp];
     
     NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
     NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];

@@ -53,7 +53,7 @@ static Tumbleweed *weed = nil;
     NSLog(@"loading scenes");
     if (!allScenes) {
         allScenes = [NSKeyedUnarchiver unarchiveObjectWithFile:[self sceneArchivePath]];
-        NSLog(@"loading older allscenes, %@", allScenes);
+        //NSLog(@"loading older allscenes, %@", allScenes);
     }
     // If we do have an archive, then set our class Scenes to the old archive
     if (allScenes)
@@ -66,7 +66,7 @@ static Tumbleweed *weed = nil;
         desertChase = [allScenes objectForKey:@"desertChase"];
         desertLynch = [allScenes objectForKey:@"desertLynch"];
         campFire = [allScenes objectForKey:@"campFire"];
-        NSLog(@"allScenes just unarchived%@", allScenes);
+        //NSLog(@"allScenes just unarchived%@", allScenes);
 
         
     }
@@ -101,6 +101,7 @@ static Tumbleweed *weed = nil;
     gasStation.movieThumbnail = [UIImage imageNamed:@"Gas_Station_thumbnail.jpg"];
     //gasStation.movieThumbnail = [UIImage imageWithContentsOfFile: [[NSBundle mainBundle] pathForResource:@"Gas_Station_thumbnail" ofType:@"jpg"]];
     gasStation.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    gasStation.accessible = true;
 
     deal.name = @"deal";
     deal.categoryId = DEAL_catId;
@@ -108,6 +109,7 @@ static Tumbleweed *weed = nil;
                                                                             ofType:@"mp4"]];
     deal.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
     deal.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    deal.accessible = true;
 
     bar.name = @"bar";
     bar.categoryId = NIGHTLIFE_catId;
@@ -115,6 +117,7 @@ static Tumbleweed *weed = nil;
                                                                            ofType:@"mp4"]];
     bar.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
     bar.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    bar.accessible = true;
 
     riverBed1.name = @"riverBed1";
     riverBed1.categoryId = OUTDOORS_catId;

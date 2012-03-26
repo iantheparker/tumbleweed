@@ -14,7 +14,11 @@
 
 @implementation TumbleweedViewController
 
-@synthesize scrollView, map, avatar, sprites, gasStationButton, foursquareConnectButton, walkingForward, weed;
+@synthesize scrollView, map, avatar, sprites, walkingForward, weed, locationManager;
+
+//-- scene buttons
+@synthesize foursquareConnectButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton;
+
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -132,16 +136,73 @@
     //NSLog(@"pressed");
     SceneController *barScene = [[SceneController alloc] initWithScene:weed.bar];
     [self presentModalViewController:barScene animated:YES];
+    NSLog(@"start at %@, scheduled notif2 %@", weed.riverBed1.date, [[UIApplication sharedApplication] scheduledLocalNotifications]);
+
 }
 
-- (IBAction)riverbedPressed:(UIButton *)sender
+- (IBAction)riverbed1Pressed:(UIButton *)sender
 {
-    SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.riverBed1];
-    [self presentModalViewController:riverbedScene animated:YES];
+    if (weed.riverBed1.accessible)
+    {
+        SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.riverBed1];
+        [self presentModalViewController:riverbedScene animated:YES];
+    }
+    else
+    {
+        //pop up hint
+    }
 }
 
+- (IBAction) riverbed2Pressed:(UIButton *)sender
+{
+    if (weed.riverBed2.accessible)
+    {
+        SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.riverBed2];
+        [self presentModalViewController:riverbedScene animated:YES];
+    }
+    else
+    {
+        //pop up hint
+    }
+}
+- (IBAction) desertChasePressed:(UIButton *)sender
+{
+    if (weed.desertChase.accessible)
+    {
+        SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.desertChase];
+        [self presentModalViewController:riverbedScene animated:YES];
+    }
+    else
+    {
+        //pop up hint
+    }
+}
+- (IBAction) desertLynchPressed:(UIButton *)sender
+{
+    if (weed.desertLynch.accessible)
+    {
+        SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.desertLynch];
+        [self presentModalViewController:riverbedScene animated:YES];
+    }
+    else
+    {
+        //pop up hint
+    }
+}
+- (IBAction) campFirePressed:(UIButton *)sender
+{
+    if (weed.campFire.accessible)
+    {
+        SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.campFire];
+        [self presentModalViewController:riverbedScene animated:YES];
+    }
+    else
+    {
+        //pop up hint
+    }
+}
 
-- (void) sceneSelector
+- (void) gameState
 {
     /*
      visible <=> accessible
@@ -150,58 +211,138 @@
      button states
      server notifications
      enum game state?
-     */
-     
-     
-     /*
-     start state - 
-     gasStation.visible = true; 
-     deal.visible = true; 
-     bar.visible = true;
-     allOtherScenes.visible = false;
-     allOtherScenes.hint = @"You should probably check somewhere else...1, 2, or 3";
-     
-     state 2 -
-     if ( gasStation.unlocked && deal.unlocked && bar.unlocked ) { 
-     riverbed1.visible = true; 
-     riverbed1.button.enabled = true;
-     }
-     
-     state 3 - 
-     if (riverbed1.unlocked = true) {riverbed2.visible = true;}
-     if (riverbed1 == unlocked && [riverbed1.date timeintervalSinceNow] < -3600) {
-     riverbed2.unlocked = true;
-     desertychase.visible = true;
-     }
-     
-     state 4 - 
-     if ( [newLocation distanceFromLocation:riverbed2.location] > 2000) { 
-     desertchase.unlocked = true;
-     desertLynch.visible = true;
-     }
-     
-     state 5 -
-     if (desertLynch.unlocked){
-     campfire.visible = true;
-     }
-     
-     state 6 -
-     if ( desertLynch.watched == true ) {
-     campfire.unlocked = true;
-     }
-     
-     
-     
+     //allOtherScenes.visible = false;
+     //allOtherScenes.hint = @"You should probably check somewhere else...1, 2, or 3";
      
      */
+     
+     
+    //start state - 
+    gasStationButton.enabled = weed.gasStation.accessible; 
+    //dealButton.enabled = true; 
+    //barButton.enabled = true;
+    //riverBed1Button.enabled = false; 
+
+     
+    //state 2 -
+    if ( weed.gasStation.unlocked && weed.deal.unlocked && weed.bar.unlocked ) { 
+        weed.riverBed1.accessible = true; 
+    }
+     
+    //state 3 - 
+    if (weed.riverBed1.unlocked) {
+        weed.riverBed2.accessible = true;
+        // turn on region monitoring - ([weed.riverBed1.date timeIntervalSinceNow] < -3600))
+        if (!weed.riverBed2.unlocked && ![[UIApplication sharedApplication] scheduledLocalNotifications])
+        {
+            [self scheduleNotificationWithDate:weed.riverBed1.date intervalTime:10];
+        }
+        if ([[NSUserDefaults standardUserDefaults] stringForKey:@"notification"] && ([weed.riverBed1.date timeIntervalSinceNow] < -10))
+        {
+            weed.riverBed2.unlocked = true;
+        }
+    }
+    if (weed.riverBed2.unlocked)  {
+        weed.desertChase.accessible = true;
+        //turn on region monitoring - ( [newLocation distanceFromLocation:riverbed2.location] > 2000) - then set weed.desertChase.unlocked = true;
+        if  (weed.desertChase.unlocked){ 
+            weed.desertLynch.accessible = true;
+        }
+        else { //state 4 - 
+            [self startSignificantChangeUpdates];
+            //when finishes must unlock desertChase then launch a notification
+        }
+    }
+
+    //state 5 -
+    if (weed.desertLynch.unlocked){
+        weed.campFire.accessible = true;
+        weed.campFire.unlocked = true;
+    }
+    /* 
+    //state 6 -
+    if ( weed.campFire.watched ) {
+        //end--reset game option, dviz printout or end credits?
+    }
+    */ 
+     
+     
+     
 }
 
+- (void)scheduleNotificationWithDate:(NSDate *)date intervalTime:(int) timeinterval{
+   
+    UILocalNotification *localNotif = [[UILocalNotification alloc] init];
+    if (localNotif == nil)
+        return;
+    if (!date) {
+        date = [NSDate date];
+    }
+    localNotif.fireDate = [date dateByAddingTimeInterval:timeinterval];
+    localNotif.timeZone = [NSTimeZone defaultTimeZone];
+    
+    //localNotif.alertBody = [NSString stringWithFormat:NSLocalizedString(@"%@ in %i minutes.", nil), item.eventName, minutesBefore];
+    //localNotif.alertAction = NSLocalizedString(@"View Details", nil);
+    localNotif.alertBody = @"You just unlocked the next scene...";
+    
+    localNotif.soundName = UILocalNotificationDefaultSoundName;
+    //localNotif.applicationIconBadgeNumber = 1;
+    
+    //NSDictionary *infoDict = [NSDictionary dictionaryWithObject:item.eventName forKey:ToDoItemKey];
+    //localNotif.userInfo = infoDict;
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setInteger:timeinterval forKey:@"notification"];
+    [defaults synchronize];
+    
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
+}
+
+#pragma mark - CLLocationManagerDelegate
+
+- (void)startSignificantChangeUpdates
+{
+    // Create the location manager if this object does not
+    // already have one.
+    if (nil == locationManager)
+        locationManager = [[CLLocationManager alloc] init];
+    
+    locationManager.delegate = self;
+    locationManager.distanceFilter = kCLLocationAccuracyThreeKilometers;
+    [locationManager startMonitoringSignificantLocationChanges];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+	NSLog(@"didFailWithError: %@", error);
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+    didUpdateToLocation:(CLLocation *)newLocation
+           fromLocation:(CLLocation *)oldLocation
+{
+    // If it's a relatively recent event, turn off updates to save power
+    NSDate* eventDate = newLocation.timestamp;
+    NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
+    if (abs(howRecent) < 300.0)
+    {
+        NSLog(@"latitude %+.6f, longitude %+.6f\n",
+              newLocation.coordinate.latitude,
+              newLocation.coordinate.longitude);
+        [locationManager stopMonitoringSignificantLocationChanges];
+        weed.desertChase.unlocked = true;
+        // notify the unlocking -- animate the unlocking when back to app
+        [self scheduleNotificationWithDate:weed.riverBed2.date intervalTime:5];
+        
+    }
+    
+   
+}
 
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];  
+    [super viewDidLoad];
     [self initSprites];
     walkingForward = YES;
     
@@ -244,6 +385,8 @@
         //NSLog(@"access token exists");
         foursquareConnectButton.enabled = NO;
     }
+    [self gameState];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -255,7 +398,6 @@
 {
 	[super viewWillDisappear:animated];
     [self saveAvatarPosition];
-    [self sceneSelector];
 }
 
 - (void)viewDidDisappear:(BOOL)animated

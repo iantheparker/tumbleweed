@@ -7,21 +7,32 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 #import "Scene.h"
 #import "Tumbleweed.h"
 
 
-@interface TumbleweedViewController : UIViewController <UIScrollViewDelegate>
+
+@interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, CLLocationManagerDelegate>
 {
+    Tumbleweed *weed;
     IBOutlet UIScrollView *scrollView;
     IBOutlet UIImageView *map;
     IBOutlet UIImageView *avatar;
     NSMutableArray *sprites;
-    IBOutlet UIButton *gasStationButton;
-    IBOutlet UIButton *foursquareConnectButton;
     int lastContentOffset;
     BOOL walkingForward;
-    Tumbleweed *weed;
+    //-- buttons
+    IBOutlet UIButton *foursquareConnectButton;
+    IBOutlet UIButton *gasStationButton;
+    IBOutlet UIButton *dealButton;
+    IBOutlet UIButton *barButton;
+    IBOutlet UIButton *riverBed1Button;
+    IBOutlet UIButton *riverBed2Button;
+    IBOutlet UIButton *desertChaseButton;
+    IBOutlet UIButton *desertLynchButton;
+    IBOutlet UIButton *campFireButton;
+
     
 }
 
@@ -30,26 +41,42 @@
 @property (nonatomic, retain) UIImageView *avatar;
 @property (nonatomic, retain) NSMutableArray *sprites;
 @property BOOL walkingForward;
-@property (nonatomic, retain) UIButton *gasStationButton;
-@property (nonatomic, retain) UIButton *foursquareConnectButton;
 @property (nonatomic, retain) Tumbleweed *weed;
+@property (nonatomic, retain) CLLocationManager *locationManager;
 
+
+//-- buttons
+@property (nonatomic, retain) UIButton *foursquareConnectButton;
+@property (nonatomic, retain) UIButton *gasStationButton;
+@property (nonatomic, retain) UIButton *dealButton;
+@property (nonatomic, retain) UIButton *barButton;
+@property (nonatomic, retain) UIButton *riverBed1Button;
+@property (nonatomic, retain) UIButton *riverBed2Button;
+@property (nonatomic, retain) UIButton *desertChaseButton;
+@property (nonatomic, retain) UIButton *desertLynchButton;
+@property (nonatomic, retain) UIButton *campFireButton;
 
 //-- instance methods
 - (void) renderJane: (BOOL) direction;
 - (UIImage *) selectAvatarImage:(float) position;
 - (void) saveAvatarPosition;
-//- (void) initScenes;
 
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;
 - (IBAction) gasStationPressed:(UIButton *)sender;
 - (IBAction) dealPressed:(UIButton *)sender;
 - (IBAction) barPressed:(UIButton *)sender;
-- (IBAction) riverbedPressed:(UIButton *)sender;
+- (IBAction) riverbed1Pressed:(UIButton *)sender;
+- (IBAction) riverbed2Pressed:(UIButton *)sender;
+- (IBAction) desertChasePressed:(UIButton *)sender;
+- (IBAction) desertLynchPressed:(UIButton *)sender;
+- (IBAction) campFirePressed:(UIButton *)sender;
 
 //--game state
-- (void) sceneSelector;
+- (void) gameState;
+- (void)scheduleNotificationWithDate:(NSDate *)date intervalTime:(int) timeinterval;
+- (void)startSignificantChangeUpdates;
+
 
 
 

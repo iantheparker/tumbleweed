@@ -33,6 +33,15 @@ void uncaughtExceptionHandler(NSException *exception) {
     [FlurryAnalytics startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
     [TestFlight takeOff:@"bb371df0e59558721f4be65bc1cd34b2_NTg5NDgyMDEyLTAyLTAyIDA5OjIyOjM0LjM0Nzk3MQ"];
     
+    //launching from local notification
+    UILocalNotification *localNotif =
+    [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    if (localNotif) {
+        //NSString *notifName = [localNotif.userInfo objectForKey:ToDoItemKey];
+        //[viewController displayItem:notifName];  // custom method
+        application.applicationIconBadgeNumber = localNotif.applicationIconBadgeNumber-1;
+    }
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     
@@ -75,6 +84,11 @@ void uncaughtExceptionHandler(NSException *exception) {
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    NSLog(@"local notification was fired off");
+    //trigger animation of unlocking from here?
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

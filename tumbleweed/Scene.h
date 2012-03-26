@@ -21,8 +21,8 @@
     NSURL *moviePath;        
     UIImage *movieThumbnail;
     UIImage *posterArt;         
-    BOOL unlocked;  //accessible
-    BOOL watched;
+    BOOL unlocked;  
+    BOOL accessible;
     NSDictionary *checkInResponse;
     NSDictionary *recentSearchVenueResults;
     NSDate *date;   //unlockDate
@@ -36,7 +36,7 @@
 @property (nonatomic, retain) UIImage *movieThumbnail;
 @property (nonatomic, retain) UIImage *posterArt;         
 @property (nonatomic) BOOL unlocked;
-@property (nonatomic) BOOL watched;
+@property (nonatomic) BOOL accessible;
 @property (nonatomic, retain) NSDictionary *checkInResponse;
 @property (nonatomic, retain) NSDictionary *recentSearchVenueResults;
 @property (nonatomic, retain) NSDate *date;

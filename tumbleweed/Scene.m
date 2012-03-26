@@ -10,14 +10,14 @@
 
 @implementation Scene
 
-@synthesize name, categoryId, moviePath, movieThumbnail, posterArt, unlocked, watched, checkInResponse, recentSearchVenueResults, date;
+@synthesize name, categoryId, moviePath, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date;
 
 - (id) init
 {
     self = [super init];
     if (self) {
         unlocked = FALSE;
-        watched = FALSE;
+        accessible = FALSE;
     }
     
     return self;
@@ -28,7 +28,7 @@
     self = [super init];
     if (self) {
         [self setUnlocked:[aDecoder decodeBoolForKey:@"unlocked"]];
-        [self setWatched:[aDecoder decodeBoolForKey:@"watched"]];
+        [self setAccessible:[aDecoder decodeBoolForKey:@"accessible"]];
         [self setCheckInResponse:[aDecoder decodeObjectForKey:@"checkInResponse"]];
         [self setRecentSearchVenueResults:[aDecoder decodeObjectForKey:@"recentSearchVenueResults"]];
         date = [aDecoder decodeObjectForKey:@"dateCreated"];
@@ -39,7 +39,7 @@
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeBool:unlocked forKey:@"unlocked"];
-    [encoder encodeBool:watched forKey:@"watched"];
+    [encoder encodeBool:accessible forKey:@"watched"];
     [encoder encodeObject:checkInResponse forKey:@"checkInResponse"];
     [encoder encodeObject:recentSearchVenueResults forKey:@"recentSearchVenueResults"];
     [encoder encodeObject:date forKey:@"dateCreated"];
