@@ -46,7 +46,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     // Override point for customization after application launch.
     
     
-    self.viewController = [[TumbleweedViewController alloc]initWithNibName:@"ViewController" bundle:nil];
+    self.viewController = [[TumbleweedViewController alloc]initWithNibName:@"TumbleweedViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
