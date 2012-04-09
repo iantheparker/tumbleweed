@@ -17,6 +17,7 @@
 {
     Tumbleweed *weed;
     IBOutlet UIScrollView *scrollView;
+    IBOutlet UIImageView *sky;
     IBOutlet UIImageView *map;
     IBOutlet UIImageView *avatar;
     NSMutableArray *sprites;
@@ -37,6 +38,7 @@
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
+@property (nonatomic, retain) UIImageView *sky;
 @property (nonatomic, retain) UIImageView *map;
 @property (nonatomic, retain) UIImageView *avatar;
 @property (nonatomic, retain) NSMutableArray *sprites;

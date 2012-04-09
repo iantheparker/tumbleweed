@@ -53,7 +53,7 @@ static Tumbleweed *weed = nil;
     NSLog(@"loading scenes");
     if (!allScenes) {
         allScenes = [NSKeyedUnarchiver unarchiveObjectWithFile:[self sceneArchivePath]];
-        //NSLog(@"loading older allscenes, %@", allScenes);
+        NSLog(@"loading older allscenes, %@", allScenes);
     }
     // If we do have an archive, then set our class Scenes to the old archive
     if (allScenes)
@@ -66,7 +66,7 @@ static Tumbleweed *weed = nil;
         desertChase = [allScenes objectForKey:@"desertChase"];
         desertLynch = [allScenes objectForKey:@"desertLynch"];
         campFire = [allScenes objectForKey:@"campFire"];
-        //NSLog(@"allScenes just unarchived%@", allScenes);
+        NSLog(@"allScenes just unarchived%@", allScenes);
 
         
     }
@@ -75,6 +75,7 @@ static Tumbleweed *weed = nil;
     {
         [self createScenes];
         allScenes = [[NSMutableDictionary alloc] init];
+        NSLog(@"creating scenes");
     }
     [self setSceneConstants];
 }
@@ -89,6 +90,7 @@ static Tumbleweed *weed = nil;
     desertChase = [[Scene alloc] init];
     desertLynch = [[Scene alloc] init];
     campFire = [[Scene alloc] init];
+
 }
 
 - (void) setSceneConstants

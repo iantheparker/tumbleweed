@@ -14,7 +14,7 @@
 
 @implementation TumbleweedViewController
 
-@synthesize scrollView, map, avatar, sprites, walkingForward, weed, locationManager;
+@synthesize scrollView, sky, map, avatar, sprites, walkingForward, weed, locationManager;
 
 //-- scene buttons
 @synthesize foursquareConnectButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton;
@@ -25,6 +25,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         weed = [Tumbleweed weed];
+
     }
     return self;
 }
@@ -67,11 +68,17 @@
 - (void)scrollViewDidScroll:(UIScrollView *)sView
 {
     if (lastContentOffset > scrollView.contentOffset.x)
+    {
         walkingForward = NO;
+    }
     else if (lastContentOffset < scrollView.contentOffset.x) 
+    {
         walkingForward = YES;    
+    }
     lastContentOffset = scrollView.contentOffset.x;
     [self renderJane:walkingForward];
+    CGPoint skyCenter = CGPointMake([scrollView contentOffset].x, 0);
+    [sky setCenter:skyCenter];
 }
 
 - (void) renderJane: (BOOL) direction
@@ -276,7 +283,7 @@
     if (localNotif == nil)
         return;
     if (!date) {
-        date = [NSDate date];
+        //date = [NSDate date];
     }
     localNotif.fireDate = [date dateByAddingTimeInterval:timeinterval];
     localNotif.timeZone = [NSTimeZone defaultTimeZone];
