@@ -18,7 +18,9 @@
     Tumbleweed *weed;
     IBOutlet UIScrollView *scrollView;
     IBOutlet UIImageView *sky;
-    IBOutlet UIImageView *map;
+    IBOutlet UIImageView *map1;
+    IBOutlet UIImageView *map2;
+    IBOutlet UIImageView *map4;
     IBOutlet UIImageView *avatar;
     NSMutableArray *sprites;
     int lastContentOffset;
@@ -39,7 +41,9 @@
 
 @property (nonatomic, retain) UIScrollView *scrollView;
 @property (nonatomic, retain) UIImageView *sky;
-@property (nonatomic, retain) UIImageView *map;
+@property (nonatomic, retain) UIImageView *map1;
+@property (nonatomic, retain) UIImageView *map2;
+@property (nonatomic, retain) UIImageView *map4;
 @property (nonatomic, retain) UIImageView *avatar;
 @property (nonatomic, retain) NSMutableArray *sprites;
 @property BOOL walkingForward;
@@ -59,7 +63,7 @@
 @property (nonatomic, retain) UIButton *campFireButton;
 
 //-- instance methods
-- (void) renderJane: (BOOL) direction;
+- (void) renderScreen: (BOOL) direction;
 - (UIImage *) selectAvatarImage:(float) position;
 - (void) saveAvatarPosition;
 

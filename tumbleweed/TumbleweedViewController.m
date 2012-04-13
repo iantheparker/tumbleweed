@@ -14,7 +14,7 @@
 
 @implementation TumbleweedViewController
 
-@synthesize scrollView, sky, map, avatar, sprites, walkingForward, weed, locationManager;
+@synthesize scrollView, sky, map1, map2, map4, avatar, sprites, walkingForward, weed, locationManager;
 
 //-- scene buttons
 @synthesize foursquareConnectButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton;
@@ -76,25 +76,22 @@
         walkingForward = YES;    
     }
     lastContentOffset = scrollView.contentOffset.x;
-    [self renderJane:walkingForward];
-    CGPoint skyCenter = CGPointMake([scrollView contentOffset].x, 0);
-    [sky setCenter:skyCenter];
+    [self renderScreen:walkingForward];
 }
 
-- (void) renderJane: (BOOL) direction
+- (void) renderScreen: (BOOL) direction
 {
     double avatar_offset = 200;
 
     UIImage *img = [self selectAvatarImage:[scrollView contentOffset].x];
-    CGRect imageFrame = CGRectMake(0, 0, 150, 200);
-    
+    //CGRect imageFrame = CGRectMake(0, 0, 150, 200);
+    /*
     if(!avatar){
         avatar = [[UIImageView alloc] initWithFrame:imageFrame];
         [scrollView addSubview:avatar];
     }
-    
+    */
     CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
-    
     [avatar setCenter:center];
     
     if (direction) {
@@ -105,9 +102,16 @@
         [avatar setImage:flippedImage];
     }
     
-    // adjust thought bubble position
-    //CGPoint buttonOffset = CGPointMake(center.x + 50, center.y - 80);
-    //[gasStationButton setCenter:buttonOffset];
+    //-sky position
+    CGPoint mapCenter = [map1 center];
+    float skyCoefficient = .99;
+    float janeOffset = mapCenter.x - [scrollView contentOffset].x;
+    CGPoint skyCenter = CGPointMake(mapCenter.x - (janeOffset * skyCoefficient), [sky center].y);
+    //CGPoint map4Center = CGPointMake([map4 center].x -(janeOffset *.01), [map4 center].y);
+    //NSLog(@"map1 center %f, map4 center %f", mapCenter.x, [map4 center].x);
+    [sky setCenter:skyCenter];
+    //[map4 setCenter:map4Center];
+    
     
 }
 
@@ -387,7 +391,7 @@
     [super viewWillAppear:animated];
     CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
     scrollView.contentOffset = center;
-    [self renderJane:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
+    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         //NSLog(@"access token exists");
         foursquareConnectButton.enabled = NO;
