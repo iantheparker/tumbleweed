@@ -98,7 +98,7 @@ static Tumbleweed *weed = nil;
 
     gasStation.name = @"gasStation";
     gasStation.categoryId = GAS_TRAVEL_catId;
-    gasStation.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
+    gasStation.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"gasStation"
                                                                                   ofType:@"mp4"]];
     gasStation.movieThumbnail = [UIImage imageNamed:@"Gas_Station_thumbnail.jpg"];
     //gasStation.movieThumbnail = [UIImage imageWithContentsOfFile: [[NSBundle mainBundle] pathForResource:@"Gas_Station_thumbnail" ofType:@"jpg"]];
