@@ -14,7 +14,7 @@
 
 @implementation TumbleweedViewController
 
-@synthesize scrollView, sky, map1, map2, map4, avatar, sprites, walkingForward, weed, locationManager;
+@synthesize scrollView, map0CA, map1CA, map2CA, mapCAView, sky, map1, map2, map4, avatar, sprites, walkingForward, weed, locationManager;
 
 //-- scene buttons
 @synthesize foursquareConnectButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton;
@@ -25,6 +25,10 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         weed = [Tumbleweed weed];
+        map0CA = [[CALayer alloc] init];
+        map1CA = [[CALayer alloc] init];
+        map2CA = [[CALayer alloc] init];
+   
 
     }
     return self;
@@ -102,15 +106,26 @@
         [avatar setImage:flippedImage];
     }
     
+    /*
     //-sky position
     CGPoint mapCenter = [map1 center];
     float skyCoefficient = .99;
     float janeOffset = mapCenter.x - [scrollView contentOffset].x;
     CGPoint skyCenter = CGPointMake(mapCenter.x - (janeOffset * skyCoefficient), [sky center].y);
     //CGPoint map4Center = CGPointMake([map4 center].x -(janeOffset *.01), [map4 center].y);
-    //NSLog(@"map1 center %f, map4 center %f", mapCenter.x, [map4 center].x);
+    //NSLog(@"janeoffset center %f, sky center %f", janeOffset, skyCenter.x);
     [sky setCenter:skyCenter];
     //[map4 setCenter:map4Center];
+    
+    */
+    CGPoint mapCenter = CGPointMake([map1CA bounds].size.width/2.0, [map1CA bounds].size.height/2.0);
+    float skyCoefficient = .99;
+    float janeOffset = mapCenter.x - [scrollView contentOffset].x;
+    CGPoint skyCenter = CGPointMake(mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
+    [map0CA setPosition:skyCenter];
+    //NSLog(@"map1 center %f, map1 center %f map bounds center %f", mapCenter.x, [map1 center].x, [map1CA bounds].size.width/2.0);
+
+    NSLog(@"janeoffset center %f, sky center %f skyPosition %f", janeOffset, skyCenter.x, map0CA.position.x);
     
     
 }
@@ -355,7 +370,7 @@
 {
     [super viewDidLoad];
     [self initSprites];
-    walkingForward = YES;
+    //walkingForward = YES;
     
     CGSize screenSize = CGSizeMake(5782, 320.0);
     scrollView.contentSize = screenSize;
@@ -364,7 +379,33 @@
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
     [scrollView setDelegate:self];
-    //[scrollView addSubview:gasStationButton];
+    
+    CGRect mapFrame = CGRectMake(0, 0, screenSize.width, screenSize.height);
+    CGRect skyFrame = CGRectMake(0, 0, 1507, screenSize.height);
+    
+    [map0CA setBounds:skyFrame];
+    [map0CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
+    CGImageRef map0Image = [[UIImage imageNamed:@"gdw_parallax_cropped_layer=sky.jpg"] CGImage];
+    [map0CA setContents:(__bridge id)map0Image];
+    [map0CA setZPosition:-5];
+    [mapCAView.layer addSublayer:map0CA];
+    
+    [map1CA setBounds:mapFrame];
+    [map1CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
+    CGImageRef map1Image = [[UIImage imageNamed:@"map1.png"] CGImage];
+    [map1CA setContents:(__bridge id)map1Image];
+    [map1CA setZPosition:0];
+    [mapCAView.layer addSublayer:map1CA];
+    
+    [map2CA setBounds:mapFrame];
+    [map2CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
+    //[map2CA setContentsGravity:kCAGravityResizeAspect];
+    CGImageRef map2Image = [[UIImage imageNamed:@"map2.png"] CGImage];
+    [map2CA setContents:(__bridge id)map2Image];
+    [map2CA setZPosition:5];
+    [mapCAView.layer addSublayer:map2CA];
+    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
+
 
 /**
     UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];
@@ -391,7 +432,7 @@
     [super viewWillAppear:animated];
     CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
     scrollView.contentOffset = center;
-    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
+    //[self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         //NSLog(@"access token exists");
         foursquareConnectButton.enabled = NO;

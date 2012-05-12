@@ -10,12 +10,17 @@
 #import <CoreLocation/CoreLocation.h>
 #import "Scene.h"
 #import "Tumbleweed.h"
+#import <QuartzCore/QuartzCore.h>
 
 
 
 @interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, CLLocationManagerDelegate>
 {
     Tumbleweed *weed;
+    CALayer *map0CA;
+    CALayer *map1CA;
+    CALayer *map2CA;
+    IBOutlet UIView *mapCAView;
     IBOutlet UIScrollView *scrollView;
     IBOutlet UIImageView *sky;
     IBOutlet UIImageView *map1;
@@ -40,6 +45,10 @@
 }
 
 @property (nonatomic, retain) UIScrollView *scrollView;
+@property (nonatomic, retain) CALayer *map0CA;
+@property (nonatomic, retain) CALayer *map1CA;
+@property (nonatomic, retain) CALayer *map2CA;
+@property (nonatomic, retain) UIView *mapCAView;
 @property (nonatomic, retain) UIImageView *sky;
 @property (nonatomic, retain) UIImageView *map1;
 @property (nonatomic, retain) UIImageView *map2;
