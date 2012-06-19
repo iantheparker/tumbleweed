@@ -106,18 +106,20 @@
         [avatar setImage:flippedImage];
     }
     
-    /*
-    //-sky position
-    CGPoint mapCenter = [map1 center];
-    float skyCoefficient = .99;
-    float janeOffset = mapCenter.x - [scrollView contentOffset].x;
-    CGPoint skyCenter = CGPointMake(mapCenter.x - (janeOffset * skyCoefficient), [sky center].y);
+    
+    //-sky position- UIImageView
+    CGPoint mapCenterui = [map1 center];
+    float skyCoefficientui = .99;
+    float janeOffsetui = mapCenterui.x - [scrollView contentOffset].x;
+    
+    CGPoint skyCenterui = CGPointMake(mapCenterui.x - (janeOffsetui * skyCoefficientui), [sky center].y);
     //CGPoint map4Center = CGPointMake([map4 center].x -(janeOffset *.01), [map4 center].y);
     //NSLog(@"janeoffset center %f, sky center %f", janeOffset, skyCenter.x);
-    [sky setCenter:skyCenter];
+    [sky setCenter:skyCenterui];
     //[map4 setCenter:map4Center];
     
-    */
+    
+    //-sky position- CALayer
     CGPoint mapCenter = CGPointMake([map1CA bounds].size.width/2.0, [map1CA bounds].size.height/2.0);
     float skyCoefficient = .99;
     float janeOffset = mapCenter.x - [scrollView contentOffset].x;
@@ -125,7 +127,7 @@
     [map0CA setPosition:skyCenter];
     //NSLog(@"map1 center %f, map1 center %f map bounds center %f", mapCenter.x, [map1 center].x, [map1CA bounds].size.width/2.0);
 
-    NSLog(@"janeoffset center %f, sky center %f skyPosition %f", janeOffset, skyCenter.x, map0CA.position.x);
+    NSLog(@"janeoffsetUI %f, janeoffset center %f, sky centerui %f skyPosition %f", janeOffsetui, janeOffset, skyCenterui.x, map0CA.position.x);
     
     
 }
