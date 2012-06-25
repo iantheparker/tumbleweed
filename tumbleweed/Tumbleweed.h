@@ -8,6 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import "Scene.h"
+#import "ASIHTTPRequestDelegate.h"
+#import "ASIFormDataRequest.h"
+#import "ASIHTTPRequest.h"
+#import "Foursquare.h"
+#import "NSDictionary_JSONExtensions.h"
+
 
 
 //this tracks the path and progress of the user
@@ -36,5 +42,7 @@
 
 + (Tumbleweed *) weed;
 - (BOOL)saveChanges;
+- (void) registerUser;
+- (void) postToServer;
 
 @end

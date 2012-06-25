@@ -46,7 +46,18 @@
 
 }
 
++(ASIHTTPRequest*) getUserId
+{
+    NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
+    NSString *getUserURL = [NSString stringWithFormat:@"https://api.foursquare.com/v2/users/self"];
+    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@",getUserURL, access_token];
+    NSURL *url = [NSURL URLWithString:urlString];
+    ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+    NSLog(@"userid request url %@",urlString);
+    request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"user_id", @"operation", nil]; 
+    return request; 
 
+}
     
 
 

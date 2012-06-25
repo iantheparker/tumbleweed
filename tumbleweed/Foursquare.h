@@ -22,6 +22,6 @@
 +(ASIHTTPRequest*)searchVenuesNearByLatitude:(NSString*)lat
 						longitude:(NSString*)lon
                        categoryId:(NSString*)category;
-
++(ASIHTTPRequest*) getUserId;
 
 @end

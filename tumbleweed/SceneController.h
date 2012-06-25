@@ -15,13 +15,13 @@
 #import <MapKit/MapKit.h>
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate, UIScrollViewDelegate>
 {
+    IBOutlet UIScrollView *scrollView;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIImageView *movieThumbnailImageView;
     IBOutlet UIActivityIndicatorView *activityIndicator;
-    IBOutlet UIButton *mapButton;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
@@ -33,7 +33,6 @@
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
-@property (nonatomic, retain) IBOutlet UIButton *mapButton;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;

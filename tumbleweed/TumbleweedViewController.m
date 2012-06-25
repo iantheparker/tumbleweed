@@ -80,22 +80,45 @@
         walkingForward = YES;    
     }
     lastContentOffset = scrollView.contentOffset.x;
-    [self renderScreen:walkingForward];
+    [self renderScreen:walkingForward:TRUE];
 }
 
-- (void) renderScreen: (BOOL) direction
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)sView
+{
+    [self renderScreen:walkingForward:FALSE];
+}
+
+- (void) renderScreen: (BOOL) direction :(BOOL) moving
 {
     double avatar_offset = 200;
-
-    UIImage *img = [self selectAvatarImage:[scrollView contentOffset].x];
-    //CGRect imageFrame = CGRectMake(0, 0, 150, 200);
+    double janeLeftBound = 372;
+    double janeRightBound = 5332;
+    CGPoint center;
+    UIImage *img;
+    
     /*
+    CGRect imageFrame = CGRectMake(0, 0, 150, 200);
     if(!avatar){
         avatar = [[UIImageView alloc] initWithFrame:imageFrame];
         [scrollView addSubview:avatar];
     }
     */
-    CGPoint center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
+    //NSLog(@"%@", [scrollView contentOffset].x <janeLeftBound - avatar_offset ? @"YES" : @"NO");
+    //NSLog(@"center %f", center.x);
+
+
+    if ([scrollView contentOffset].x <janeLeftBound - avatar_offset || [scrollView contentOffset].x >janeRightBound - avatar_offset || !moving)
+    {
+        img = [UIImage imageNamed:@"JANE_walkcycle0.png"];
+        if (avatar.center.x <= janeLeftBound) center = CGPointMake(janeLeftBound, avatar_offset);
+        else if (avatar.center.x >= janeRightBound) center = CGPointMake(janeRightBound, avatar_offset);
+        else center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
+    }
+    else {
+        center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
+        img = [self selectAvatarImage:[scrollView contentOffset].x];
+        NSLog(@"else");
+    }
     [avatar setCenter:center];
     
     if (direction) {
@@ -127,7 +150,7 @@
     [map0CA setPosition:skyCenter];
     //NSLog(@"map1 center %f, map1 center %f map bounds center %f", mapCenter.x, [map1 center].x, [map1CA bounds].size.width/2.0);
 
-    NSLog(@"janeoffsetUI %f, janeoffset center %f, sky centerui %f skyPosition %f", janeOffsetui, janeOffset, skyCenterui.x, map0CA.position.x);
+    //NSLog(@"janeoffsetUI %f, janeoffset center %f, sky centerui %f skyPosition %f", janeOffsetui, janeOffset, skyCenterui.x, map0CA.position.x);
     
     
 }
@@ -139,6 +162,7 @@
 {
     NSLog(@"pressed");
     FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
+    [fsq setModalTransitionStyle:UIModalTransitionStylePartialCurl];
     [self presentViewController:fsq animated:YES completion:NULL];  
 
 }
@@ -149,6 +173,7 @@
     NSLog(@"gasstation checkin response %@", weed.gasStation.checkInResponse);
     NSLog(@"is the scene unlocked? %@", weed.gasStation.unlocked ? @"YES": @"NO");
     SceneController *gasStationScene = [[SceneController alloc] initWithScene:weed.gasStation];
+    [gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
     [self presentModalViewController:gasStationScene animated:YES];
 }
 
@@ -389,8 +414,8 @@
     [map0CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
     CGImageRef map0Image = [[UIImage imageNamed:@"gdw_parallax_cropped_layer=sky.jpg"] CGImage];
     [map0CA setContents:(__bridge id)map0Image];
-    [map0CA setZPosition:-5];
-    [mapCAView.layer addSublayer:map0CA];
+    //[map0CA setZPosition:-5];
+    //[mapCAView.layer addSublayer:map0CA];
     
     [map1CA setBounds:mapFrame];
     [map1CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
@@ -398,7 +423,7 @@
     [map1CA setContents:(__bridge id)map1Image];
     [map1CA setZPosition:0];
     [mapCAView.layer addSublayer:map1CA];
-    
+    /*
     [map2CA setBounds:mapFrame];
     [map2CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
     //[map2CA setContentsGravity:kCAGravityResizeAspect];
@@ -407,7 +432,7 @@
     [map2CA setZPosition:5];
     [mapCAView.layer addSublayer:map2CA];
     [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
-
+     */
 
 /**
     UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];
@@ -434,10 +459,11 @@
     [super viewWillAppear:animated];
     CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
     scrollView.contentOffset = center;
-    //[self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
+    //[self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
-        //NSLog(@"access token exists");
+        NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
+        [[Tumbleweed weed] registerUser];
     }
     [self gameState];
 

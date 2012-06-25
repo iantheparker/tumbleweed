@@ -72,7 +72,7 @@
 @property (nonatomic, retain) UIButton *campFireButton;
 
 //-- instance methods
-- (void) renderScreen: (BOOL) direction;
+- (void) renderScreen: (BOOL) direction : (BOOL) moving;
 - (UIImage *) selectAvatarImage:(float) position;
 - (void) saveAvatarPosition;
 

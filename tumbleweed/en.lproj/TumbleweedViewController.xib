@@ -72,11 +72,11 @@
 					</object>
 					<object class="IBUIImageView" id="131428179">
 						<reference key="NSNextResponder" ref="103644459"/>
-						<int key="NSvFlags">292</int>
+						<int key="NSvFlags">-2147483356</int>
 						<string key="NSFrameSize">{5782, 320}</string>
 						<reference key="NSSuperview" ref="103644459"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="547010114"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:567</string>
 						<int key="IBUIContentMode">2</int>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -124,16 +124,6 @@
 							<double key="NSSize">15</double>
 							<int key="NSfFlags">16</int>
 						</object>
-					</object>
-					<object class="IBUIView" id="547010114">
-						<reference key="NSNextResponder" ref="103644459"/>
-						<int key="NSvFlags">292</int>
-						<string key="NSFrameSize">{5782, 320}</string>
-						<reference key="NSSuperview" ref="103644459"/>
-						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="884489532"/>
-						<string key="NSReuseIdentifierKey">_NS:196</string>
-						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 					</object>
 					<object class="IBUIImageView" id="872490458">
 						<reference key="NSNextResponder" ref="103644459"/>
@@ -217,7 +207,7 @@
 					</object>
 					<object class="IBUIButton" id="615697473">
 						<reference key="NSNextResponder" ref="103644459"/>
-						<int key="NSvFlags">-2147483356</int>
+						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{1843, 92}, {80, 80}}</string>
 						<reference key="NSSuperview" ref="103644459"/>
 						<reference key="NSWindow"/>
@@ -405,14 +395,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">foursquareConnectButton</string>
-						<reference key="source" ref="372490531"/>
-						<reference key="destination" ref="83904937"/>
-					</object>
-					<int key="connectionID">50</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">gasStationButton</string>
 						<reference key="source" ref="372490531"/>
 						<reference key="destination" ref="615697473"/>
@@ -517,11 +499,11 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">mapCAView</string>
+						<string key="label">foursquareConnectButton</string>
 						<reference key="source" ref="372490531"/>
-						<reference key="destination" ref="547010114"/>
+						<reference key="destination" ref="83904937"/>
 					</object>
-					<int key="connectionID">89</int>
+					<int key="connectionID">50</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
@@ -640,20 +622,14 @@
 							<reference ref="714579849"/>
 							<reference ref="131428179"/>
 							<reference ref="884489532"/>
-							<reference ref="83904937"/>
 							<reference ref="872490458"/>
-							<reference ref="547010114"/>
+							<reference ref="83904937"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">46</int>
 						<reference key="object" ref="714579849"/>
-						<reference key="parent" ref="103644459"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">47</int>
-						<reference key="object" ref="83904937"/>
 						<reference key="parent" ref="103644459"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -717,8 +693,8 @@
 						<reference key="parent" ref="103644459"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">87</int>
-						<reference key="object" ref="547010114"/>
+						<int key="objectID">47</int>
+						<reference key="object" ref="83904937"/>
 						<reference key="parent" ref="103644459"/>
 					</object>
 				</array>
@@ -745,7 +721,6 @@
 				<string key="80.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="81.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="83.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-				<string key="87.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
@@ -914,7 +889,7 @@
 			<string key="bubble7.png">{500, 500}</string>
 			<string key="connect-white@2x.png">{300, 48}</string>
 			<string key="gdw_parallax_cropped_layer=sky.jpg">{3698, 785}</string>
-			<string key="map1.png">{14135, 785}</string>
+			<string key="map1.png">{11520, 640}</string>
 			<string key="map2.png">{14135, 785}</string>
 			<string key="map4.png">{14135, 785}</string>
 		</dictionary>

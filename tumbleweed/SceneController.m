@@ -17,7 +17,7 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, mapButton, userCurrentLocation;
+@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation;
 
 
 
@@ -56,11 +56,9 @@
     if ([mvFoursquare isHidden]) {
         [mvFoursquare setHidden:NO];
         [self.view bringSubviewToFront:mvFoursquare];
-        mapButton.selected = YES;
     }
     else {
-        [mvFoursquare setHidden:YES];
-        [mapButton setSelected:NO];
+        //[mvFoursquare setHidden:YES];
         
     }
 }
@@ -109,8 +107,8 @@
         NSDictionary *ven = [items objectAtIndex:i];
         NSString *name = [ven objectForKey:@"name"];
         NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
-        float distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] floatValue] *.00062;
-        int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
+        //float distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] floatValue] *.00062;
+        //int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
         CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
 		CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
         NSLog(@"lat%f, long%f", latitude, longitude);
@@ -118,19 +116,14 @@
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-        UILabel *addressLabel = (UILabel *)[venueDetailNib viewWithTag:2];
-        UILabel *distanceLabel = (UILabel *)[venueDetailNib viewWithTag:3];
-        UILabel *peopleLabel = (UILabel *)[venueDetailNib viewWithTag:4];
-        UIImageView *icon = (UIImageView *) [venueDetailNib viewWithTag:5];
+        
         
         [nameLabel setText:name];
-        [addressLabel setText:address];
-        [distanceLabel setText:[NSString stringWithFormat:@"%.1f mi", distance]];
-        [peopleLabel setText:[NSString stringWithFormat:@"%d", hereCount]];
+        
 
         //[icon setImage:[UIImage imageNamed:@"bubble5"]];
-        NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
-        [icon setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]]];
+        //NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
+        //[icon setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]]];
                         
         offset = (int)(nibwidth + padding) * i; 
         CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
@@ -168,9 +161,9 @@
 - (void) processRewards
 {
     //write logic that handles case when it's been unlocked
-    movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 220, 447, 200)];
+    //movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 220, 447, 200)];
     [movieThumbnailImageView setImage:scene.movieThumbnail];
-    [self.view addSubview:movieThumbnailImageView];
+    //[self.view addSubview:movieThumbnailImageView];
 
 }
 
@@ -376,7 +369,12 @@
     {
         [self animateRewards];
     }
-    
+    CGSize screenSize = CGSizeMake(480, 600.0);
+    scrollView.contentSize = screenSize;
+    scrollView.showsHorizontalScrollIndicator = NO;
+    scrollView.showsVerticalScrollIndicator = NO;
+    scrollView.bounces = NO;
+    [scrollView setDelegate:self];
     
 }
 

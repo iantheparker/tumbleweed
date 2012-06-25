@@ -181,7 +181,69 @@ static Tumbleweed *weed = nil;
                                        toFile:[self sceneArchivePath]];
 }
 
+- (void) registerUser
+{
+    ASIHTTPRequest *request = [Foursquare getUserId];
+    [request startSynchronous];
+    NSError *err = [request error];
+    if (!err) {
+        NSDictionary *userResponse = [NSDictionary dictionaryWithJSONString:[request responseString] error:&err];
+        NSString *foursquare_id = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"id"];
+        NSString *urlString = [NSString stringWithFormat:@"https://tumbleweed.herokuapp.com/register"];
+        NSURL *url = [NSURL URLWithString:urlString];
+        ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
+        [request setPostValue:foursquare_id forKey:@"foursquare_id"];
+        //[request setPostValue:device_token forKey:@"device_token"];
+        request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"registerUser", @"operation", nil];
+        [request setDelegate:self];
+        [request startAsynchronous];
+    }
+    else NSLog(@"registration failed %@", err);
 
+
+}
+- (void) postToServer
+{
+    NSString *urlString = [NSString stringWithFormat:@"https://tumbleweed.herokuapp.com/user"];
+    NSURL *url = [NSURL URLWithString:urlString];
+    ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
+    [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"tumbleweedID"] forKey:@"tumbleweedID"];
+    request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"postToServer", @"operation", nil];
+    [request setDelegate:self];
+    [request startAsynchronous];
+}
+
+#pragma mark - Required ASIHTTP Asynchronous request methods 
+
+- (void)requestFinished:(ASIHTTPRequest *)request
+{
+    NSString *responseString = [request responseString];
+    NSError *err;
+    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"registerUser"]) {
+        NSDictionary *registerResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        //fix the path when dave gives it
+        NSString *tumbleweedID = [[[registerResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"id"];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:tumbleweedID forKey:@"tumbleweedID"];
+        [defaults synchronize];
+        NSLog(@"tumbleweedID is %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"tumbleweedID"]);
+    }    
+    else if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"postToServer"]) {
+        NSDictionary *registerResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        NSLog(@"register response %@", registerResponse);
+    
+    }
+}
+
+- (void)requestFailed:(ASIHTTPRequest *)request
+{
+    NSError *error = [request error];
+    //if ([[request.userInfo valueForKey:@"operation"] isEqualToString:NSURLErrorNetworkConnectionLost]) {}
+    NSLog(@"error! %@", error);
+    // Must add graceful network error like a pop-up saying, get internet!
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
+    [alert show];
+}
 
 
 @end
