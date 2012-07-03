@@ -123,11 +123,11 @@
     if (!direction) img = [UIImage imageWithCGImage:img.CGImage scale:1 orientation:UIImageOrientationUpMirrored];
     [janeAvatar setContents:(__bridge id)[img CGImage]];
     
-    //-sky position- CALayer
-    CGPoint mapCenter = CGPointMake([map1CA bounds].size.width/2.0, [map1CA bounds].size.height/2.0);
-    float skyCoefficient = .99;
-    float janeOffset = mapCenter.x - [scrollView contentOffset].x;
-    CGPoint skyCenter = CGPointMake(mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
+    //-sky position- CALayer - fix the hardcoded offset here
+    CGPoint mapCenter = map1CA.position;
+    float skyCoefficient = .9;
+    float janeOffset = mapCenter.x - scrollView.contentOffset.x;
+    CGPoint skyCenter = CGPointMake(220+mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
     [map0CA setPosition:skyCenter];
     
     //--> mid-layer position
@@ -165,7 +165,7 @@
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"])
     {
         SceneController *gasStationScene = [[SceneController alloc] initWithScene:weed.gasStation];
-        //[gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
+        [gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
         [self presentModalViewController:gasStationScene animated:YES]; 
     }
     else 
@@ -413,7 +413,7 @@
     //--> sky
     CGRect skyFrame = CGRectMake(0, 0, 1000, 120);
     [map0CA setBounds:skyFrame];
-    [map0CA setPosition:CGPointMake(mapCAView.frame.size.width, mapCAView.frame.size.height)];
+    [map0CA setPosition:CGPointMake(screenSize.width/2, mapCAView.frame.size.height)];
     CGImageRef map0Image = [[UIImage imageNamed:@"gdw_parallax_cropped_layer=sky.jpg"] CGImage];
     [map0CA setContents:(__bridge id)map0Image];
     [map0CA setZPosition:-5];

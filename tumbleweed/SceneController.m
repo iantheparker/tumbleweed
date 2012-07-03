@@ -17,7 +17,7 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle;
 
 
 
@@ -53,17 +53,6 @@
     [self dismissModalViewControllerAnimated:YES];
 }
 
-- (IBAction) mapLaunch
-{
-    if ([mvFoursquare isHidden]) {
-        [mvFoursquare setHidden:NO];
-        [self.view bringSubviewToFront:mvFoursquare];
-    }
-    else {
-        //[mvFoursquare setHidden:YES];
-        
-    }
-}
 
 
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
@@ -72,8 +61,8 @@
     NSString *venueName = [venueDetails objectForKey:@"name"];
     NSString *venueId = [venueDetails objectForKey:@"id"];
     NSLog(@"venue name %@ : id %@", venueName, venueId);
-    CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
-    [checkIn setVenueDetails:venueDetails];
+    //CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
+    //[checkIn setVenueDetails:venueDetails];
     //[self presentModalViewController:checkIn animated:YES];
 }
 
@@ -164,14 +153,14 @@
 {
     //write logic that handles case when it's been unlocked
     //movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 220, 447, 200)];
-    [movieThumbnailImageView setImage:scene.movieThumbnail];
+    //[movieThumbnailImageView setImage:scene.movieThumbnail];
     //[self.view addSubview:movieThumbnailImageView];
 
 }
 
 - (void) animateRewards
 {
-    
+    /*
     UIButton *button1 = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     button1.frame = CGRectMake(100.f, 0.f, 50.f, 50.f);
     [button1 setTitle:@"video 1" 
@@ -207,6 +196,7 @@
                          scene.unlocked = TRUE;
                      }];
     
+*/
 }
 
 - (void) launchVideoPlayer
@@ -365,7 +355,9 @@
     // Do any additional setup after loading the view from its nib.
     [activityIndicator setHidden:NO];
     [activityIndicator startAnimating];
-    [self processRewards];
+    //[self processRewards];
+    [movieThumbnailImageView setImage:scene.movieThumbnail];
+    sceneTitle.text = scene.name;
     if (!scene.unlocked)
     {
         locationManager = [[CLLocationManager alloc] init];
@@ -377,12 +369,12 @@
         [self animateRewards];
     }
     CGSize screenSize = CGSizeMake(480, 600.0);
-    scrollView.contentSize = screenSize;
-    scrollView.showsHorizontalScrollIndicator = NO;
-    scrollView.showsVerticalScrollIndicator = NO;
-    scrollView.bounces = NO;
-    [scrollView setDelegate:self];
-    [scrollView addSubview:checkinView];
+    checkinScrollView.contentSize = screenSize;
+    checkinScrollView.showsHorizontalScrollIndicator = NO;
+    checkinScrollView.showsVerticalScrollIndicator = NO;
+    checkinScrollView.bounces = NO;
+    [checkinScrollView setDelegate:self];
+    [checkinScrollView addSubview:checkinView];
 
     
     

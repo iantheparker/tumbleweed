@@ -17,8 +17,9 @@
 
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate, UIScrollViewDelegate>
 {
-    IBOutlet UIScrollView *scrollView;
+    IBOutlet UIScrollView *checkinScrollView;
     IBOutlet UIView *checkinView;
+    IBOutlet UILabel *sceneTitle;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIImageView *movieThumbnailImageView;
@@ -31,7 +32,9 @@
     
 }
 
+@property (nonatomic, retain) UIScrollView *checkinScrollView;
 @property (nonatomic, retain) UIScrollView *venueScrollView;
+@property (nonatomic, retain) UILabel *sceneTitle;
 @property (nonatomic, retain) UIView *checkinView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
@@ -48,7 +51,6 @@
 - (id) initWithScene: (Scene *) scn;
 
 - (IBAction) dismissModal:(id)sender;
-- (IBAction) mapLaunch;
 - (void) launchVideoPlayer;
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;
