@@ -17,7 +17,7 @@
 
 @implementation SceneController
 
-@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation;
+@synthesize venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView;
 
 
 
@@ -33,7 +33,9 @@
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
+    
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    
     if (self) {
         // assign this to scene.recentSearches when ready
         allVenues = [[NSMutableDictionary alloc] init];
@@ -72,7 +74,7 @@
     NSLog(@"venue name %@ : id %@", venueName, venueId);
     CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     [checkIn setVenueDetails:venueDetails];
-    [self presentModalViewController:checkIn animated:YES];
+    //[self presentModalViewController:checkIn animated:YES];
 }
 
 
@@ -347,6 +349,12 @@
     }
 }
 
+#pragma mark - ScrollView Delegates
+
+- (void)scrollViewDidScroll:(UIScrollView *)sView
+{
+    
+}
 
 #pragma mark - View lifecycle
 
@@ -355,7 +363,6 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    
     [activityIndicator setHidden:NO];
     [activityIndicator startAnimating];
     [self processRewards];
@@ -375,6 +382,9 @@
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
     [scrollView setDelegate:self];
+    [scrollView addSubview:checkinView];
+
+    
     
 }
 

@@ -18,6 +18,7 @@
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate, UIScrollViewDelegate>
 {
     IBOutlet UIScrollView *scrollView;
+    IBOutlet UIView *checkinView;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIImageView *movieThumbnailImageView;
@@ -31,6 +32,7 @@
 }
 
 @property (nonatomic, retain) UIScrollView *venueScrollView;
+@property (nonatomic, retain) UIView *checkinView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
 @property (nonatomic, retain) CLLocationManager *locationManager; 

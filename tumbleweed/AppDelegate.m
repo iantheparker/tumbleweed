@@ -13,6 +13,10 @@
 #import "TestFlight.h"
 #import "FlurryAnalytics.h"
 
+#define deviceTokenKey   @"devtok"
+#define remoteNotifTypes UIRemoteNotificationTypeBadge | \
+UIRemoteNotificationTypeAlert
+
 @implementation AppDelegate
 
 @synthesize window = _window;
@@ -50,8 +54,77 @@ void uncaughtExceptionHandler(NSException *exception) {
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    
+    //if remote notification received at launch
+    NSDictionary *pushNotificationPayload = [launchOptions valueForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+    if(pushNotificationPayload) {
+        [self application:application didReceiveRemoteNotification:pushNotificationPayload];
+    }
+    
+    //generic remote notifications setup and whatnot
+    [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+    if (([[NSUserDefaults standardUserDefaults] stringForKey: @"deviceTokenKey"]) &&
+        ([[UIApplication sharedApplication] enabledRemoteNotificationTypes] != remoteNotifTypes))
+    {
+        //user has probably disabled push. react accordingly.
+    }
+    
     return YES;
 }
+
+#pragma mark - Remote and Local Notifications 
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)token
+{    
+    NSString *deviceToken = [token description];
+    deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @"<" withString: @""];
+    deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @">" withString: @""];
+    deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @" " withString: @""];
+    //const void *devTokenBytes = [token bytes];
+    NSLog(@"bytes in hex: %@", deviceToken);
+    
+    if ([[NSUserDefaults standardUserDefaults] stringForKey: deviceTokenKey])
+    {
+        if (![[[NSUserDefaults standardUserDefaults] stringForKey: deviceTokenKey] isEqualToString: deviceToken])
+        {
+            [[NSUserDefaults standardUserDefaults] setObject: deviceToken forKey: deviceTokenKey];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            //user allowed push. react accordingly.
+        }
+    }
+    else
+    {
+        [[NSUserDefaults standardUserDefaults] setObject: deviceToken forKey: deviceTokenKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        //user allowed push. react accordingly.
+    }
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+    NSLog(@"application: %@ didFailToRegisterForRemoteNotificationsWithError: %@", application, [error localizedDescription]);
+}
+- (void)application:(UIApplication *)app didReceiveRemoteNotification:(NSDictionary *)
+userInfo 
+{
+	NSLog(@"In did receive  Remote Notifications %@", userInfo);
+}
+
+//You can alternately implement the pushNotification API
++(void)pushNotification:(UIApplication*)application
+notifyData:(NSDictionary *)userInfo
+{
+    
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    NSLog(@"local notification was fired off");
+    //trigger animation of unlocking from here?
+}
+
+#pragma mark - Application LifeCycle
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
@@ -86,10 +159,6 @@ void uncaughtExceptionHandler(NSException *exception) {
      */
 }
 
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    NSLog(@"local notification was fired off");
-    //trigger animation of unlocking from here?
-}
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {

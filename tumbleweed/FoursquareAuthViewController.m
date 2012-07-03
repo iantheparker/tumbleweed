@@ -8,6 +8,7 @@
 
 #import "FoursquareAuthViewController.h"
 #import "Constants.h"
+#import "Tumbleweed.h"
 
 @implementation FoursquareAuthViewController
 
@@ -74,6 +75,7 @@
         [defaults synchronize];
        // if we want a web splash "succes page" 
         NSLog(@"got access token, closing modal %@", accessToken);
+        [[Tumbleweed weed] registerUser];
         [self dismissModalViewControllerAnimated:YES];
     } 
     else NSLog(@"no access token, ignoring");

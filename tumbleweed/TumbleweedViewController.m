@@ -14,7 +14,7 @@
 
 @implementation TumbleweedViewController
 
-@synthesize scrollView, map0CA, map1CA, map2CA, mapCAView, sky, map1, map2, map4, avatar, sprites, walkingForward, weed, locationManager;
+@synthesize scrollView, map0CA, map1CA, map2CA, map4CA, mapCAView, janeAvatar, sprites, walkingForward, weed, locationManager;
 
 //-- scene buttons
 @synthesize foursquareConnectButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton;
@@ -25,11 +25,12 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         weed = [Tumbleweed weed];
+        
         map0CA = [[CALayer alloc] init];
         map1CA = [[CALayer alloc] init];
         map2CA = [[CALayer alloc] init];
-   
-
+        map4CA = [[CALayer alloc] init];
+        janeAvatar = [[CALayer alloc] init];
     }
     return self;
 }
@@ -81,12 +82,14 @@
     }
     lastContentOffset = scrollView.contentOffset.x;
     [self renderScreen:walkingForward:TRUE];
+    
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)sView
 {
     [self renderScreen:walkingForward:FALSE];
 }
+
 
 - (void) renderScreen: (BOOL) direction :(BOOL) moving
 {
@@ -96,51 +99,29 @@
     CGPoint center;
     UIImage *img;
     
-    /*
-    CGRect imageFrame = CGRectMake(0, 0, 150, 200);
-    if(!avatar){
-        avatar = [[UIImageView alloc] initWithFrame:imageFrame];
-        [scrollView addSubview:avatar];
-    }
-    */
-    //NSLog(@"%@", [scrollView contentOffset].x <janeLeftBound - avatar_offset ? @"YES" : @"NO");
-    //NSLog(@"center %f", center.x);
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    
+    // if woken up and no avatar values, then set them
+    //if (!janeAvatar.position.x) janeAvatar.position = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
 
-
+    //set position
     if ([scrollView contentOffset].x <janeLeftBound - avatar_offset || [scrollView contentOffset].x >janeRightBound - avatar_offset || !moving)
     {
         img = [UIImage imageNamed:@"JANE_walkcycle0.png"];
-        if (avatar.center.x <= janeLeftBound) center = CGPointMake(janeLeftBound, avatar_offset);
-        else if (avatar.center.x >= janeRightBound) center = CGPointMake(janeRightBound, avatar_offset);
+        if (janeAvatar.position.x <= janeLeftBound) center = CGPointMake(janeLeftBound, avatar_offset);
+        else if (janeAvatar.position.x >= janeRightBound) center = CGPointMake(janeRightBound, avatar_offset);
         else center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
     }
     else {
         center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
         img = [self selectAvatarImage:[scrollView contentOffset].x];
-        NSLog(@"else");
     }
-    [avatar setCenter:center];
+    [janeAvatar setPosition:center];
     
-    if (direction) {
-        [avatar setImage:img];
-
-    } else {
-        UIImage *flippedImage = [UIImage imageWithCGImage:img.CGImage scale:1.0 orientation: UIImageOrientationUpMirrored];
-        [avatar setImage:flippedImage];
-    }
-    
-    
-    //-sky position- UIImageView
-    CGPoint mapCenterui = [map1 center];
-    float skyCoefficientui = .99;
-    float janeOffsetui = mapCenterui.x - [scrollView contentOffset].x;
-    
-    CGPoint skyCenterui = CGPointMake(mapCenterui.x - (janeOffsetui * skyCoefficientui), [sky center].y);
-    //CGPoint map4Center = CGPointMake([map4 center].x -(janeOffset *.01), [map4 center].y);
-    //NSLog(@"janeoffset center %f, sky center %f", janeOffset, skyCenter.x);
-    [sky setCenter:skyCenterui];
-    //[map4 setCenter:map4Center];
-    
+    //set direction
+    if (!direction) img = [UIImage imageWithCGImage:img.CGImage scale:1 orientation:UIImageOrientationUpMirrored];
+    [janeAvatar setContents:(__bridge id)[img CGImage]];
     
     //-sky position- CALayer
     CGPoint mapCenter = CGPointMake([map1CA bounds].size.width/2.0, [map1CA bounds].size.height/2.0);
@@ -148,9 +129,18 @@
     float janeOffset = mapCenter.x - [scrollView contentOffset].x;
     CGPoint skyCenter = CGPointMake(mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
     [map0CA setPosition:skyCenter];
-    //NSLog(@"map1 center %f, map1 center %f map bounds center %f", mapCenter.x, [map1 center].x, [map1CA bounds].size.width/2.0);
+    
+    //--> mid-layer position
+    float midlayerCoefficient = .02;
+    CGPoint midlayerPos = CGPointMake(mapCenter.x - (janeOffset * midlayerCoefficient), map2CA.position.y);
+    [map2CA setPosition:midlayerPos];
+    
+    //--> top layer position
+    float toplayerCoefficient = .1;
+    CGPoint toplayerPos = CGPointMake(mapCenter.x - (janeOffset * toplayerCoefficient), map4CA.position.y);
+    [map4CA setPosition:toplayerPos];
 
-    //NSLog(@"janeoffsetUI %f, janeoffset center %f, sky centerui %f skyPosition %f", janeOffsetui, janeOffset, skyCenterui.x, map0CA.position.x);
+    [CATransaction commit];
     
     
 }
@@ -172,9 +162,17 @@
 {    
     NSLog(@"gasstation checkin response %@", weed.gasStation.checkInResponse);
     NSLog(@"is the scene unlocked? %@", weed.gasStation.unlocked ? @"YES": @"NO");
-    SceneController *gasStationScene = [[SceneController alloc] initWithScene:weed.gasStation];
-    [gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
-    [self presentModalViewController:gasStationScene animated:YES];
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"])
+    {
+        SceneController *gasStationScene = [[SceneController alloc] initWithScene:weed.gasStation];
+        //[gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
+        [self presentModalViewController:gasStationScene animated:YES]; 
+    }
+    else 
+    {
+        //throw hint to log in
+    }
+    
 }
 
 - (IBAction)dealPressed:(UIButton *)sender
@@ -397,54 +395,81 @@
 {
     [super viewDidLoad];
     [self initSprites];
-    //walkingForward = YES;
     
     CGSize screenSize = CGSizeMake(5782, 320.0);
     scrollView.contentSize = screenSize;
+    //mapCAView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screenSize.width, screenSize.height)];
+
     
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
     [scrollView setDelegate:self];
+    [scrollView addSubview:mapCAView];
     
-    CGRect mapFrame = CGRectMake(0, 0, screenSize.width, screenSize.height);
-    CGRect skyFrame = CGRectMake(0, 0, 1507, screenSize.height);
+    CATransform3D transform = CATransform3DIdentity;
+    transform.m34 = 1.0 / -2000;
     
+    //--> sky
+    CGRect skyFrame = CGRectMake(0, 0, 1000, 120);
     [map0CA setBounds:skyFrame];
-    [map0CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
+    [map0CA setPosition:CGPointMake(mapCAView.frame.size.width, mapCAView.frame.size.height)];
     CGImageRef map0Image = [[UIImage imageNamed:@"gdw_parallax_cropped_layer=sky.jpg"] CGImage];
     [map0CA setContents:(__bridge id)map0Image];
-    //[map0CA setZPosition:-5];
-    //[mapCAView.layer addSublayer:map0CA];
+    [map0CA setZPosition:-5];
+    map0CA.shouldRasterize = YES;
+    map0CA.opaque = YES;
+    [mapCAView.layer addSublayer:map0CA];
+
     
+    //--> layer1
+    CGRect mapFrame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [map1CA setBounds:mapFrame];
     [map1CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    CGImageRef map1Image = [[UIImage imageNamed:@"map1.png"] CGImage];
+    CGImageRef map1Image = [[UIImage imageNamed:@"map1-8.png"] CGImage];
     [map1CA setContents:(__bridge id)map1Image];
     [map1CA setZPosition:0];
+    map1CA.opaque = YES;
     [mapCAView.layer addSublayer:map1CA];
-    /*
-    [map2CA setBounds:mapFrame];
+    
+    //--> layer2
+    CGRect map2Frame = CGRectMake(0, 0, screenSize.width *1.01, screenSize.height);
+    [map2CA setBounds:map2Frame];
     [map2CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    //[map2CA setContentsGravity:kCAGravityResizeAspect];
     CGImageRef map2Image = [[UIImage imageNamed:@"map2.png"] CGImage];
-    [map2CA setContents:(__bridge id)map2Image];
-    [map2CA setZPosition:5];
+    [map2CA setContents:(__bridge id) map2Image];
+    [map2CA setZPosition:2];
+    map2CA.opaque = YES;
+    map2CA.shouldRasterize = YES;
     [mapCAView.layer addSublayer:map2CA];
-    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]];
-     */
+    
+    //--> layer4
+    CGRect map4Frame = CGRectMake(0, 0, screenSize.width *1.1, screenSize.height);
+    [map4CA setBounds:map4Frame];
+    [map4CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
+    CGImageRef map4Image = [[UIImage imageNamed:@"map4.png"] CGImage];
+    [map4CA setContents:(__bridge id) map4Image];
+    [map4CA setZPosition:5];
+    map4CA.opaque = YES;
+    map4CA.shouldRasterize = YES;
+    [mapCAView.layer addSublayer:map4CA];
 
-/**
-    UIImage *maplayer1 = [UIImage imageNamed:@"map.jpg"];
-    CGRect mapFrame = CGRectMake(0, 0, 5782, 320);
-    
-    map = [[UIImageView alloc] initWithFrame:mapFrame];
-    [map setImage:maplayer1];
-                         
-    [scrollView addSubview:map];
-    
-    */
-    
+    //--> avatar
+    CGRect avatarFrame = CGRectMake(0, 0, 120, 180);
+    [janeAvatar setBounds:avatarFrame];
+    [janeAvatar setPosition:CGPointMake(572, screenSize.height/2)];
+    CGImageRef avatarImage = [[UIImage imageNamed:@"JANE_walkcycle0.png"] CGImage];
+    [janeAvatar setContents:(__bridge id)avatarImage];
+    [janeAvatar setContentsGravity:kCAGravityResizeAspect];
+    [janeAvatar setZPosition:2];
+    [mapCAView.layer addSublayer:janeAvatar];
+    //NSNumber* radians = [NSNumber numberWithInt:3];
+    //[janeAvatar setValue:radians forKeyPath:@"transform.rotation.x"];
+    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
+    [mapCAView bringSubviewToFront:foursquareConnectButton];
+    [mapCAView bringSubviewToFront:gasStationButton];
+
+
 }
 
 - (void)viewDidUnload
@@ -458,8 +483,8 @@
 {
     [super viewWillAppear:animated];
     CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
+    NSLog(@"saved center %f", center.x);
     scrollView.contentOffset = center;
-    //[self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;

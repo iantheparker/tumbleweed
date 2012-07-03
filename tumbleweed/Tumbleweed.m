@@ -194,6 +194,8 @@ static Tumbleweed *weed = nil;
         ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
         [request setPostValue:foursquare_id forKey:@"foursquare_id"];
         //[request setPostValue:device_token forKey:@"device_token"];
+        // Upload an NSData instance
+        //[request setData:imageData withFileName:@"myphoto.jpg" andContentType:@"image/jpeg" forKey:@"photo"];
         request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"registerUser", @"operation", nil];
         [request setDelegate:self];
         [request startAsynchronous];
