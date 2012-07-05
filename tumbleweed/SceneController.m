@@ -8,12 +8,12 @@
 
 #import "SceneController.h"
 #import "CheckInController.h"
-#import "Foursquare.h"
+//#import "Foursquare.h"
 
-#import "NSDictionary_JSONExtensions.h"
+//#import "NSDictionary_JSONExtensions.h"
 
-#import "ASIFormDataRequest.h"
-#import "ASIHTTPRequest.h"
+//#import "ASIFormDataRequest.h"
+//#import "ASIHTTPRequest.h"
 
 @implementation SceneController
 
@@ -102,20 +102,22 @@
         //int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
         CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
 		CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
-        NSLog(@"lat%f, long%f", latitude, longitude);
+        NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
+        iconURL = [iconURL stringByReplacingOccurrencesOfString:@"https://foursquare.com/img/categories/" withString:@""];
+        iconURL = [iconURL stringByReplacingOccurrencesOfString: @"/" withString: @"_"];
+        UIImage *icon = [UIImage imageNamed:iconURL];
+        //UIImage *icon = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]];
+        //NSLog(@"lat%f, long%f", latitude, longitude);
+        //NSLog(@"icon url %@", iconURL);
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-        
-        
+        [nameLabel setFont:[UIFont fontWithName:@"rockwell" size:24]];
         [nameLabel setText:name];
-        
+        UIColor *redText = [UIColor colorWithRed:212/255 green:83/255 blue:88/255 alpha:1.0];
+        [nameLabel setTextColor:redText];
 
-        //[icon setImage:[UIImage imageNamed:@"bubble5"]];
-        //NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
-        //[icon setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]]];
-                        
         offset = (int)(nibwidth + padding) * i; 
         CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
         [venueDetailNib setCenter:nibCenter];
@@ -140,6 +142,7 @@
 		[foursquareAnnotation setCoordinate: region.center];
 		[foursquareAnnotation setTitle: name];
 		[foursquareAnnotation setSubtitle: address];
+        [foursquareAnnotation setIcon:icon];
 		
 		// add the annotation object to the container
 		[annotations addObject: foursquareAnnotation];
@@ -290,11 +293,11 @@
     static NSString *identifier = @"MyLocation";
     if ([annotation isKindOfClass:[FoursquareAnnotation class]]) {
         
-        MKPinAnnotationView *annotationView = 
-        (MKPinAnnotationView *)[mvFoursquare dequeueReusableAnnotationViewWithIdentifier:identifier];
+        MKAnnotationView *annotationView = 
+        (MKAnnotationView *)[mvFoursquare dequeueReusableAnnotationViewWithIdentifier:identifier];
         
         if (annotationView == nil) {
-            annotationView = [[MKPinAnnotationView alloc] 
+            annotationView = [[MKAnnotationView alloc] 
                               initWithAnnotation:annotation 
                               reuseIdentifier:identifier];
         } else {
@@ -303,6 +306,7 @@
         
         annotationView.enabled = YES;
         annotationView.canShowCallout = YES;
+        annotationView.image = ((FoursquareAnnotation *)annotation).icon;
         
         // Create a UIButton object to add on the 
         UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
@@ -311,7 +315,7 @@
         
         UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
         [leftButton setTitle:annotation.title forState:UIControlStateNormal];
-        //[annotationView setLeftCalloutAccessoryView:leftButton];
+        [annotationView setLeftCalloutAccessoryView:leftButton];
         
         return annotationView;
     }
@@ -332,6 +336,10 @@
         
     } else if([(UIButton*)control buttonType] == UIButtonTypeInfoDark) {
         // Do your thing when the infoDarkButton is touched
+        
+        NSString* foursquareURL = [NSString stringWithFormat: @"foursquare://venues/%@",[[NSUserDefaults standardUserDefaults] stringForKey:@"foursquare_id"]]; 
+                         [[UIApplication sharedApplication] openURL: [NSURL URLWithString: 
+                                                                      foursquareURL]]; 
         
         NSLog(@"infoDarkButton for longitude: %f and latitude: %f and address is %@", 
               [(FoursquareAnnotation*)[view annotation] coordinate].longitude, 
@@ -358,6 +366,9 @@
     //[self processRewards];
     [movieThumbnailImageView setImage:scene.movieThumbnail];
     sceneTitle.text = scene.name;
+    sceneTitle.font = [UIFont fontWithName:@"rockwell" size:26];
+    UIColor *redText = [UIColor colorWithRed:212/255 green:83/255 blue:88/255 alpha:1.0];
+    [sceneTitle setTextColor:redText];
     if (!scene.unlocked)
     {
         locationManager = [[CLLocationManager alloc] init];

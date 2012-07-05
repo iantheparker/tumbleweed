@@ -13,6 +13,7 @@
 @synthesize coordinate;
 @synthesize title;
 @synthesize subtitle;
+@synthesize icon;
 
 - (id)initWithFrame:(CGRect)frame
 {

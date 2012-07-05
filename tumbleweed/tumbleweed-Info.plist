@@ -13,6 +13,10 @@
 		<string>appicon_114.png</string>
 		<string>Default@2x.png</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>rockwell.ttf</string>
+	</array>
 	<key>CFBundleIcons</key>
 	<dict>
 		<key>CFBundlePrimaryIcon</key>

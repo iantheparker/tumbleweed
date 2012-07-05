@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import "Scene.h"
-#import "ASIHTTPRequestDelegate.h"
-#import "ASIFormDataRequest.h"
-#import "ASIHTTPRequest.h"
-#import "Foursquare.h"
-#import "NSDictionary_JSONExtensions.h"
+//#import "ASIHTTPRequestDelegate.h"
+//#import "ASIFormDataRequest.h"
+//#import "ASIHTTPRequest.h"
+//#import "Foursquare.h"
+//#import "NSDictionary_JSONExtensions.h"
 
 
 

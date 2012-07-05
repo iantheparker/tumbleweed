@@ -14,8 +14,7 @@
 #import "FlurryAnalytics.h"
 
 #define deviceTokenKey   @"devtok"
-#define remoteNotifTypes UIRemoteNotificationTypeBadge | \
-UIRemoteNotificationTypeAlert
+#define remoteNotifTypes UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound
 
 @implementation AppDelegate
 
@@ -77,6 +76,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)token
 {    
     NSString *deviceToken = [token description];
+    NSLog(@"bytes in hex: %@", deviceToken);
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @"<" withString: @""];
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @">" withString: @""];
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @" " withString: @""];

@@ -193,12 +193,13 @@ static Tumbleweed *weed = nil;
         NSURL *url = [NSURL URLWithString:urlString];
         ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
         [request setPostValue:foursquare_id forKey:@"foursquare_id"];
-        //[request setPostValue:device_token forKey:@"device_token"];
-        // Upload an NSData instance
-        //[request setData:imageData withFileName:@"myphoto.jpg" andContentType:@"image/jpeg" forKey:@"photo"];
+        [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey: @"deviceTokenKey"] forKey:@"device_token"];
         request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"registerUser", @"operation", nil];
         [request setDelegate:self];
         [request startAsynchronous];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:foursquare_id forKey:@"foursquare_id"];
+        [defaults synchronize];
     }
     else NSLog(@"registration failed %@", err);
 

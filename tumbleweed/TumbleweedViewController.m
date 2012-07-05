@@ -165,7 +165,7 @@
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"])
     {
         SceneController *gasStationScene = [[SceneController alloc] initWithScene:weed.gasStation];
-        [gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
+        //[gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
         [self presentModalViewController:gasStationScene animated:YES]; 
     }
     else 

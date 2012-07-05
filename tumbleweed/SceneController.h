@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import "ASIHTTPRequestDelegate.h"
+//#import "ASIHTTPRequestDelegate.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "Scene.h"
 #import "FoursquareAnnotation.h"
