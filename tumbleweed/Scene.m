@@ -10,7 +10,8 @@
 
 @implementation Scene
 
-@synthesize name, categoryId, moviePath, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date;
+@synthesize name, categoryId, moviePath, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date, hintCopy, checkInCopy, checkedVenue;
+
 
 - (id) init
 {
@@ -44,6 +45,11 @@
     [encoder encodeObject:recentSearchVenueResults forKey:@"recentSearchVenueResults"];
     [encoder encodeObject:date forKey:@"dateCreated"];
 
+}
+
+- (NSString*) getCheckedVenue
+{
+    return [[[self.checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"name"];
 }
 
 

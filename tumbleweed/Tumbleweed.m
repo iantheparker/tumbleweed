@@ -96,13 +96,15 @@ static Tumbleweed *weed = nil;
 - (void) setSceneConstants
 {
 
-    gasStation.name = @"gasStation";
+    gasStation.name = @"The Gas Station";
     gasStation.categoryId = GAS_TRAVEL_catId;
     gasStation.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"gasStation"
                                                                                   ofType:@"mp4"]];
     gasStation.movieThumbnail = [UIImage imageNamed:@"Gas_Station_thumbnail.jpg"];
     //gasStation.movieThumbnail = [UIImage imageWithContentsOfFile: [[NSBundle mainBundle] pathForResource:@"Gas_Station_thumbnail" ofType:@"jpg"]];
     gasStation.posterArt = [UIImage imageNamed:@"bubble5.png"];
+    gasStation.hintCopy = @"Fill up your tank, bitch.";
+    gasStation.checkInCopy = @"unlock by checking in at:";
     gasStation.accessible = true;
 
     deal.name = @"deal";

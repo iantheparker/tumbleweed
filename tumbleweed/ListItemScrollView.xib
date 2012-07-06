@@ -38,14 +38,12 @@
 					<object class="IBUILabel" id="1046338245">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrameSize">{315, 60}</string>
+						<string key="NSFrame">{{0, -17}, {315, 60}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:328</string>
 						<bool key="IBUIOpaque">NO</bool>
-						<bool key="IBUIClipsSubviews">YES</bool>
-						<int key="IBUIContentMode">7</int>
+						<int key="IBUIContentMode">5</int>
 						<int key="IBUITag">1</int>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -55,7 +53,7 @@
 							<bytes key="NSRGB">MCAwIDAAA</bytes>
 						</object>
 						<nil key="IBUIHighlightedColor"/>
-						<int key="IBUIBaselineAdjustment">1</int>
+						<int key="IBUIBaselineAdjustment">0</int>
 						<float key="IBUIMinimumFontSize">19</float>
 						<int key="IBUITextAlignment">1</int>
 						<object class="IBUIFontDescription" key="IBUIFontDescription">
@@ -157,6 +155,7 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="dismissModal:">id</string>
 						<string key="handleSingleTap:">UIGestureRecognizer</string>
+						<string key="refreshSearch:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="dismissModal:">
@@ -167,9 +166,14 @@
 							<string key="name">handleSingleTap:</string>
 							<string key="candidateClassName">UIGestureRecognizer</string>
 						</object>
+						<object class="IBActionInfo" key="refreshSearch:">
+							<string key="name">refreshSearch:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="activityIndicator">UIActivityIndicatorView</string>
+						<string key="checkInIntructions">UILabel</string>
 						<string key="checkinScrollView">UIScrollView</string>
 						<string key="checkinView">UIView</string>
 						<string key="movieThumbnailImageView">UIImageView</string>
@@ -182,6 +186,10 @@
 						<object class="IBToOneOutletInfo" key="activityIndicator">
 							<string key="name">activityIndicator</string>
 							<string key="candidateClassName">UIActivityIndicatorView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="checkInIntructions">
+							<string key="name">checkInIntructions</string>
+							<string key="candidateClassName">UILabel</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="checkinScrollView">
 							<string key="name">checkinScrollView</string>

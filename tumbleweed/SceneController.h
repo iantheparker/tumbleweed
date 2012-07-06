@@ -20,6 +20,7 @@
     IBOutlet UIScrollView *checkinScrollView;
     IBOutlet UIView *checkinView;
     IBOutlet UILabel *sceneTitle;
+    IBOutlet UILabel *checkInIntructions;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIImageView *movieThumbnailImageView;
@@ -35,6 +36,7 @@
 @property (nonatomic, retain) UIScrollView *checkinScrollView;
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UILabel *sceneTitle;
+@property (nonatomic, retain) UILabel *checkInIntructions;
 @property (nonatomic, retain) UIView *checkinView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
@@ -55,6 +57,8 @@
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;
 - (void) animateRewards;
+- (void) searchSetup;
+- (IBAction)refreshSearch:(id)sender;
 
 // touch events
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;

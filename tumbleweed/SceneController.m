@@ -17,7 +17,7 @@
 
 @implementation SceneController
 
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions;
 
 
 
@@ -108,14 +108,14 @@
         UIImage *icon = [UIImage imageNamed:iconURL];
         //UIImage *icon = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]];
         //NSLog(@"lat%f, long%f", latitude, longitude);
-        //NSLog(@"icon url %@", iconURL);
+        NSLog(@"icon url %@", iconURL);
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-        [nameLabel setFont:[UIFont fontWithName:@"rockwell" size:24]];
+        [nameLabel setFont:[UIFont fontWithName:@"rockwell" size:26]];
         [nameLabel setText:name];
-        UIColor *redText = [UIColor colorWithRed:212/255 green:83/255 blue:88/255 alpha:1.0];
+        UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
         [nameLabel setTextColor:redText];
 
         offset = (int)(nibwidth + padding) * i; 
@@ -149,7 +149,7 @@
 
     }
     [mvFoursquare addAnnotations: annotations];
-    
+    [mvFoursquare selectAnnotation:[annotations objectAtIndex:0] animated:YES];
 }
 
 - (void) processRewards
@@ -206,6 +206,28 @@
 {
      moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:scene.moviePath];
     [self presentMoviePlayerViewControllerAnimated:moviePlayer];
+}
+
+- (void) searchSetup
+{
+    [activityIndicator setHidden:NO];
+    [activityIndicator startAnimating];
+    if (!scene.unlocked)
+    {
+        locationManager = [[CLLocationManager alloc] init];
+        [locationManager setDelegate:self];
+        [locationManager startUpdatingLocation];
+    }
+    else
+    {
+        //[self animateRewards];
+    }
+}
+
+- (IBAction)refreshSearch:(id)sender
+{
+    scene.recentSearchVenueResults = Nil;
+    [self searchSetup];
 }
 
 #pragma mark - Required CoreLocation methods
@@ -308,6 +330,9 @@
         annotationView.canShowCallout = YES;
         annotationView.image = ((FoursquareAnnotation *)annotation).icon;
         
+        //[mvFoursquare selectAnnotation:[annotations objectAtIndex:0] animated:YES];
+
+        
         // Create a UIButton object to add on the 
         UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
         [rightButton setTitle:annotation.title forState:UIControlStateNormal];
@@ -347,12 +372,6 @@
     }
 }
 
-#pragma mark - ScrollView Delegates
-
-- (void)scrollViewDidScroll:(UIScrollView *)sView
-{
-    
-}
 
 #pragma mark - View lifecycle
 
@@ -361,31 +380,27 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    [activityIndicator setHidden:NO];
-    [activityIndicator startAnimating];
+    [self searchSetup];
     //[self processRewards];
+    
     [movieThumbnailImageView setImage:scene.movieThumbnail];
     sceneTitle.text = scene.name;
     sceneTitle.font = [UIFont fontWithName:@"rockwell" size:26];
-    UIColor *redText = [UIColor colorWithRed:212/255 green:83/255 blue:88/255 alpha:1.0];
-    [sceneTitle setTextColor:redText];
-    if (!scene.unlocked)
-    {
-        locationManager = [[CLLocationManager alloc] init];
-        [locationManager setDelegate:self];
-        [locationManager startUpdatingLocation];
-    }
-    else
-    {
-        [self animateRewards];
-    }
+    UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
+    [sceneTitle setTextColor:brownText];
+    checkInIntructions.text = scene.checkInCopy;
+    checkInIntructions.font = [UIFont fontWithName:@"rockwell" size:17];
+    [checkInIntructions setTextColor:brownText];
+    
     CGSize screenSize = CGSizeMake(480, 600.0);
     checkinScrollView.contentSize = screenSize;
     checkinScrollView.showsHorizontalScrollIndicator = NO;
     checkinScrollView.showsVerticalScrollIndicator = NO;
     checkinScrollView.bounces = NO;
+    checkinScrollView.pagingEnabled = YES;
     [checkinScrollView setDelegate:self];
     [checkinScrollView addSubview:checkinView];
+    venueScrollView.pagingEnabled = YES;
 
     
     

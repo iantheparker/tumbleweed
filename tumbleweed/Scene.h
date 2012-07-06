@@ -26,7 +26,9 @@
     NSDictionary *checkInResponse;
     NSDictionary *recentSearchVenueResults;
     NSDate *date;   //unlockDate
-    // unlock location
+    NSString *checkedVenue;  //location of unlock
+    NSString *hintCopy;
+    NSString *checkInCopy;
 
 }
 
@@ -40,6 +42,9 @@
 @property (nonatomic, retain) NSDictionary *checkInResponse;
 @property (nonatomic, retain) NSDictionary *recentSearchVenueResults;
 @property (nonatomic, retain) NSDate *date;
+@property (nonatomic, retain) NSString *checkedVenue;
+@property (nonatomic, retain) NSString *hintCopy;
+@property (nonatomic, retain) NSString *checkInCopy;
 
 
 
