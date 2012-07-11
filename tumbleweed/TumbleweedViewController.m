@@ -457,20 +457,17 @@
     //[map1CA setContents:(__bridge id)map1Image];
     [map1CA setZPosition:0];
     map1CA.opaque = YES;
-    
+    [mapCAView.layer addSublayer:map1CA];
     
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"mapLayer1" ofType:@"plist"];
     NSDictionary *mainDict = [NSDictionary dictionaryWithContentsOfFile:plistPath];
     NSArray *array = [NSArray arrayWithArray:[mainDict objectForKey:@"mapLayer1"]];
-    CALayer *subLayer1;
-    CALayer *subLayer2;
-
+    
     for (int i=0; i<array.count/2; i++)
     {
-        subLayer1 = [[CALayer alloc] init];
-        subLayer2 = [[CALayer alloc] init];
+        CALayer *subLayer1 = [CALayer layer];
+        CALayer *subLayer2 = [CALayer layer];
         NSString *imageName1 = [array objectAtIndex:i];
-        //NSLog(@"i = %d", i);
         NSString *imageName2 = [array objectAtIndex:i+array.count/2];
         UIImage *image1 = [UIImage imageNamed:imageName1];
         UIImage *image2 = [UIImage imageNamed:imageName2];
@@ -494,7 +491,6 @@
         [mapCAView.layer addSublayer:subLayer2];
     }
     
-    //[mapCAView.layer addSublayer:map1CA];
     
     //--> layer2
     CGRect map2Frame = CGRectMake(0, 0, screenSize.width *1.01, screenSize.height);
@@ -508,60 +504,55 @@
     //[mapCAView.layer addSublayer:map2CA];
     
     //--> layer4
-    CGRect map4Frame = CGRectMake(0, 0, screenSize.width *1.1, screenSize.height);
+    CGRect map4Frame = CGRectMake(0, 0, 500, 320);
     [map4CA setBounds:map4Frame];
     [map4CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
     //CGImageRef map4Image = [[UIImage imageNamed:@"map4.png"] CGImage];
     //[map4CA setContents:(__bridge id) map4Image];
     [map4CA setZPosition:5];
-    map4CA.opaque = YES;
-    map4CA.shouldRasterize = YES;
+    //map4CA.opaque = YES;
+    //map4CA.shouldRasterize = YES;
     [mapCAView.layer addSublayer:map4CA];
     
-    CALayer *hangnoose1 = [CALayer layer];
-    UIImage *hangnoose1img = [UIImage imageNamed:@"hangnoose_post.png"];
-    hangnoose1.bounds = CGRectMake(0, 0, hangnoose1img.size.width/2, hangnoose1img.size.height/2);
-    hangnoose1.position = CGPointMake(screenSize.width/2, screenSize.height/2);
-    CGImageRef hangnoose1Image = [hangnoose1img CGImage];
-    [hangnoose1 setContents:(__bridge id)hangnoose1Image];
-    [map4CA addSublayer:hangnoose1];
-    CALayer *hangnoose2 = [CALayer layer];
-    UIImage *hangnoose2img = [UIImage imageNamed:@"hangnoose_noose.png"];
-    hangnoose2.bounds = CGRectMake(0, 0, hangnoose2img.size.width, hangnoose2img.size.height);
-    hangnoose2.position = CGPointMake(30, 220);
-    hangnoose2.anchorPoint = CGPointMake(.5, 1);
-    CGImageRef hangnoose2Image = [hangnoose2img CGImage];
-    [hangnoose2 setContents:(__bridge id)hangnoose2Image];
-    [hangnoose1 addSublayer:hangnoose2];
-    
-    CABasicAnimation* animation;
-    animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-    
-    animation.fromValue = [NSNumber numberWithFloat:0.0 * M_PI];
-    animation.toValue = [NSNumber numberWithFloat:1.0 * M_PI];
-    animation.duration = 1.0;
-    //animation.cumulative = YES;
-    animation.autoreverses = YES;
-    animation.repeatCount = HUGE_VAL;
-    animation.removedOnCompletion = NO;
-    animation.fillMode = kCAFillModeForwards;
-    [hangnoose2 addAnimation:animation forKey:@"transform.rotation.z"];
-
-
+    //-->animations
+    {
+        CALayer *hangnoose1 = [CALayer layer];
+        UIImage *hangnoose1img = [UIImage imageNamed:@"hangnoose_post.png"];
+        hangnoose1.bounds = CGRectMake(0, 0, hangnoose1img.size.width/2, hangnoose1img.size.height/2);
+        //hangnoose1.position = CGPointMake(screenSize.width/4, screenSize.height/2);
+        hangnoose1.position = CGPointMake(0, screenSize.height/2);
+        CGImageRef hangnoose1Image = [hangnoose1img CGImage];
+        [hangnoose1 setContents:(__bridge id)hangnoose1Image];
+        hangnoose1.zPosition = 5;
+        [map4CA addSublayer:hangnoose1];
+        CALayer *hangnoose2 = [CALayer layer];
+        UIImage *hangnoose2img = [UIImage imageNamed:@"hangnoose_noose.png"];
+        hangnoose2.bounds = CGRectMake(0, 0, hangnoose2img.size.width, hangnoose2img.size.height);
+        hangnoose2.position = CGPointMake(30, 33);
+        hangnoose2.anchorPoint = CGPointMake(.5, 0);
+        CGImageRef hangnoose2Image = [hangnoose2img CGImage];
+        [hangnoose2 setContents:(__bridge id)hangnoose2Image];
+        [hangnoose1 addSublayer:hangnoose2];
+        
+        CABasicAnimation* animation;
+        animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+        animation.fromValue = [NSNumber numberWithFloat:1.98 * M_PI];
+        animation.toValue = [NSNumber numberWithFloat:2.02 * M_PI];
+        animation.duration = 2.0;
+        //animation.cumulative = YES;
+        animation.autoreverses = YES;
+        animation.repeatCount = HUGE_VAL;
+        animation.removedOnCompletion = NO;
+        animation.fillMode = kCAFillModeForwards;
+        animation.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [hangnoose2 addAnimation:animation forKey:@"transform.rotation.z"];
+    }
 
     //--> avatar
-    //CGRect avatarFrame = CGRectMake(890, 0, 103, 300);
-    //[janeAvatar setBounds:avatarFrame];
-    //[janeAvatar setPosition:CGPointMake(572, screenSize.height/2)];
     CGImageRef avatarImage = [[UIImage imageNamed:@"janeSprite_default.png"] CGImage];
     [janeAvatar setContents:(__bridge id)avatarImage];
-    //[janeAvatar setContentsGravity:kCAGravityCenter];
     [janeAvatar setZPosition:2];
     [mapCAView.layer addSublayer:janeAvatar];
-    //janeAvatar.opaque = YES;
-    //janeAvatar.shouldRasterize = YES;
-    //NSNumber* radians = [NSNumber numberWithInt:3];
-    //[janeAvatar setValue:radians forKeyPath:@"transform.rotation.x"];
     [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
     
     [mapCAView bringSubviewToFront:foursquareConnectButton];
