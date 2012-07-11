@@ -68,7 +68,7 @@
 
 //-- instance methods
 - (void) renderScreen: (BOOL) direction : (BOOL) moving;
-- (UIImage *) selectAvatarImage:(float) position;
+- (CGRect) selectAvatarBounds:(float) position;
 - (void) saveAvatarPosition;
 
 //-- event handlers
@@ -81,6 +81,7 @@
 - (IBAction) desertChasePressed:(UIButton *)sender;
 - (IBAction) desertLynchPressed:(UIButton *)sender;
 - (IBAction) campFirePressed:(UIButton *)sender;
+- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;
 
 //--game state
 - (void) gameState;

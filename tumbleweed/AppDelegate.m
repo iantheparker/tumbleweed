@@ -75,7 +75,8 @@ void uncaughtExceptionHandler(NSException *exception) {
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)token
 {    
-    NSString *deviceToken = [token description];
+    //NSString *deviceToken = [token description];
+    NSString *deviceToken = [NSString stringWithUTF8String:[token bytes]];
     NSLog(@"bytes in hex: %@", deviceToken);
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @"<" withString: @""];
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @">" withString: @""];

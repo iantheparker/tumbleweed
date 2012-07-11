@@ -19,6 +19,7 @@
 //this tracks the path and progress of the user
 @interface Tumbleweed : NSObject{
     
+    Scene *intro;
     Scene *gasStation;
     Scene *deal;
     Scene *bar;
@@ -31,6 +32,7 @@
 
 }
 
+@property (nonatomic, retain) Scene *intro;
 @property (nonatomic, retain) Scene *gasStation;
 @property (nonatomic, retain) Scene *deal;
 @property (nonatomic, retain) Scene *bar;

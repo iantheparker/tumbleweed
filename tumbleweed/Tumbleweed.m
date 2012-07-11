@@ -14,13 +14,12 @@ static Tumbleweed *weed = nil;
 - (NSString *)sceneArchivePath;
 - (void) loadScenes;
 - (void) createScenes;
-- (void) setSceneConstants;
 @end
 
 
 @implementation Tumbleweed
 
-@synthesize gasStation, deal, bar, riverBed1, riverBed2, desertChase, desertLynch, campFire;
+@synthesize intro, gasStation, deal, bar, riverBed1, riverBed2, desertChase, desertLynch, campFire;
 
 + (Tumbleweed *)weed
 {
@@ -77,85 +76,25 @@ static Tumbleweed *weed = nil;
         allScenes = [[NSMutableDictionary alloc] init];
         NSLog(@"creating scenes");
     }
-    [self setSceneConstants];
 }
 
 - (void) createScenes
 {
-    gasStation = [[Scene alloc] init];
-    deal  = [[Scene alloc] init];
-    bar = [[Scene alloc] init];
-    riverBed1 = [[Scene alloc] init];
-    riverBed2 = [[Scene alloc] init];
-    desertChase = [[Scene alloc] init];
-    desertLynch = [[Scene alloc] init];
-    campFire = [[Scene alloc] init];
+    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"scenes" ofType:@"plist"];
+    NSDictionary *mainDict = [NSDictionary dictionaryWithContentsOfFile:plistPath];
+    NSArray *array = [NSArray arrayWithArray:[mainDict objectForKey:@"Scenes"]];
+    intro = [[Scene alloc] initWithDictionary:[array objectAtIndex:0]];
+    deal  = [[Scene alloc] initWithDictionary:[array objectAtIndex:1]];
+    bar = [[Scene alloc] initWithDictionary:[array objectAtIndex:2]];
+    gasStation = [[Scene alloc] initWithDictionary:[array objectAtIndex:3]];
+    riverBed1 = [[Scene alloc] initWithDictionary:[array objectAtIndex:4]];
+    riverBed2 = [[Scene alloc] initWithDictionary:[array objectAtIndex:5]];
+    desertChase = [[Scene alloc] initWithDictionary:[array objectAtIndex:6]];
+    desertLynch = [[Scene alloc] initWithDictionary:[array objectAtIndex:7]];
+    campFire = [[Scene alloc] initWithDictionary:[array objectAtIndex:8]];
 
 }
 
-- (void) setSceneConstants
-{
-
-    gasStation.name = @"The Gas Station";
-    gasStation.categoryId = GAS_TRAVEL_catId;
-    gasStation.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"gasStation"
-                                                                                  ofType:@"mp4"]];
-    gasStation.movieThumbnail = [UIImage imageNamed:@"Gas_Station_thumbnail.jpg"];
-    //gasStation.movieThumbnail = [UIImage imageWithContentsOfFile: [[NSBundle mainBundle] pathForResource:@"Gas_Station_thumbnail" ofType:@"jpg"]];
-    gasStation.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    gasStation.hintCopy = @"Fill up your tank, bitch.";
-    gasStation.checkInCopy = @"unlock by checking in at:";
-    gasStation.accessible = true;
-
-    deal.name = @"deal";
-    deal.categoryId = DEAL_catId;
-    deal.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                            ofType:@"mp4"]];
-    deal.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    deal.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    deal.accessible = true;
-
-    bar.name = @"bar";
-    bar.categoryId = NIGHTLIFE_catId;
-    bar.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                           ofType:@"mp4"]];
-    bar.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    bar.posterArt = [UIImage imageNamed:@"bubble5.png"];
-    bar.accessible = true;
-
-    riverBed1.name = @"riverBed1";
-    riverBed1.categoryId = OUTDOORS_catId;
-    riverBed1.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                 ofType:@"mp4"]];
-    riverBed1.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    riverBed1.posterArt = [UIImage imageNamed:@"bubble5.png"];
-
-    riverBed2.name = @"riverBed2";
-    riverBed2.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                 ofType:@"mp4"]];
-    riverBed2.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    riverBed2.posterArt = [UIImage imageNamed:@"bubble5.png"];
-
-    desertChase.name = @"desertChase";
-    desertChase.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                   ofType:@"mp4"]];
-    desertChase.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    desertChase.posterArt = [UIImage imageNamed:@"bubble5.png"];
-
-    desertLynch.name = @"desertLynch";
-    desertLynch.categoryId = OUTDOORS_catId;
-    desertLynch.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                   ofType:@"mp4"]];
-    desertLynch.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    desertLynch.posterArt = [UIImage imageNamed:@"bubble5.png"];
-
-    campFire.name = @"campFire";
-    campFire.moviePath = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"videoTest1"
-                                                                                ofType:@"mp4"]];
-    campFire.movieThumbnail = [UIImage imageNamed:@"bubble5.png"];
-    campFire.posterArt = [UIImage imageNamed:@"bubble5.png"];
-
-}
 
 - (NSString *)sceneArchivePath
 {

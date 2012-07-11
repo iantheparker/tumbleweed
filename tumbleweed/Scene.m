@@ -10,7 +10,7 @@
 
 @implementation Scene
 
-@synthesize name, categoryId, moviePath, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date, hintCopy, checkInCopy, checkedVenue;
+@synthesize name, categoryId, movieName, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date, hintCopy, checkInCopy, checkedVenue;
 
 
 - (id) init
@@ -23,6 +23,20 @@
     
     return self;
 }
+
+- (id) initWithDictionary:(NSMutableDictionary *) plistDict
+{
+    self = [self init];
+    name = [plistDict objectForKey:@"name"];
+    categoryId = [plistDict objectForKey:@"categoryId"];
+    movieName = [plistDict objectForKey:@"movieName"];
+    movieThumbnail = [plistDict objectForKey:@"movieThumbnail"];
+    posterArt = [plistDict objectForKey:@"posterArt"];
+    hintCopy = [plistDict objectForKey:@"hintCopy"];
+    checkInCopy = [plistDict objectForKey:@"checkInCopy"];
+    return self;
+}
+                           
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {

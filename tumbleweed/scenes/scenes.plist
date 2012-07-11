@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Scenes</key>
+	<array>
+		<dict>
+			<key>name</key>
+			<string>No Man&apos;s Land</string>
+			<key>categoryId</key>
+			<string>nil</string>
+			<key>movieName</key>
+			<string>intro</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string>Where the hell am I?</string>
+			<key>checkInCopy</key>
+			<string>welcome to tumbleweed</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>The Deal</string>
+			<key>categoryId</key>
+			<string>DEAL_catId</string>
+			<key>movieName</key>
+			<string>deal</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string></string>
+			<key>checkInCopy</key>
+			<string>unlock by checking in at:</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>The Bar</string>
+			<key>categoryId</key>
+			<string>NIGHTLIFE_catId</string>
+			<key>movieName</key>
+			<string>bar</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string>I need a drink...</string>
+			<key>checkInCopy</key>
+			<string>unlock by checking in at:</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>The Gas Station</string>
+			<key>categoryId</key>
+			<string>GAS_TRAVEL_catId</string>
+			<key>movieName</key>
+			<string>gasStation</string>
+			<key>movieThumbnail</key>
+			<string>Gas_Station_thumbnail.jpg</string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string>Fill up your tank, bitch!</string>
+			<key>checkInCopy</key>
+			<string>unlock by checking in at:</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>The Riverbed</string>
+			<key>categoryId</key>
+			<string>OUTDOORS_catId</string>
+			<key>movieName</key>
+			<string>riverbed1</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string></string>
+			<key>checkInCopy</key>
+			<string>unlock by checking in at:</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>The Body</string>
+			<key>categoryId</key>
+			<string>nil</string>
+			<key>movieName</key>
+			<string>riverbed2</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string></string>
+			<key>checkInCopy</key>
+			<string>someone&apos;s bound to find out soon:</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>The Chase</string>
+			<key>categoryId</key>
+			<string>nil</string>
+			<key>movieName</key>
+			<string>chase</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string></string>
+			<key>checkInCopy</key>
+			<string>gotta keep moving!</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>Play Dead</string>
+			<key>categoryId</key>
+			<string>nil</string>
+			<key>movieName</key>
+			<string>lynch</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string></string>
+			<key>checkInCopy</key>
+			<string>go somewhere new!</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>The End</string>
+			<key>categoryId</key>
+			<string>nil</string>
+			<key>movieName</key>
+			<string>campFire</string>
+			<key>movieThumbnail</key>
+			<string></string>
+			<key>posterArt</key>
+			<string></string>
+			<key>hintCopy</key>
+			<string></string>
+			<key>checkInCopy</key>
+			<string>gotta keep moving!</string>
+			<key>bonus1</key>
+			<string></string>
+			<key>bonus2</key>
+			<string></string>
+		</dict>
+	</array>
+</dict>
+</plist>

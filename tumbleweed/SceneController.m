@@ -64,6 +64,8 @@
     //CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     //[checkIn setVenueDetails:venueDetails];
     //[self presentModalViewController:checkIn animated:YES];
+    
+    //[mvFoursquare selectAnnotation:annotation animated:YES];
 }
 
 
@@ -113,7 +115,7 @@
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-        [nameLabel setFont:[UIFont fontWithName:@"rockwell" size:26]];
+        [nameLabel setFont:[UIFont fontWithName:@"rockwell-condensed" size:26]];
         [nameLabel setText:name];
         UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
         [nameLabel setTextColor:redText];
@@ -149,7 +151,7 @@
 
     }
     [mvFoursquare addAnnotations: annotations];
-    [mvFoursquare selectAnnotation:[annotations objectAtIndex:0] animated:YES];
+    //[mvFoursquare selectAnnotation:[annotations objectAtIndex:0] animated:YES];
 }
 
 - (void) processRewards
@@ -204,7 +206,9 @@
 
 - (void) launchVideoPlayer
 {
-     moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:scene.moviePath];
+    NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:scene.movieName
+                                                                             ofType:@"mp4"]]; 
+    moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
     [self presentMoviePlayerViewControllerAnimated:moviePlayer];
 }
 
@@ -313,6 +317,7 @@
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
     
     static NSString *identifier = @"MyLocation";
+    NSLog(@"hiiiiiii");
     if ([annotation isKindOfClass:[FoursquareAnnotation class]]) {
         
         MKAnnotationView *annotationView = 
@@ -327,10 +332,12 @@
         }
         
         annotationView.enabled = YES;
-        annotationView.canShowCallout = YES;
+        annotationView.canShowCallout = YES;        
         annotationView.image = ((FoursquareAnnotation *)annotation).icon;
         
-        //[mvFoursquare selectAnnotation:[annotations objectAtIndex:0] animated:YES];
+        //[mvFoursquare selectAnnotation:annotation animated:YES];
+        
+        //[annotationView is
 
         
         // Create a UIButton object to add on the 
@@ -340,7 +347,7 @@
         
         UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
         [leftButton setTitle:annotation.title forState:UIControlStateNormal];
-        [annotationView setLeftCalloutAccessoryView:leftButton];
+        //[annotationView setLeftCalloutAccessoryView:leftButton];
         
         return annotationView;
     }
@@ -371,7 +378,23 @@
               [(FoursquareAnnotation*)[view annotation] coordinate].latitude, (FoursquareAnnotation*)[view annotation].subtitle);
     }
 }
-
+/*
+- (void) mapViewDidFinishLoadingMap:(MKMapView *)mapView
+{
+    for (id<MKAnnotation> currentAnnotation in mapView.annotations) {       
+        if ([currentAnnotation isEqual:annotationToSelect]) {
+            [mapView selectAnnotation:currentAnnotation animated:FALSE];
+        }
+    }
+}
+*/
+- (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
+{
+    //Here
+    //sleep(3);
+    //[mapView selectAnnotation:[[mapView annotations] lastObject] animated:YES];
+    //[[views lastObject] setHighlighted:YES];
+}
 
 #pragma mark - View lifecycle
 
@@ -383,16 +406,16 @@
     [self searchSetup];
     //[self processRewards];
     
-    [movieThumbnailImageView setImage:scene.movieThumbnail];
+    [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
     sceneTitle.text = scene.name;
-    sceneTitle.font = [UIFont fontWithName:@"rockwell" size:26];
+    sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:26];
     UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
     [sceneTitle setTextColor:brownText];
     checkInIntructions.text = scene.checkInCopy;
     checkInIntructions.font = [UIFont fontWithName:@"rockwell" size:17];
     [checkInIntructions setTextColor:brownText];
     
-    CGSize screenSize = CGSizeMake(480, 600.0);
+    CGSize screenSize = CGSizeMake(480, 540);
     checkinScrollView.contentSize = screenSize;
     checkinScrollView.showsHorizontalScrollIndicator = NO;
     checkinScrollView.showsVerticalScrollIndicator = NO;

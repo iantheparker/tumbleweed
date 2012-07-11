@@ -13,10 +13,6 @@
 		<string>appicon_114.png</string>
 		<string>Default@2x.png</string>
 	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>rockwell.ttf</string>
-	</array>
 	<key>CFBundleIcons</key>
 	<dict>
 		<key>CFBundlePrimaryIcon</key>
@@ -31,7 +27,7 @@
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>me.tumbleweed.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>com.tumbleweed.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -46,6 +42,12 @@
 	<string>17</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>rockwell.ttf</string>
+		<string>rockwell-bold.ttf</string>
+		<string>rockwell-condensed.ttf</string>
+	</array>
 	<key>UIPrerenderedIcon</key>
 	<true/>
 	<key>UIRequiredDeviceCapabilities</key>
