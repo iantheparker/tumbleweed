@@ -137,7 +137,7 @@ static Tumbleweed *weed = nil;
         [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey: @"deviceTokenKey"] forKey:@"device_token"];
         request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"registerUser", @"operation", nil];
         [request setDelegate:self];
-        [request startAsynchronous];
+        //[request startAsynchronous];
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:foursquare_id forKey:@"foursquare_id"];
         [defaults synchronize];

@@ -9,6 +9,7 @@
 #import "TumbleweedViewController.h"
 #import "SceneController.h"
 #import "FoursquareAuthViewController.h"
+#import "MCSpriteLayer.h"
 
 
 
@@ -69,7 +70,7 @@
 {
     double avatar_offset = 200;
     double janeLeftBound = 372;
-    double janeRightBound = 5332;
+    double janeRightBound = 5275;
     CGPoint center;
     CGRect bounds;
     
@@ -82,7 +83,6 @@
     //set position
     if ([scrollView contentOffset].x <janeLeftBound - avatar_offset || [scrollView contentOffset].x >janeRightBound - avatar_offset || !moving)
     {
-        //img = [UIImage imageNamed:@"JANE_walkcycle0.png"];
         bounds = [self selectAvatarBounds:-1];        
         if (janeAvatar.position.x <= janeLeftBound) center = CGPointMake(janeLeftBound, avatar_offset);
         else if (janeAvatar.position.x >= janeRightBound) center = CGPointMake(janeRightBound, avatar_offset);
@@ -90,9 +90,7 @@
     }
     else {
         center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
-        //img = [self selectAvatarImage:[scrollView contentOffset].x];
         bounds = [self selectAvatarBounds:[scrollView contentOffset].x];
-        //NSLog(@"cgrect %@", NSStringFromCGRect([self selectAvatarBounds:[scrollView contentOffset].x]));
     }
     janeAvatar.bounds = CGRectMake(0, 0, bounds.size.width/2, bounds.size.height/2);
     janeAvatar.contentsRect = CGRectMake(bounds.origin.x/1024.0f, bounds.origin.y/512.0f, bounds.size.width/1024.0f, bounds.size.height/512.0f);
@@ -117,13 +115,13 @@
     [map0CA setPosition:skyCenter];
     
     //--> mid-layer position
-    float midlayerCoefficient = .1;
+    float midlayerCoefficient = .02;
     CGPoint midlayerPos = CGPointMake(mapCenter.x - (janeOffset * midlayerCoefficient), map2CA.position.y);
     [map2CA setPosition:midlayerPos];
     
     //--> top layer position
-    float toplayerCoefficient = .1;
-    CGPoint toplayerPos = CGPointMake(mapCenter.x - (janeOffset * toplayerCoefficient), map4CA.position.y);
+    float toplayerCoefficient = 1.5;
+    CGPoint toplayerPos = CGPointMake(mapCenter.x + (janeOffset * toplayerCoefficient), map4CA.position.y);
     [map4CA setPosition:toplayerPos];
     
     [CATransaction commit];
@@ -152,23 +150,31 @@
 {
     [self renderScreen:walkingForward:FALSE];
 }
-
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
+- (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    NSLog(@"touched");
-    CGPoint p = [(UITouch*)[touches anyObject] locationInView:self.mapCAView];
-    for (CALayer *layer in self.view.layer.sublayers) {
-        if ([layer containsPoint:[self.view.layer convertPoint:p toLayer:layer]]) {
-            NSLog(@"touched");
-        }
-    }
+    [self renderScreen:walkingForward:FALSE];
 }
 
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender
 {
-    NSLog(@"touched");
-    //CALayer* layerThatWasTapped = [mapCAView.layer hitTest:[sender locationInView:mapCAView]];
-    //layerThatWasTapped.position = CGPointMake(67, 23);
+    /* 
+    CALayer* layerThatWasTapped = [mapCAView.layer hitTest:[sender locationInView:mapCAView]];
+    if ([[mapCAView.layer hitTest:[sender locationInView:mapCAView]].name isEqualToString:janeAvatar.name]) {
+        NSLog(@"layer has a name ");
+    }
+   */
+    CGPoint loc = [sender locationInView:mapCAView];
+    NSLog(@"touched %f,%f ", loc.x, loc.y);
+    for (CALayer *layer in mapCAView.layer.sublayers) {
+        if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
+            if ([layer.name isEqualToString:[janeAvatar name]]) {
+                NSLog(@"jane hit");
+            }
+        }
+    }
+
+
+    
 
 }
 
@@ -411,6 +417,7 @@
    
 }
 
+
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
@@ -432,9 +439,6 @@
     [scrollView setDelegate:self];
     [scrollView addSubview:mapCAView];
     
-    CATransform3D transform = CATransform3DIdentity;
-    transform.m34 = 1.0 / -2000;
-    
     //--> sky
     UIImage *skyImage = [UIImage imageNamed:@"gdw_parallax_cropped_layer=sky.jpg"];
     CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
@@ -449,7 +453,7 @@
     [mapCAView.layer addSublayer:map0CA];
 
     
-    //--> layer1
+    //--> layer1 --main map
     CGRect mapFrame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [map1CA setBounds:mapFrame];
     [map1CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
@@ -459,7 +463,7 @@
     map1CA.opaque = YES;
     [mapCAView.layer addSublayer:map1CA];
     
-    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"mapLayer1" ofType:@"plist"];
+    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"mapLayers" ofType:@"plist"];
     NSDictionary *mainDict = [NSDictionary dictionaryWithContentsOfFile:plistPath];
     NSArray *array = [NSArray arrayWithArray:[mainDict objectForKey:@"mapLayer1"]];
     
@@ -485,15 +489,26 @@
         subLayer2.opaque = YES;
         
         
-        //[map1CA addSublayer:subLayer1];
-        //[map1CA addSublayer:subLayer2];
-        [mapCAView.layer addSublayer:subLayer1];
-        [mapCAView.layer addSublayer:subLayer2];
+        [map1CA addSublayer:subLayer1];
+        [map1CA addSublayer:subLayer2];
+        //[mapCAView.layer addSublayer:subLayer1];
+        //[mapCAView.layer addSublayer:subLayer2];
     }
     
+    //--> layer1 extras
+    CALayer *rock = [CALayer layer];
+    UIImage *rockImg = [UIImage imageNamed:@"rockTop.png"];
+    rock.bounds = CGRectMake(0, 0, rockImg.size.width/2, rockImg.size.height/2);
+    rock.position = CGPointMake(5275, screenSize.height - rock.bounds.size.height/2);
+    //hangnoose1.position = CGPointMake(0, screenSize.height/2);
+    CGImageRef rockCGImage = [rockImg CGImage];
+    [rock setContents:(__bridge id)rockCGImage];
+    rock.zPosition = 3;
+    [mapCAView.layer addSublayer:rock];
     
-    //--> layer2
-    CGRect map2Frame = CGRectMake(0, 0, screenSize.width *1.01, screenSize.height);
+    
+    //--> layer2 --town, saloon, stuff
+    CGRect map2Frame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [map2CA setBounds:map2Frame];
     [map2CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
     //CGImageRef map2Image = [[UIImage imageNamed:@"map2.png"] CGImage];
@@ -501,10 +516,10 @@
     [map2CA setZPosition:2];
     map2CA.opaque = YES;
     map2CA.shouldRasterize = YES;
-    //[mapCAView.layer addSublayer:map2CA];
+    [mapCAView.layer addSublayer:map2CA];
     
     //--> layer4
-    CGRect map4Frame = CGRectMake(0, 0, 500, 320);
+    CGRect map4Frame = CGRectMake(0, 0, screenSize.width*3, screenSize.height);
     [map4CA setBounds:map4Frame];
     [map4CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
     //CGImageRef map4Image = [[UIImage imageNamed:@"map4.png"] CGImage];
@@ -514,13 +529,28 @@
     //map4CA.shouldRasterize = YES;
     [mapCAView.layer addSublayer:map4CA];
     
+    NSArray *topLayerArray = [NSArray arrayWithArray:[mainDict objectForKey:@"mapLayer4"]];
+    for (int i=0; i<topLayerArray.count; i++)
+    {
+        CALayer *subLayer1 = [CALayer layer];
+        NSString *imageName1 = [topLayerArray objectAtIndex:i];
+        UIImage *image1 = [UIImage imageNamed:imageName1];
+        subLayer1.contents = (id)[UIImage 
+                                  imageWithCGImage:[image1 CGImage] 
+                                  scale:1.0 
+                                  orientation:UIImageOrientationRight].CGImage;
+        
+        subLayer1.bounds = CGRectMake(0, 0, image1.size.width/2, image1.size.height/2);
+        subLayer1.position = CGPointMake((map4Frame.size.width/12 *(i+1)), screenSize.height-subLayer1.bounds.size.height/2);
+        [map4CA addSublayer:subLayer1];
+    }
+    
     //-->animations
     {
         CALayer *hangnoose1 = [CALayer layer];
         UIImage *hangnoose1img = [UIImage imageNamed:@"hangnoose_post.png"];
         hangnoose1.bounds = CGRectMake(0, 0, hangnoose1img.size.width/2, hangnoose1img.size.height/2);
-        //hangnoose1.position = CGPointMake(screenSize.width/4, screenSize.height/2);
-        hangnoose1.position = CGPointMake(0, screenSize.height/2);
+        hangnoose1.position = CGPointMake((map4Frame.size.width/12 *11), screenSize.height/2);
         CGImageRef hangnoose1Image = [hangnoose1img CGImage];
         [hangnoose1 setContents:(__bridge id)hangnoose1Image];
         hangnoose1.zPosition = 5;
@@ -534,26 +564,98 @@
         [hangnoose2 setContents:(__bridge id)hangnoose2Image];
         [hangnoose1 addSublayer:hangnoose2];
         
-        CABasicAnimation* animation;
-        animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-        animation.fromValue = [NSNumber numberWithFloat:1.98 * M_PI];
-        animation.toValue = [NSNumber numberWithFloat:2.02 * M_PI];
-        animation.duration = 2.0;
+        CABasicAnimation* nooseAnimation;
+        nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+        nooseAnimation.fromValue = [NSNumber numberWithFloat:1.98 * M_PI];
+        nooseAnimation.toValue = [NSNumber numberWithFloat:2.02 * M_PI];
+        nooseAnimation.duration = 2.0;
         //animation.cumulative = YES;
-        animation.autoreverses = YES;
-        animation.repeatCount = HUGE_VAL;
-        animation.removedOnCompletion = NO;
-        animation.fillMode = kCAFillModeForwards;
-        animation.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
-        [hangnoose2 addAnimation:animation forKey:@"transform.rotation.z"];
+        nooseAnimation.autoreverses = YES;
+        nooseAnimation.repeatCount = HUGE_VAL;
+        nooseAnimation.removedOnCompletion = NO;
+        nooseAnimation.fillMode = kCAFillModeForwards;
+        nooseAnimation.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [hangnoose2 addAnimation:nooseAnimation forKey:@"transform.rotation.z"];
     }
+    
+    {//-->campFire
+        CALayer *blackPanel = [CALayer layer];
+        [blackPanel setBounds:CGRectMake(0, 0, 400, screenSize.height)];
+        [blackPanel setPosition:CGPointMake(screenSize.width - blackPanel.bounds.size.width/2, screenSize.height/2)];
+        blackPanel.backgroundColor = [UIColor blackColor].CGColor;
+        blackPanel.zPosition = 3;
+        [mapCAView.layer addSublayer:blackPanel];
+        
+        //-->eyes
+        CALayer *eyes = [CALayer layer];
+        CGImageRef eyesImage = [[UIImage imageNamed:@"eyeBlink.png"] CGImage];
+        [eyes setContents:(__bridge id)eyesImage];
+        CGRect eyesBounds =  CGRectMake(0, 0, 619, 152); 
+        eyes.bounds = CGRectMake(0, 0, eyesBounds.size.width/2, eyesBounds.size.height/2);
+        eyes.contentsRect = CGRectMake(eyesBounds.origin.x/1024.0f, eyesBounds.origin.y/1024.0f, eyesBounds.size.width/1024.0f, eyesBounds.size.height/1024.0f);
+        [eyes setPosition:CGPointMake(blackPanel.bounds.size.width/2, blackPanel.bounds.size.height/2)];
+        [blackPanel addSublayer:eyes];
+        
+        CGSize fixedSize = CGSizeMake(619, 152);
+        MCSpriteLayer* eyesSprite = [MCSpriteLayer layerWithImage:eyesImage sampleSize:fixedSize];
+        eyesSprite.position = eyes.position;
+    
+        CAKeyframeAnimation *eyesAnimation = [CAKeyframeAnimation animationWithKeyPath:@"sampleIndex"];
+        eyesAnimation.duration = 3.0f;
+        eyesAnimation.repeatCount = HUGE_VALF;
+        eyesAnimation.calculationMode = kCAAnimationDiscrete;
+        eyesAnimation.removedOnCompletion = NO;
+        eyesAnimation.fillMode = kCAFillModeForwards;
+        
+        eyesAnimation.values = [NSArray arrayWithObjects:
+                            [NSNumber numberWithInt:1],
+                            [NSNumber numberWithInt:2],
+                            [NSNumber numberWithInt:3],
+                            [NSNumber numberWithInt:5], 
+                            [NSNumber numberWithInt:4], 
+                            [NSNumber numberWithInt:1], 
+                            [NSNumber numberWithInt:1],nil]; //not called
+        
+        eyesAnimation.keyTimes = [NSArray arrayWithObjects:
+                              [NSNumber numberWithFloat:0.0], 
+                              [NSNumber numberWithFloat:0.1], 
+                              [NSNumber numberWithFloat:0.12], 
+                              [NSNumber numberWithFloat:0.18], 
+                              [NSNumber numberWithFloat:0.3], 
+                              [NSNumber numberWithFloat:.4],
+                              [NSNumber numberWithFloat:0], nil]; //not called
+        
+        [eyesSprite addAnimation:eyesAnimation forKey:@"eyeBlink"];
+        [blackPanel addSublayer:eyesSprite];
+                
+        //the colors for the gradient.  highColor is at the top, lowColor as at the bottom
+        UIColor * highColor = [UIColor colorWithWhite:0.000 alpha:1.000];
+        UIColor * lowColor = [UIColor colorWithWhite:0.0 alpha:0.0];
+        
+        //The gradient, simply enough.  It is a rectangle
+        CAGradientLayer * gradient = [CAGradientLayer layer];
+        [gradient setFrame:CGRectMake(0, 0, blackPanel.bounds.size.width/2, blackPanel.bounds.size.height)];
+        [gradient setColors:[NSArray arrayWithObjects:(id)[highColor CGColor], (id)[lowColor CGColor], nil]];
+        [gradient setStartPoint:CGPointMake(1, .5)];
+        [gradient setEndPoint:CGPointMake(0, .5)];
+        
+        CALayer * roundRect = [CALayer layer];
+        [roundRect setFrame:blackPanel.bounds];
+        [roundRect setPosition:CGPointMake(blackPanel.bounds.size.width - roundRect.frame.size.width, roundRect.frame.size.height/2)];
+        [roundRect setMasksToBounds:YES];
+        [roundRect addSublayer:gradient];
+        [blackPanel addSublayer:roundRect];
+    }
+    
 
     //--> avatar
     CGImageRef avatarImage = [[UIImage imageNamed:@"janeSprite_default.png"] CGImage];
     [janeAvatar setContents:(__bridge id)avatarImage];
     [janeAvatar setZPosition:2];
+    janeAvatar.name = @"janeAvatar";
     [mapCAView.layer addSublayer:janeAvatar];
     [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
+    NSLog(@"jane text %@ %@", janeAvatar.name, janeAvatar.description);
     
     [mapCAView bringSubviewToFront:foursquareConnectButton];
     [mapCAView bringSubviewToFront:gasStationButton];

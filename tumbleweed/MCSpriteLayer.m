@@ -21,7 +21,7 @@
     self = [super init];
     if (self != nil)
     {
-        self.contents = (id)img;
+        self.contents = (__bridge id)img;
         sampleIndex = 1;
     }
 
@@ -32,7 +32,7 @@
 + (id)layerWithImage:(CGImageRef)img;
 {
     MCSpriteLayer *layer = [(MCSpriteLayer*)[self alloc] initWithImage:img];
-    return [layer autorelease];
+    return layer;
 }
 
 
@@ -46,8 +46,10 @@
     if (self != nil)
     {
         CGSize sampleSizeNormalized = CGSizeMake(size.width/CGImageGetWidth(img), size.height/CGImageGetHeight(img));
-        self.bounds = CGRectMake( 0, 0, size.width, size.height );
+        self.bounds = CGRectMake( 0, 0, size.width/2, size.height/2 );
         self.contentsRect = CGRectMake( 0, 0, sampleSizeNormalized.width, sampleSizeNormalized.height );
+        //NSLog(@"sampleNormalized w%f,h%f", sampleSizeNormalized.width, sampleSizeNormalized.height);
+        //NSLog(@"bounds w%f,h%f", sampleSizeNormalized.width, sampleSizeNormalized.height);
     }
     
     return self;
@@ -57,7 +59,7 @@
 + (id)layerWithImage:(CGImageRef)img sampleSize:(CGSize)size;
 {
     MCSpriteLayer *layer = [[self alloc] initWithImage:img sampleSize:size];
-    return [layer autorelease];
+    return layer;
 }
 
 
@@ -106,6 +108,7 @@
         ((currentSampleIndex - 1) / (int)(1/sampleSize.width)) * sampleSize.height, 
         sampleSize.width, sampleSize.height
     );
+    //NSLog(@"contentsRect %@", NSStringFromCGRect(self.contentsRect));
 }
 
 

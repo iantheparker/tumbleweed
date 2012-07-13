@@ -41,5 +41,17 @@
 		<string>map1_35.jpg</string>
 		<string>map1_36.jpg</string>
 	</array>
+	<key>mapLayer4</key>
+	<array>
+		<string>mapLayer4_01.png</string>
+		<string>mapLayer4_02.png</string>
+		<string>mapLayer4_03.png</string>
+		<string>mapLayer4_04.png</string>
+		<string>mapLayer4_05.png</string>
+		<string>mapLayer4_06.png</string>
+		<string>mapLayer4_07.png</string>
+		<string>mapLayer4_08.png</string>
+		<string>mapLayer4_09.png</string>
+	</array>
 </dict>
 </plist>

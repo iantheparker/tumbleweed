@@ -63,7 +63,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     //generic remote notifications setup and whatnot
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
     if (([[NSUserDefaults standardUserDefaults] stringForKey: @"deviceTokenKey"]) &&
-        ([[UIApplication sharedApplication] enabledRemoteNotificationTypes] != remoteNotifTypes))
+        ([[UIApplication sharedApplication] enabledRemoteNotificationTypes] != (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)))
     {
         //user has probably disabled push. react accordingly.
     }

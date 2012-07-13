@@ -94,6 +94,8 @@
     // let the scrollview know how big the content size is
     venueScrollView.contentSize = contentSize;
     
+    allVenues = nil;
+    
     int offset = 0;
     NSMutableArray *annotations = [[NSMutableArray alloc] init];
     for (int i = 0; i < [items count]; i++) {
