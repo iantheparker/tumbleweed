@@ -14,7 +14,6 @@
 #import "FlurryAnalytics.h"
 
 #define deviceTokenKey   @"devtok"
-#define remoteNotifTypes UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound
 
 @implementation AppDelegate
 
@@ -75,14 +74,12 @@ void uncaughtExceptionHandler(NSException *exception) {
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)token
 {    
-    //NSString *deviceToken = [token description];
-    NSString *deviceToken = [NSString stringWithUTF8String:[token bytes]];
+    NSString *deviceToken = [token description];
     NSLog(@"bytes in hex: %@", deviceToken);
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @"<" withString: @""];
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @">" withString: @""];
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @" " withString: @""];
     //const void *devTokenBytes = [token bytes];
-    NSLog(@"bytes in hex: %@", deviceToken);
     
     if ([[NSUserDefaults standardUserDefaults] stringForKey: deviceTokenKey])
     {
@@ -101,6 +98,7 @@ void uncaughtExceptionHandler(NSException *exception) {
         
         //user allowed push. react accordingly.
     }
+    //NSLog(@"userDef token %@", [[NSUserDefaults standardUserDefaults] stringForKey: deviceTokenKey]);
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error

@@ -135,6 +135,7 @@ static Tumbleweed *weed = nil;
         ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
         [request setPostValue:foursquare_id forKey:@"foursquare_id"];
         [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey: @"deviceTokenKey"] forKey:@"device_token"];
+        //[[NSUserDefaults standardUserDefaults] stringForKey: deviceTokenKey]
         request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"registerUser", @"operation", nil];
         [request setDelegate:self];
         //[request startAsynchronous];

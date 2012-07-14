@@ -11,11 +11,29 @@
 #import "FoursquareAuthViewController.h"
 #import "MCSpriteLayer.h"
 
+@interface TumbleweedViewController() 
 
+@property BOOL walkingForward;
+@property (nonatomic, retain) UIScrollView *scrollView;
+@property (nonatomic, retain) CALayer *map0CA;
+@property (nonatomic, retain) CALayer *map1CA;
+@property (nonatomic, retain) CALayer *map2CA;
+@property (nonatomic, retain) CALayer *map4CA;
+@property (nonatomic, retain) CALayer *janeAvatar;
+@property (nonatomic, retain) UIView *mapCAView;
+@property (nonatomic, retain) Tumbleweed *weed;
+@property (nonatomic, retain) CLLocationManager *locationManager;
+
+-(void)pauseLayer:(CALayer*)layer;
+-(void)resumeLayer:(CALayer*)layer;
+-(void) renderScreen: (BOOL) direction : (BOOL) moving;
+-(CGRect) selectAvatarBounds:(float) position;
+
+@end
 
 @implementation TumbleweedViewController
 
-@synthesize scrollView, map0CA, map1CA, map2CA, map4CA, mapCAView, janeAvatar, sprites, walkingForward, weed, locationManager;
+@synthesize scrollView, map0CA, map1CA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward, weed, locationManager;
 
 //-- scene buttons
 @synthesize foursquareConnectButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton;
@@ -111,7 +129,7 @@
     CGPoint mapCenter = map1CA.position;
     float skyCoefficient = .9;
     float janeOffset = mapCenter.x - scrollView.contentOffset.x;
-    CGPoint skyCenter = CGPointMake(220+mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
+    CGPoint skyCenter = CGPointMake(avatar_offset+mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
     [map0CA setPosition:skyCenter];
     
     //--> mid-layer position
@@ -121,7 +139,7 @@
     
     //--> top layer position
     float toplayerCoefficient = 1.5;
-    CGPoint toplayerPos = CGPointMake(mapCenter.x + (janeOffset * toplayerCoefficient), map4CA.position.y);
+    CGPoint toplayerPos = CGPointMake(avatar_offset+mapCenter.x + (janeOffset * toplayerCoefficient), map4CA.position.y);
     [map4CA setPosition:toplayerPos];
     
     [CATransaction commit];
@@ -172,12 +190,23 @@
             }
         }
     }
-
-
-    
-
+}
+-(void)pauseLayer:(CALayer*)layer
+{
+    CFTimeInterval pausedTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil];
+    layer.speed = 0.0;
+    layer.timeOffset = pausedTime;
 }
 
+-(void)resumeLayer:(CALayer*)layer
+{
+    CFTimeInterval pausedTime = [layer timeOffset];
+    layer.speed = 1.0;
+    layer.timeOffset = 0.0;
+    layer.beginTime = 0.0;
+    CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - pausedTime;
+    layer.beginTime = timeSincePause;
+}
 
 #pragma mark button handlers
 
@@ -519,7 +548,7 @@
     [mapCAView.layer addSublayer:map2CA];
     
     //--> layer4
-    CGRect map4Frame = CGRectMake(0, 0, screenSize.width*3, screenSize.height);
+    CGRect map4Frame = CGRectMake(0, 0, screenSize.width*2.7, screenSize.height);
     [map4CA setBounds:map4Frame];
     [map4CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
     //CGImageRef map4Image = [[UIImage imageNamed:@"map4.png"] CGImage];
