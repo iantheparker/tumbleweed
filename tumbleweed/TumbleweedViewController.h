@@ -22,12 +22,12 @@
     CALayer *map2CA;
     CALayer *map4CA;
     CALayer *janeAvatar;
-    id displayLink;
-    IBOutlet UIView *mapCAView;
+    UIView *mapCAView;
     IBOutlet UIScrollView *scrollView;
     int lastContentOffset;
     BOOL walkingForward;
     //-- buttons
+    IBOutlet UIView *buttonContainer;
     IBOutlet UIButton *foursquareConnectButton;
     IBOutlet UIButton *gasStationButton;
     IBOutlet UIButton *dealButton;

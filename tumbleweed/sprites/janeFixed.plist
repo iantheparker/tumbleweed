@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>frames</key>
+	<dict>
+		
+		<key>janeStill_01.png</key>
+		<dict>
+			<key>aliases</key>
+			<array>
+			
+			</array>
+			<key>spriteColorRect</key>
+			<string>{{76, 5}, {172, 463}}</string>
+			<key>spriteOffset</key>
+			<string>{9, -1}</string>
+			<key>spriteSize</key>
+			<string>{172, 463}</string>
+			<key>spriteSourceSize</key>
+			<string>{306, 471}</string>
+			<key>spriteTrimmed</key>
+			<true/>
+			<key>textureRect</key>
+			<string>{{0, 0}, {172, 463}}</string>
+			<key>textureRotated</key>
+			<false/>
+		</dict>
+		
+		<key>janeWalk_01.png</key>
+		<dict>
+			<key>aliases</key>
+			<array>
+			
+			</array>
+			<key>spriteColorRect</key>
+			<string>{{22, 6}, {246, 465}}</string>
+			<key>spriteOffset</key>
+			<string>{-8, -3}</string>
+			<key>spriteSize</key>
+			<string>{246, 465}</string>
+			<key>spriteSourceSize</key>
+			<string>{306, 471}</string>
+			<key>spriteTrimmed</key>
+			<true/>
+			<key>textureRect</key>
+			<string>{{172, 0}, {246, 465}}</string>
+			<key>textureRotated</key>
+			<false/>
+		</dict>
+		
+		<key>janeWalk_02.png</key>
+		<dict>
+			<key>aliases</key>
+			<array>
+			
+			</array>
+			<key>spriteColorRect</key>
+			<string>{{23, 4}, {234, 467}}</string>
+			<key>spriteOffset</key>
+			<string>{-13, -2}</string>
+			<key>spriteSize</key>
+			<string>{234, 467}</string>
+			<key>spriteSourceSize</key>
+			<string>{306, 471}</string>
+			<key>spriteTrimmed</key>
+			<true/>
+			<key>textureRect</key>
+			<string>{{418, 0}, {234, 467}}</string>
+			<key>textureRotated</key>
+			<false/>
+		</dict>
+		
+		<key>janeWalk_03.png</key>
+		<dict>
+			<key>aliases</key>
+			<array>
+			
+			</array>
+			<key>spriteColorRect</key>
+			<string>{{2, 6}, {304, 465}}</string>
+			<key>spriteOffset</key>
+			<string>{1, -3}</string>
+			<key>spriteSize</key>
+			<string>{304, 465}</string>
+			<key>spriteSourceSize</key>
+			<string>{306, 471}</string>
+			<key>spriteTrimmed</key>
+			<true/>
+			<key>textureRect</key>
+			<string>{{652, 0}, {304, 465}}</string>
+			<key>textureRotated</key>
+			<false/>
+		</dict>
+		
+		<key>janeWalk_04.png</key>
+		<dict>
+			<key>aliases</key>
+			<array>
+			
+			</array>
+			<key>spriteColorRect</key>
+			<string>{{20, 0}, {246, 471}}</string>
+			<key>spriteOffset</key>
+			<string>{-10, -0}</string>
+			<key>spriteSize</key>
+			<string>{246, 471}</string>
+			<key>spriteSourceSize</key>
+			<string>{306, 471}</string>
+			<key>spriteTrimmed</key>
+			<true/>
+			<key>textureRect</key>
+			<string>{{956, 0}, {246, 471}}</string>
+			<key>textureRotated</key>
+			<false/>
+		</dict>
+		
+		<key>janeWalk_05.png</key>
+		<dict>
+			<key>aliases</key>
+			<array>
+			
+			</array>
+			<key>spriteColorRect</key>
+			<string>{{22, 4}, {234, 467}}</string>
+			<key>spriteOffset</key>
+			<string>{-14, -2}</string>
+			<key>spriteSize</key>
+			<string>{234, 467}</string>
+			<key>spriteSourceSize</key>
+			<string>{306, 471}</string>
+			<key>spriteTrimmed</key>
+			<true/>
+			<key>textureRect</key>
+			<string>{{1202, 0}, {234, 467}}</string>
+			<key>textureRotated</key>
+			<false/>
+		</dict>
+		
+		<key>janeWalk_06.png</key>
+		<dict>
+			<key>aliases</key>
+			<array>
+			
+			</array>
+			<key>spriteColorRect</key>
+			<string>{{2, 5}, {304, 465}}</string>
+			<key>spriteOffset</key>
+			<string>{1, -2}</string>
+			<key>spriteSize</key>
+			<string>{304, 465}</string>
+			<key>spriteSourceSize</key>
+			<string>{306, 471}</string>
+			<key>spriteTrimmed</key>
+			<true/>
+			<key>textureRect</key>
+			<string>{{1436, 0}, {304, 465}}</string>
+			<key>textureRotated</key>
+			<false/>
+		</dict>
+		
+	</dict>
+	<key>metadata</key>
+	<dict>
+		<key>version</key>
+		<string>1.5.5</string>
+		<key>format</key>
+		<integer>3</integer>
+		<key>size</key>
+		<string>{2048, 512}</string>
+		<key>name</key>
+		<string>janeFixed</string>
+		<key>premultipliedAlpha</key>
+		<false/>
+		<key>target</key>
+		<dict>
+			<key>name</key>
+			<string>hd</string>
+			<key>textureFileName</key>
+			<string>janeFixed@2x</string>
+			<key>textureFileExtension</key>
+			<string>.png</string>
+			<key>coordinatesFileName</key>
+			<string>janeFixed</string>
+			<key>coordinatesFileExtension</key>
+			<string>.plist</string>
+			<key>premultipliedAlpha</key>
+			<false/>
+		</dict>
+	</dict>
+</dict>
+</plist>
