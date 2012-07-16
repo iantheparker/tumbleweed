@@ -621,22 +621,14 @@
     
     //-->noose animation test
     {
-        CALayer *hangnoose1 = [CALayer layer];
-        UIImage *hangnoose1img = [UIImage imageNamed:@"hangnoose_post.png"];
-        hangnoose1.bounds = CGRectMake(0, 0, hangnoose1img.size.width/2, hangnoose1img.size.height/2);
-        hangnoose1.position = CGPointMake((map4Frame.size.width/12 *11), screenSize.height/2);
-        CGImageRef hangnoose1Image = [hangnoose1img CGImage];
-        [hangnoose1 setContents:(__bridge id)hangnoose1Image];
-        hangnoose1.zPosition = 5;
-        //[map4CA addSublayer:hangnoose1];
         CALayer *hangnoose2 = [CALayer layer];
-        UIImage *hangnoose2img = [UIImage imageNamed:@"hangnoose_noose.png"];
-        hangnoose2.bounds = CGRectMake(0, 0, hangnoose2img.size.width, hangnoose2img.size.height);
-        hangnoose2.position = CGPointMake(30, 33);
+        UIImage *hangnoose2img = [UIImage imageNamed:@"top_lvl4_objs_10B.png"];
+        hangnoose2.bounds = CGRectMake(0, 0, hangnoose2img.size.width/2, hangnoose2img.size.height/2);
+        hangnoose2.position = CGPointMake(11557, 27);
         hangnoose2.anchorPoint = CGPointMake(.5, 0);
         CGImageRef hangnoose2Image = [hangnoose2img CGImage];
         [hangnoose2 setContents:(__bridge id)hangnoose2Image];
-        [hangnoose1 addSublayer:hangnoose2];
+        [map4CA addSublayer:hangnoose2];
         
         CABasicAnimation* nooseAnimation;
         nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
