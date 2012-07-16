@@ -37,7 +37,7 @@
 @synthesize scrollView, map0CA, map1CA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward, weed, locationManager;
 
 //-- scene buttons
-@synthesize foursquareConnectButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, buttonContainer;
+@synthesize foursquareConnectButton, introButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, buttonContainer;
 
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -197,6 +197,9 @@
         }
     }
 }
+
+#pragma mark animation controls
+
 -(void)pauseLayer:(CALayer*)layer
 {
     CFTimeInterval pausedTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil];
@@ -224,6 +227,11 @@
     [fsq setModalTransitionStyle:UIModalTransitionStylePartialCurl];
     [self presentViewController:fsq animated:YES completion:NULL];  
 
+}
+- (IBAction)introPressed:(UIButton *)sender
+{
+    SceneController *introScene = [[SceneController alloc] initWithScene:weed.intro];
+    [self presentModalViewController:introScene animated:YES];
 }
 - (IBAction)dealPressed:(UIButton *)sender
 {
@@ -532,7 +540,7 @@
     //--> layer1 extras
     
     CALayer *rock = [CALayer layer];
-    UIImage *rockImg = [UIImage imageNamed:@"rockTop.png"];
+    UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
     //rock.bounds = CGRectMake(0, 0, rockImg.size.width, rockImg.size.height);
     //rock.position = CGPointMake(5275, screenSize.height - rock.bounds.size.height/2);
     rock.frame = CGRectMake(5100, screenSize.height - rockImg.size.height/2, rockImg.size.width/2, rockImg.size.height/2);    
@@ -556,35 +564,60 @@
     CGRect map4Frame = CGRectMake(0, 0, screenSize.width*2.7, screenSize.height);
     [map4CA setBounds:map4Frame];
     [map4CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    //CGImageRef map4Image = [[UIImage imageNamed:@"map4.png"] CGImage];
-    //[map4CA setContents:(__bridge id) map4Image];
     [map4CA setZPosition:5];
-    //map4CA.opaque = YES;
-    //map4CA.shouldRasterize = YES;
     [mapCAView.layer addSublayer:map4CA];
     
-    //buttonContainer.bounds = CGRectMake(0, 0,3000, screenSize.height);
-    buttonContainer.bounds = map4Frame;
-    buttonContainer.center = map4CA.position;
-    
-    NSArray *topLayerArray = [NSArray arrayWithArray:[mainDict objectForKey:@"mapLayer4"]];
-    for (int i=0; i<topLayerArray.count; i++)
+    buttonContainer.bounds = map4Frame;   //CGRectMake(0, 0, map4Frame.size.width, 100);
+    buttonContainer.center = CGPointMake(map4CA.position.x, 0);
+    NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:introButton, dealButton, barButton,gasStationButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, nil];
+    //NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:riv, nil];
+    //riverbed2, chase, intro, lynch, deal, gas, bar, riverbed1
+    NSMutableDictionary *topLayerDict = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer4"]];
+    int i = 0;
+    for (NSString *key in topLayerDict) 
     {
+        //NSLog(@"=%d", i);
+        NSDictionary *sceneDict = [topLayerDict objectForKey:key];
         CALayer *subLayer1 = [CALayer layer];
-        NSString *imageName1 = [topLayerArray objectAtIndex:i];
+        NSString *imageName1 = [sceneDict objectForKey:@"img"];
         UIImage *image1 = [UIImage imageNamed:imageName1];
         subLayer1.contents = (id)[UIImage 
                                   imageWithCGImage:[image1 CGImage] 
                                   scale:1.0 
                                   orientation:UIImageOrientationRight].CGImage;
+        NSString *positionString = [sceneDict objectForKey:@"position"];
+        positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
+        positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
+        positionString = [positionString stringByReplacingOccurrencesOfString:@"}" withString:@""];
+        NSArray *strings = [positionString componentsSeparatedByString:@","];
+        
+        float originX = [[strings objectAtIndex:0] floatValue];
+        //float originY = [[strings objectAtIndex:1] intValue];
         
         subLayer1.bounds = CGRectMake(0, 0, image1.size.width/2, image1.size.height/2);
-        subLayer1.position = CGPointMake((map4Frame.size.width/12 *(i+1)), screenSize.height-subLayer1.bounds.size.height/2);
-        [map4CA addSublayer:subLayer1];
+        //subLayer1.position = CGPointMake((map4Frame.size.width/12 *(i+1)), screenSize.height-subLayer1.bounds.size.height/2);
+        subLayer1.position = CGPointMake(originX, screenSize.height-subLayer1.bounds.size.height/2);
+        [map4CA addSublayer:subLayer1]; 
+        if ([sceneDict objectForKey:@"buttonPosition"]) 
+        {
+            NSString *positionString = [sceneDict objectForKey:@"buttonPosition"];
+            positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
+            positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
+            positionString = [positionString stringByReplacingOccurrencesOfString:@"}" withString:@""];
+            NSArray *strings = [positionString componentsSeparatedByString:@","];
+            
+            float originX = [[strings objectAtIndex:0] floatValue];
+            float originY = [[strings objectAtIndex:1] floatValue];
+            [[buttonArray objectAtIndex:i] setCenter:CGPointMake(originX, originY)];
+            
+            NSString *imgName1 =[sceneDict objectForKey:@"buttonAccessible"];
+            UIImage *buttonImg = [UIImage imageNamed:imgName1];
+            [[buttonArray objectAtIndex:i] setImage:buttonImg forState:UIControlStateNormal];
+            i++;
+        }
+        NSLog(@"i=%d", i);
     }
-    [scrollView addSubview:buttonContainer];
-    campFireButton.center = buttonContainer.center;
-    
+    [scrollView addSubview:buttonContainer];    
     
     //-->noose animation test
     {
@@ -629,7 +662,8 @@
         
         //the colors for the gradient.  highColor is at the right, lowColor as at the left
         UIColor * highColor = [UIColor colorWithWhite:0.0 alpha:1.0];
-        UIColor * lowColor = [UIColor colorWithWhite:0.0 alpha:0.0];
+        //UIColor * lowColor = [UIColor colorWithWhite:0.0 alpha:0.0];
+        UIColor * lowColor = [UIColor colorWithRed:.4 green:.1 blue:.1 alpha:0];
         
         CAGradientLayer * gradient = [CAGradientLayer layer];
         [gradient setFrame:CGRectMake(0, 0, blackPanel.bounds.size.width*2, blackPanel.bounds.size.height)];
@@ -687,12 +721,12 @@
     [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
     NSLog(@"jane text %@ %@", janeAvatar.name, janeAvatar.description);
     
-    [mapCAView addSubview:foursquareConnectButton];
-    UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-    [mapCAView addGestureRecognizer:tapHandler];
+    //[mapCAView addSubview:foursquareConnectButton];
+    [scrollView addSubview:foursquareConnectButton];
+    //UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
+    //[mapCAView addGestureRecognizer:tapHandler];
     
     [CATransaction commit];
-
 
 }
 
@@ -712,7 +746,7 @@
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
-        [[Tumbleweed weed] registerUser];
+        //[[Tumbleweed weed] registerUser];
     }
     [self gameState];
 

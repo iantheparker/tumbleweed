@@ -29,24 +29,24 @@
     //-- buttons
     IBOutlet UIView *buttonContainer;
     IBOutlet UIButton *foursquareConnectButton;
-    IBOutlet UIButton *gasStationButton;
+    IBOutlet UIButton *introButton;
     IBOutlet UIButton *dealButton;
     IBOutlet UIButton *barButton;
+    IBOutlet UIButton *gasStationButton;
     IBOutlet UIButton *riverBed1Button;
     IBOutlet UIButton *riverBed2Button;
     IBOutlet UIButton *desertChaseButton;
     IBOutlet UIButton *desertLynchButton;
-    IBOutlet UIButton *campFireButton;
-
-    
+    IBOutlet UIButton *campFireButton;    
 }
 
 
 //-- buttons
 @property (nonatomic, retain) UIButton *foursquareConnectButton;
-@property (nonatomic, retain) UIButton *gasStationButton;
+@property (nonatomic, retain) UIButton *introButton;
 @property (nonatomic, retain) UIButton *dealButton;
 @property (nonatomic, retain) UIButton *barButton;
+@property (nonatomic, retain) UIButton *gasStationButton;
 @property (nonatomic, retain) UIButton *riverBed1Button;
 @property (nonatomic, retain) UIButton *riverBed2Button;
 @property (nonatomic, retain) UIButton *desertChaseButton;
@@ -59,15 +59,16 @@
 
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;
-- (IBAction) gasStationPressed:(UIButton *)sender;
+- (IBAction) introPressed:(UIButton *)sender;
 - (IBAction) dealPressed:(UIButton *)sender;
 - (IBAction) barPressed:(UIButton *)sender;
+- (IBAction) gasStationPressed:(UIButton *)sender;
 - (IBAction) riverbed1Pressed:(UIButton *)sender;
 - (IBAction) riverbed2Pressed:(UIButton *)sender;
 - (IBAction) desertChasePressed:(UIButton *)sender;
 - (IBAction) desertLynchPressed:(UIButton *)sender;
 - (IBAction) campFirePressed:(UIButton *)sender;
-- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;
+- (IBAction) handleSingleTap:(UIGestureRecognizer *)sender;
 
 
 

@@ -25,11 +25,13 @@
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIImageView *movieThumbnailImageView;
     IBOutlet UIActivityIndicatorView *activityIndicator;
+    IBOutlet UIButton *refreshButton;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
     Scene *scene;
     MKMapView *mvFoursquare;
+    ASIHTTPRequest *request;
     
 }
 
@@ -47,6 +49,7 @@
 @property (nonatomic, retain) IBOutlet MKMapView *mvFoursquare;
 @property (nonatomic, getter = isPinsLoaded) BOOL pinsLoaded;
 @property (nonatomic, retain) MKUserLocation *userCurrentLocation;
+@property (nonatomic, retain) UIButton *refreshSearch;
 
 
 //initializers

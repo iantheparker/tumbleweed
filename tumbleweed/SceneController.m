@@ -15,9 +15,14 @@
 //#import "ASIFormDataRequest.h"
 //#import "ASIHTTPRequest.h"
 
+@interface SceneController()
+
+
+@end
+
 @implementation SceneController
 
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshSearch;
 
 
 
@@ -49,7 +54,8 @@
 
 - (IBAction)dismissModal:(id)sender
 {
-    //[request cancel];
+    [request clearDelegatesAndCancel];
+    [locationManager stopUpdatingLocation];
     [self dismissModalViewControllerAnimated:YES];
 }
 
@@ -232,6 +238,16 @@
 
 - (IBAction)refreshSearch:(id)sender
 {
+    [UIView animateWithDuration:1.0
+                          delay:1.0
+                        options: UIViewAnimationCurveEaseOut
+                     animations:^{
+                         CGAffineTransform transform = CGAffineTransformMakeRotation(2*M_PI);
+                         refreshSearch.transform = transform;
+                     } 
+                     completion:^(BOOL finished){
+                         
+                     }];
     scene.recentSearchVenueResults = Nil;
     [self searchSetup];
 }
@@ -261,7 +277,7 @@
     NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
     NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
     
-    ASIHTTPRequest *request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
+    request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
     [request setDelegate:self];
     [request startAsynchronous];    
      
@@ -276,25 +292,28 @@
 #pragma mark - Required ASIHTTP Asynchronous request methods 
 
 
-- (void)requestFinished:(ASIHTTPRequest *)request
+- (void)requestFinished:(ASIHTTPRequest *)rquest
 {
-    NSString *responseString = [request responseString];
+    NSString *responseString = [rquest responseString];
     NSError *err;
-    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"searchVenues"]) {
+    if ([[rquest.userInfo valueForKey:@"operation"] isEqualToString:@"searchVenues"]) {
         NSLog(@"searchVenues requestFinished");        
         NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
         scene.recentSearchVenueResults = venuesDict;
+        NSLog(@"venuesdict %@", venuesDict);
         [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
     }    
 }
 
-- (void)requestFailed:(ASIHTTPRequest *)request
+- (void)requestFailed:(ASIHTTPRequest *)rquest
 {
-    NSError *error = [request error];
+    NSError *error = [rquest error];
     NSLog(@"error! %@", error);
     // Must add graceful network error like a pop-up saying, get internet!
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
-    [alert show];
+    //UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
+    //[alert show];
+    [activityIndicator stopAnimating];
+    [activityIndicator removeFromSuperview];
 }
 
 #pragma mark - Map View Delegate methods
@@ -405,7 +424,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    [self searchSetup];
+    if (scene.categoryId) [self searchSetup];
     //[self processRewards];
     
     [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];

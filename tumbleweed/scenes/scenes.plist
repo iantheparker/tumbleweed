@@ -8,11 +8,11 @@
 			<key>name</key>
 			<string>No Man&apos;s Land</string>
 			<key>categoryId</key>
-			<string>nil</string>
+			<string></string>
 			<key>movieName</key>
 			<string>intro</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S1-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -28,11 +28,11 @@
 			<key>name</key>
 			<string>The Deal</string>
 			<key>categoryId</key>
-			<string>DEAL_catId</string>
+			<string>4d4b7105d754a06378d81259</string>
 			<key>movieName</key>
 			<string>deal</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S2-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -48,11 +48,11 @@
 			<key>name</key>
 			<string>The Bar</string>
 			<key>categoryId</key>
-			<string>NIGHTLIFE_catId</string>
+			<string>4d4b7105d754a06376d81259</string>
 			<key>movieName</key>
 			<string>bar</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S3-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -68,11 +68,11 @@
 			<key>name</key>
 			<string>The Gas Station</string>
 			<key>categoryId</key>
-			<string>GAS_TRAVEL_catId</string>
+			<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
 			<key>movieName</key>
 			<string>gasStation</string>
 			<key>movieThumbnail</key>
-			<string>Gas_Station_thumbnail.jpg</string>
+			<string>video_thumbnail_S4-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -88,11 +88,11 @@
 			<key>name</key>
 			<string>The Riverbed</string>
 			<key>categoryId</key>
-			<string>OUTDOORS_catId</string>
+			<string>4d4b7105d754a06377d81259</string>
 			<key>movieName</key>
 			<string>riverbed1</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S5-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -108,11 +108,11 @@
 			<key>name</key>
 			<string>The Body</string>
 			<key>categoryId</key>
-			<string>nil</string>
+			<string></string>
 			<key>movieName</key>
 			<string>riverbed2</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S6-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -128,11 +128,11 @@
 			<key>name</key>
 			<string>The Chase</string>
 			<key>categoryId</key>
-			<string>nil</string>
+			<string></string>
 			<key>movieName</key>
 			<string>chase</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S7-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -148,11 +148,11 @@
 			<key>name</key>
 			<string>Play Dead</string>
 			<key>categoryId</key>
-			<string>nil</string>
+			<string></string>
 			<key>movieName</key>
 			<string>lynch</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S8-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -168,11 +168,11 @@
 			<key>name</key>
 			<string>The End</string>
 			<key>categoryId</key>
-			<string>nil</string>
+			<string></string>
 			<key>movieName</key>
 			<string>campFire</string>
 			<key>movieThumbnail</key>
-			<string></string>
+			<string>video_thumbnail_S9-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>

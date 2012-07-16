@@ -51,7 +51,7 @@ static Tumbleweed *weed = nil;
     // If we don't currently have an allScenes dict, try to read one from disk
     NSLog(@"loading scenes");
     if (!allScenes) {
-        allScenes = [NSKeyedUnarchiver unarchiveObjectWithFile:[self sceneArchivePath]];
+        //allScenes = [NSKeyedUnarchiver unarchiveObjectWithFile:[self sceneArchivePath]];
         NSLog(@"loading older allscenes, %@", allScenes);
     }
     // If we do have an archive, then set our class Scenes to the old archive

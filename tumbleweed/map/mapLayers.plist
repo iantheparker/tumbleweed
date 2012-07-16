@@ -42,16 +42,111 @@
 		<string>mapLayer1_37.jpg</string>
 	</array>
 	<key>mapLayer4</key>
-	<array>
-		<string>mapLayer4_01.png</string>
-		<string>mapLayer4_02.png</string>
-		<string>mapLayer4_03.png</string>
-		<string>mapLayer4_04.png</string>
-		<string>mapLayer4_05.png</string>
-		<string>mapLayer4_06.png</string>
-		<string>mapLayer4_07.png</string>
-		<string>mapLayer4_08.png</string>
-		<string>mapLayer4_09.png</string>
-	</array>
+	<dict>
+		<key>introSign</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_2.png</string>
+			<key>position</key>
+			<string>{1295.78, 165.75}</string>
+			<key>buttonPosition</key>
+			<string>{1295.78, 80}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_2_ICON-on.png</string>
+		</dict>
+		<key>dude</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_3.png</string>
+			<key>position</key>
+			<string>{2591.55, 229.25}</string>
+		</dict>
+		<key>town</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_4.png</string>
+			<key>position</key>
+			<string>{3887.33, 182.5}</string>
+			<key>buttonPosition</key>
+			<string>{3887.33, 105}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_3_ICON-on.png</string>
+		</dict>
+		<key>bar</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_5.png</string>
+			<key>position</key>
+			<string>{5183.1, 182.5}</string>
+			<key>buttonPosition</key>
+			<string>{5170, 160}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_4_ICON-on.png</string>
+		</dict>
+		<key>gas</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_6.png</string>
+			<key>position</key>
+			<string>{6478.88, 160}</string>
+			<key>buttonPosition</key>
+			<string>{6478.88, 125}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_5_ICON-on.png</string>
+		</dict>
+		<key>riverbed1</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_7.png</string>
+			<key>position</key>
+			<string>{7774.65, 183.25}</string>
+			<key>buttonPosition</key>
+			<string>{7767, 93}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_6_ICON-on.png</string>
+		</dict>
+		<key>riverbed2</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_8.png</string>
+			<key>position</key>
+			<string>{9070.42, 160}</string>
+			<key>buttonPosition</key>
+			<string>{9120, 100}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_7_ICON-on.png</string>
+		</dict>
+		<key>chase-cactus</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_9.png</string>
+			<key>position</key>
+			<string>{10366.2, 160}</string>
+			<key>buttonPosition</key>
+			<string>{10290, 120}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_8_ICON-on.png</string>
+		</dict>
+		<key>lynch-noose</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_10.png</string>
+			<key>position</key>
+			<string>{11662, 160}</string>
+			<key>buttonPosition</key>
+			<string>{11725, 105}</string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_9_ICON-on.png</string>
+		</dict>
+		<key>campfire</key>
+		<dict/>
+		<key>fence</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_1.png</string>
+			<key>position</key>
+			<string>{2350, 229.25}</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
