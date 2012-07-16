@@ -49,7 +49,7 @@
 @property (nonatomic, retain) IBOutlet MKMapView *mvFoursquare;
 @property (nonatomic, getter = isPinsLoaded) BOOL pinsLoaded;
 @property (nonatomic, retain) MKUserLocation *userCurrentLocation;
-@property (nonatomic, retain) UIButton *refreshSearch;
+@property (nonatomic, retain) UIButton *refreshButton;
 
 
 //initializers

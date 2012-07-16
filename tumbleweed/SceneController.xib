@@ -246,16 +246,20 @@
 							<object class="IBUIButton" id="266731809">
 								<reference key="NSNextResponder" ref="191373211"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{382, 480}, {35, 37}}</string>
+								<string key="NSFrame">{{390, 492}, {27, 25}}</string>
 								<reference key="NSSuperview" ref="191373211"/>
 								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<reference key="IBUIBackgroundColor" ref="804710088"/>
 								<bool key="IBUIOpaque">NO</bool>
+								<bool key="IBUIAutoresizesSubviews">NO</bool>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+								<int key="IBUIContentMode">1</int>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								<int key="IBUIContentHorizontalAlignment">0</int>
 								<int key="IBUIContentVerticalAlignment">0</int>
+								<bool key="IBUIAdjustsImageWhenHighlighted">NO</bool>
 								<int key="IBUILineBreakMode">2</int>
 								<reference key="IBUIHighlightedTitleColor" ref="699827748"/>
 								<object class="NSColor" key="IBUINormalTitleColor">
@@ -263,9 +267,9 @@
 									<bytes key="NSRGB">MC4xOTYwNzg0MzQ2IDAuMzA5ODAzOTMyOSAwLjUyMTU2ODY1NgA</bytes>
 								</object>
 								<reference key="IBUINormalTitleShadowColor" ref="564682887"/>
-								<object class="NSCustomResource" key="IBUINormalBackgroundImage">
+								<object class="NSCustomResource" key="IBUINormalImage">
 									<string key="NSClassName">NSImage</string>
-									<string key="NSResourceName">google_map_refresh-icon@2x.png</string>
+									<string key="NSResourceName">google_map_refresh-icon.png</string>
 								</object>
 								<reference key="IBUIFontDescription" ref="911253133"/>
 								<reference key="IBUIFont" ref="123234973"/>
@@ -489,8 +493,8 @@
 							<reference ref="815444452"/>
 							<reference ref="911005645"/>
 							<reference ref="538937527"/>
-							<reference ref="266731809"/>
 							<reference ref="462972681"/>
+							<reference ref="266731809"/>
 						</array>
 						<reference key="parent" ref="479888410"/>
 					</object>
@@ -575,6 +579,7 @@
 				<string key="58.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="61.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="62.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+				<real value="2" key="62.IBUIButtonInspectorSelectedEdgeInsetMetadataKey"/>
 				<string key="66.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
@@ -678,7 +683,7 @@
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<dictionary class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
 			<string key="check-in_bg@2x.jpg">{962, 1318}</string>
-			<string key="google_map_refresh-icon@2x.png">{51, 48}</string>
+			<string key="google_map_refresh-icon.png">{26, 24}</string>
 		</dictionary>
 		<string key="IBCocoaTouchPluginVersion">1181</string>
 	</data>

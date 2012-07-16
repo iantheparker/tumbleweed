@@ -22,7 +22,7 @@
 
 @implementation SceneController
 
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshSearch;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton;
 
 
 
@@ -238,18 +238,22 @@
 
 - (IBAction)refreshSearch:(id)sender
 {
-    [UIView animateWithDuration:1.0
-                          delay:1.0
+    [UIView animateWithDuration:.5
+                          delay:0
                         options: UIViewAnimationCurveEaseOut
                      animations:^{
-                         CGAffineTransform transform = CGAffineTransformMakeRotation(2*M_PI);
-                         refreshSearch.transform = transform;
+                         CGAffineTransform transform1 = CGAffineTransformMakeRotation(180 * M_PI / 180);
+                         CGAffineTransform transform2 = CGAffineTransformMakeRotation(360 * M_PI / 180);
+                         refreshButton.transform = transform1;
+                         refreshButton.transform = transform2;
+                         //refreshButton.center = CGPointMake(30, 42);
+                         
                      } 
                      completion:^(BOOL finished){
-                         
+                         scene.recentSearchVenueResults = Nil;
+                         [self searchSetup];
                      }];
-    scene.recentSearchVenueResults = Nil;
-    [self searchSetup];
+    
 }
 
 #pragma mark - Required CoreLocation methods
