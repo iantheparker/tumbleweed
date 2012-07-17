@@ -24,11 +24,13 @@
 @property (nonatomic, retain) UIView *buttonContainer;
 @property (nonatomic, retain) Tumbleweed *weed;
 @property (nonatomic, retain) CLLocationManager *locationManager;
+@property (nonatomic, retain) CALayer *blackPanel;
 
 -(void)pauseLayer:(CALayer*)layer;
 -(void)resumeLayer:(CALayer*)layer;
 -(void) renderScreen: (BOOL) direction : (BOOL) moving;
 -(CGRect) selectAvatarBounds:(float) position;
+-(IBAction)toggleBlackPanel:(id)sender;
 
 @end
 
@@ -37,7 +39,7 @@
 @synthesize scrollView, map0CA, map1CA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward, weed, locationManager;
 
 //-- scene buttons
-@synthesize foursquareConnectButton, introButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, buttonContainer;
+@synthesize foursquareConnectButton, introButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, buttonContainer, blackPanel;
 
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -265,7 +267,7 @@
 }
 - (IBAction)riverbed1Pressed:(UIButton *)sender
 {
-    if (weed.riverBed1.accessible)
+    if (!weed.riverBed1.accessible)
     {
         SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.riverBed1];
         [self presentModalViewController:riverbedScene animated:YES];
@@ -277,7 +279,7 @@
 }
 - (IBAction) riverbed2Pressed:(UIButton *)sender
 {
-    if (weed.riverBed2.accessible)
+    if (!weed.riverBed2.accessible)
     {
         SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.riverBed2];
         [self presentModalViewController:riverbedScene animated:YES];
@@ -289,7 +291,7 @@
 }
 - (IBAction) desertChasePressed:(UIButton *)sender
 {
-    if (weed.desertChase.accessible)
+    if (!weed.desertChase.accessible)
     {
         SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.desertChase];
         [self presentModalViewController:riverbedScene animated:YES];
@@ -301,7 +303,7 @@
 }
 - (IBAction) desertLynchPressed:(UIButton *)sender
 {
-    if (weed.desertLynch.accessible)
+    if (!weed.desertLynch.accessible)
     {
         SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.desertLynch];
         [self presentModalViewController:riverbedScene animated:YES];
@@ -313,7 +315,7 @@
 }
 - (IBAction) campFirePressed:(UIButton *)sender
 {
-    if (weed.campFire.accessible)
+    if (!weed.campFire.accessible)
     {
         SceneController *riverbedScene = [[SceneController alloc] initWithScene:weed.campFire];
         [self presentModalViewController:riverbedScene animated:YES];
@@ -460,6 +462,10 @@
    
 }
 
+-(IBAction)toggleBlackPanel:(id)sender
+{
+    [blackPanel removeFromSuperlayer];
+}
 
 #pragma mark - View lifecycle
 
@@ -569,14 +575,13 @@
     
     buttonContainer.bounds = map4Frame;   //CGRectMake(0, 0, map4Frame.size.width, 100);
     buttonContainer.center = CGPointMake(map4CA.position.x, 0);
-    NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:introButton, dealButton, barButton,gasStationButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, nil];
+    NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:introButton, dealButton, barButton,gasStationButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, nil];
     //NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:riv, nil];
     //riverbed2, chase, intro, lynch, deal, gas, bar, riverbed1
     NSMutableDictionary *topLayerDict = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer4"]];
     int i = 0;
     for (NSString *key in topLayerDict) 
     {
-        //NSLog(@"=%d", i);
         NSDictionary *sceneDict = [topLayerDict objectForKey:key];
         CALayer *subLayer1 = [CALayer layer];
         NSString *imageName1 = [sceneDict objectForKey:@"img"];
@@ -598,8 +603,19 @@
         //subLayer1.position = CGPointMake((map4Frame.size.width/12 *(i+1)), screenSize.height-subLayer1.bounds.size.height/2);
         subLayer1.position = CGPointMake(originX, screenSize.height-subLayer1.bounds.size.height/2);
         [map4CA addSublayer:subLayer1]; 
+        
+                
         if ([sceneDict objectForKey:@"buttonPosition"]) 
         {
+            if ([key isEqualToString:@"introSign"]) i=0; 
+            if ([key isEqualToString:@"town"]) i=1;   
+            if ([key isEqualToString:@"bar"]) i=2; 
+            if ([key isEqualToString:@"gas"]) i=3; 
+            if ([key isEqualToString:@"riverbed1"]) i=4; 
+            if ([key isEqualToString:@"riverbed2"]) i=5; 
+            if ([key isEqualToString:@"chase-cactus"]) i=6;
+            if ([key isEqualToString:@"lynch-noose"]) i=7; 
+            
             NSString *positionString = [sceneDict objectForKey:@"buttonPosition"];
             positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
             positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -613,9 +629,9 @@
             NSString *imgName1 =[sceneDict objectForKey:@"buttonAccessible"];
             UIImage *buttonImg = [UIImage imageNamed:imgName1];
             [[buttonArray objectAtIndex:i] setImage:buttonImg forState:UIControlStateNormal];
-            i++;
+            NSLog(@"scene %@, i=%d, imgName %@", [key substringToIndex:3], i, imgName1);
         }
-        NSLog(@"i=%d", i);
+        
     }
     [scrollView addSubview:buttonContainer];    
     
@@ -632,8 +648,8 @@
         
         CABasicAnimation* nooseAnimation;
         nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-        nooseAnimation.fromValue = [NSNumber numberWithFloat:1.98 * M_PI];
-        nooseAnimation.toValue = [NSNumber numberWithFloat:2.02 * M_PI];
+        nooseAnimation.fromValue = [NSNumber numberWithFloat:1.99 * M_PI];
+        nooseAnimation.toValue = [NSNumber numberWithFloat:2.01 * M_PI];
         nooseAnimation.duration = 2.0;
         //animation.cumulative = YES;
         nooseAnimation.autoreverses = YES;
@@ -645,7 +661,7 @@
     }
     //-->campFire
     {
-        CALayer *blackPanel = [CALayer layer];
+        blackPanel = [CALayer layer];
         [blackPanel setBounds:CGRectMake(0, 0, 340, screenSize.height)];
         [blackPanel setPosition:CGPointMake(screenSize.width - blackPanel.bounds.size.width/2, screenSize.height/2)];
         blackPanel.backgroundColor = [UIColor blackColor].CGColor;
@@ -715,6 +731,7 @@
     
     //[mapCAView addSubview:foursquareConnectButton];
     [scrollView addSubview:foursquareConnectButton];
+    [scrollView addSubview:campFireButton];
     //UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
     //[mapCAView addGestureRecognizer:tapHandler];
     
@@ -740,7 +757,7 @@
         foursquareConnectButton.enabled = NO;
         //[[Tumbleweed weed] registerUser];
     }
-    [self gameState];
+    //[self gameState];
 
 }
 

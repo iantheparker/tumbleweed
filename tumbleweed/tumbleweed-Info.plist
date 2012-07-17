@@ -12,6 +12,8 @@
 	<array>
 		<string>appicon_114.png</string>
 		<string>Default@2x.png</string>
+		<string>appicon_114@2x.png</string>
+		<string>Default.png</string>
 	</array>
 	<key>CFBundleIcons</key>
 	<dict>
@@ -21,6 +23,8 @@
 			<array>
 				<string>appicon_114.png</string>
 				<string>Default@2x.png</string>
+				<string>appicon_114@2x.png</string>
+				<string>Default.png</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<true/>
@@ -47,6 +51,7 @@
 		<string>rockwell.ttf</string>
 		<string>rockwell-bold.ttf</string>
 		<string>rockwell-condensed.ttf</string>
+		<string>rockwell-condensed-bold.ttf</string>
 	</array>
 	<key>UIPrerenderedIcon</key>
 	<true/>

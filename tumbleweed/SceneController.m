@@ -15,14 +15,10 @@
 //#import "ASIFormDataRequest.h"
 //#import "ASIHTTPRequest.h"
 
-@interface SceneController()
-
-
-@end
 
 @implementation SceneController
 
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll;
 
 
 
@@ -79,7 +75,7 @@
 - (void) processVenues: (NSArray*) items
 {
     [activityIndicator stopAnimating];
-    [activityIndicator removeFromSuperview];
+    //[activityIndicator removeFromSuperview];
     NSLog(@"processing foursquare venues");
     
     [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
@@ -93,7 +89,7 @@
     
     NSLog(@"screen width %f", scrollWidth);
     
-    UIView *venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, 800)];
+    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, 800)];
     
     [venueScrollView addSubview:venueView];
     
@@ -106,6 +102,7 @@
     NSMutableArray *annotations = [[NSMutableArray alloc] init];
     for (int i = 0; i < [items count]; i++) {
         NSDictionary *ven = [items objectAtIndex:i];
+        NSString *vID = [ven objectForKey:@"id"];
         NSString *name = [ven objectForKey:@"name"];
         NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
         //float distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] floatValue] *.00062;
@@ -118,12 +115,12 @@
         UIImage *icon = [UIImage imageNamed:iconURL];
         //UIImage *icon = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]];
         //NSLog(@"lat%f, long%f", latitude, longitude);
-        NSLog(@"icon url %@", iconURL);
+        //NSLog(@"icon url %@", iconURL);
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-        [nameLabel setFont:[UIFont fontWithName:@"rockwell-condensed" size:26]];
+        [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
         [nameLabel setText:name];
         UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
         [nameLabel setTextColor:redText];
@@ -152,6 +149,7 @@
 		[foursquareAnnotation setCoordinate: region.center];
 		[foursquareAnnotation setTitle: name];
 		[foursquareAnnotation setSubtitle: address];
+        [foursquareAnnotation setVenueId: vID];
         [foursquareAnnotation setIcon:icon];
 		
 		// add the annotation object to the container
@@ -211,7 +209,10 @@
     
 */
 }
-
+- (IBAction) playVideo:(id)sender
+{
+    [self launchVideoPlayer];
+}
 - (void) launchVideoPlayer
 {
     NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:scene.movieName
@@ -222,22 +223,23 @@
 
 - (void) searchSetup
 {
-    [activityIndicator setHidden:NO];
+    NSLog(@"search setup");
+    //[activityIndicator setHidden:NO];
+    activityIndicator.hidesWhenStopped = YES;
     [activityIndicator startAnimating];
-    if (!scene.unlocked)
-    {
-        locationManager = [[CLLocationManager alloc] init];
-        [locationManager setDelegate:self];
-        [locationManager startUpdatingLocation];
-    }
-    else
-    {
-        //[self animateRewards];
-    }
+    locationManager = [[CLLocationManager alloc] init];
+    [locationManager setDelegate:self];
+    [locationManager startUpdatingLocation];
+
 }
 
 - (IBAction)refreshSearch:(id)sender
 {
+    [venueView removeFromSuperview];
+    scene.recentSearchVenueResults = Nil;
+    [activityIndicator startAnimating];
+    //remove annotations from mapview
+    [self.mvFoursquare removeAnnotations:mvFoursquare.annotations];
     [UIView animateWithDuration:.5
                           delay:0
                         options: UIViewAnimationCurveEaseOut
@@ -246,11 +248,9 @@
                          CGAffineTransform transform2 = CGAffineTransformMakeRotation(360 * M_PI / 180);
                          refreshButton.transform = transform1;
                          refreshButton.transform = transform2;
-                         //refreshButton.center = CGPointMake(30, 42);
                          
                      } 
                      completion:^(BOOL finished){
-                         scene.recentSearchVenueResults = Nil;
                          [self searchSetup];
                      }];
     
@@ -271,7 +271,7 @@
 
     NSLog(@"nstimeinterval %f", t);
     CLLocationDistance meters = [newLocation distanceFromLocation:oldLocation];
-    if (meters < 100 && scene.recentSearchVenueResults) {
+    if (meters < 10 && scene.recentSearchVenueResults) {
         [self processVenues:[[[[scene.recentSearchVenueResults objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
         return; 
     }
@@ -283,6 +283,7 @@
     
     request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
     [request setDelegate:self];
+    [request setTimeOutSeconds:20];
     [request startAsynchronous];    
      
 }
@@ -304,7 +305,7 @@
         NSLog(@"searchVenues requestFinished");        
         NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
         scene.recentSearchVenueResults = venuesDict;
-        NSLog(@"venuesdict %@", venuesDict);
+        //NSLog(@"venuesdict %@", venuesDict);
         [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
     }    
 }
@@ -342,7 +343,6 @@
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
     
     static NSString *identifier = @"MyLocation";
-    NSLog(@"hiiiiiii");
     if ([annotation isKindOfClass:[FoursquareAnnotation class]]) {
         
         MKAnnotationView *annotationView = 
@@ -359,11 +359,7 @@
         annotationView.enabled = YES;
         annotationView.canShowCallout = YES;        
         annotationView.image = ((FoursquareAnnotation *)annotation).icon;
-        
         //[mvFoursquare selectAnnotation:annotation animated:YES];
-        
-        //[annotationView is
-
         
         // Create a UIButton object to add on the 
         UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
@@ -384,20 +380,21 @@
  annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
     
     if ([(UIButton*)control buttonType] == UIButtonTypeDetailDisclosure){
-        // Do your thing when the detailDisclosureButton is touched
-        //UIViewController *mapDetailViewController = [[UIViewController alloc] init];
-        //[[self navigationController] pushViewController:mapDetailViewController animated:YES];
-        NSString *formattedAddress = [[NSString stringWithFormat:@"%@",(FoursquareAnnotation*)[view annotation].subtitle] stringByReplacingOccurrencesOfString:@" " withString:@"+"];
-        NSString *routeString = [NSString stringWithFormat:@"http://maps.google.com/maps?saddr=%f,%f&daddr=%@&dirflg=w",userCurrentLocation.coordinate.latitude,userCurrentLocation.coordinate.longitude,formattedAddress];
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:routeString]];
+        // Do your thing when the detailDisclosureButton is touched - open another mapviewcontroller or whatever
+        
+        NSString* foursquareURL = [NSString stringWithFormat: @"foursquare://venues/%@",((FoursquareAnnotation*)[view annotation]).venueId];
+        BOOL canOpenFoursquareApp = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString: foursquareURL]];
+        if (canOpenFoursquareApp) {
+            [[UIApplication sharedApplication] openURL: [NSURL URLWithString: foursquareURL]]; 
+        }
+        else {
+            NSString *formattedAddress = [[NSString stringWithFormat:@"%@",(FoursquareAnnotation*)[view annotation].subtitle] stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+            NSString *routeString = [NSString stringWithFormat:@"http://maps.google.com/maps?saddr=%f,%f&daddr=%@&dirflg=w",userCurrentLocation.coordinate.latitude,userCurrentLocation.coordinate.longitude,formattedAddress];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:routeString]];
+        }
         
     } else if([(UIButton*)control buttonType] == UIButtonTypeInfoDark) {
         // Do your thing when the infoDarkButton is touched
-        
-        NSString* foursquareURL = [NSString stringWithFormat: @"foursquare://venues/%@",[[NSUserDefaults standardUserDefaults] stringForKey:@"foursquare_id"]]; 
-                         [[UIApplication sharedApplication] openURL: [NSURL URLWithString: 
-                                                                      foursquareURL]]; 
-        
         NSLog(@"infoDarkButton for longitude: %f and latitude: %f and address is %@", 
               [(FoursquareAnnotation*)[view annotation] coordinate].longitude, 
               [(FoursquareAnnotation*)[view annotation] coordinate].latitude, (FoursquareAnnotation*)[view annotation].subtitle);
@@ -428,16 +425,22 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    if (scene.categoryId) [self searchSetup];
-    //[self processRewards];
+    if (scene.categoryId && !scene.unlocked) 
+    {
+        [self searchSetup];
+    }
+    else {
+        [mvFoursquare removeFromSuperview];
+    }
+    
     
     [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
     sceneTitle.text = scene.name;
-    sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:26];
+    sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:30];
     UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
     [sceneTitle setTextColor:brownText];
     checkInIntructions.text = scene.checkInCopy;
-    checkInIntructions.font = [UIFont fontWithName:@"rockwell" size:17];
+    checkInIntructions.font = [UIFont fontWithName:@"rockwell" size:18];
     [checkInIntructions setTextColor:brownText];
     
     CGSize screenSize = CGSizeMake(480, 540);
@@ -449,8 +452,11 @@
     [checkinScrollView setDelegate:self];
     [checkinScrollView addSubview:checkinView];
     venueScrollView.pagingEnabled = YES;
-
+    mvFoursquare.layer.cornerRadius = 10.0;
     
+    UIImage *leftArrowOn = [UIImage imageNamed:@"carosel_arrow-on.png"];
+    [leftScroll setImage:[UIImage imageWithCGImage:leftArrowOn.CGImage 
+                                             scale:1.0 orientation: UIImageOrientationUpMirrored] forState:UIControlStateNormal];
     
 }
 

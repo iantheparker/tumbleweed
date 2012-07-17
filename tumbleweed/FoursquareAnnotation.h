@@ -10,10 +10,14 @@
 #import <MapKit/MKAnnotation.h>
 
 @interface FoursquareAnnotation : UIView <MKAnnotation>
+{
+    NSString *venueId;
+}
 
 @property (nonatomic, assign) CLLocationCoordinate2D coordinate;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *subtitle;
 @property (nonatomic, copy) UIImage *icon;
+@property (nonatomic, copy) NSString *venueId;
 
 @end

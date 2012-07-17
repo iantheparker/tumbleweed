@@ -142,6 +142,7 @@ static Tumbleweed *weed = nil;
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:foursquare_id forKey:@"foursquare_id"];
         [defaults synchronize];
+        //NSLog(@"foursquare_id = %@", foursquare_id);
     }
     else NSLog(@"registration failed %@", err);
 
@@ -186,8 +187,8 @@ static Tumbleweed *weed = nil;
     //if ([[request.userInfo valueForKey:@"operation"] isEqualToString:NSURLErrorNetworkConnectionLost]) {}
     NSLog(@"error! %@", error);
     // Must add graceful network error like a pop-up saying, get internet!
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
-    [alert show];
+    //UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
+    //[alert show];
 }
 
 

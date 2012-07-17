@@ -13,6 +13,7 @@
 #import "Scene.h"
 #import "FoursquareAnnotation.h"
 #import <MapKit/MapKit.h>
+#import <QuartzCore/QuartzCore.h>
 
 
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate, UIScrollViewDelegate>
@@ -26,12 +27,16 @@
     IBOutlet UIImageView *movieThumbnailImageView;
     IBOutlet UIActivityIndicatorView *activityIndicator;
     IBOutlet UIButton *refreshButton;
+    IBOutlet UIButton *leftScroll;
+    IBOutlet UIButton *rightScroll;
+    IBOutlet MKMapView *mvFoursquare;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
     Scene *scene;
-    MKMapView *mvFoursquare;
+    //MKMapView *mvFoursquare;
     ASIHTTPRequest *request;
+    UIView *venueView;
     
 }
 
@@ -46,16 +51,19 @@
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
 @property (nonatomic, retain) Scene *scene;
-@property (nonatomic, retain) IBOutlet MKMapView *mvFoursquare;
+@property (nonatomic, retain) MKMapView *mvFoursquare;
 @property (nonatomic, getter = isPinsLoaded) BOOL pinsLoaded;
 @property (nonatomic, retain) MKUserLocation *userCurrentLocation;
 @property (nonatomic, retain) UIButton *refreshButton;
-
+@property (nonatomic, retain) UIActivityIndicatorView *activityIndicator;
+@property (nonatomic, retain) UIButton *leftScroll;
+@property (nonatomic, retain) UIButton *rightScroll;
 
 //initializers
 - (id) initWithScene: (Scene *) scn;
 
 - (IBAction) dismissModal:(id)sender;
+- (IBAction) playVideo:(id)sender;
 - (void) launchVideoPlayer;
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;

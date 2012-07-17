@@ -14,6 +14,7 @@
 @synthesize title;
 @synthesize subtitle;
 @synthesize icon;
+@synthesize venueId;
 
 - (id)initWithFrame:(CGRect)frame
 {

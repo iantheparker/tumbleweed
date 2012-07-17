@@ -34,7 +34,7 @@
     posterArt = [plistDict objectForKey:@"posterArt"];
     hintCopy = [plistDict objectForKey:@"hintCopy"];
     checkInCopy = [plistDict objectForKey:@"checkInCopy"];
-    NSLog(@"%@", plistDict);
+    //NSLog(@"%@", plistDict);
     return self;
 }
                            

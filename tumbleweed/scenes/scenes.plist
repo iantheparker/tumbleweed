@@ -7,8 +7,6 @@
 		<dict>
 			<key>name</key>
 			<string>No Man&apos;s Land</string>
-			<key>categoryId</key>
-			<string></string>
 			<key>movieName</key>
 			<string>intro</string>
 			<key>movieThumbnail</key>
@@ -46,7 +44,7 @@
 		</dict>
 		<dict>
 			<key>name</key>
-			<string>The Bar</string>
+			<string>The Saloon</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06376d81259</string>
 			<key>movieName</key>
@@ -107,8 +105,6 @@
 		<dict>
 			<key>name</key>
 			<string>The Body</string>
-			<key>categoryId</key>
-			<string></string>
 			<key>movieName</key>
 			<string>riverbed2</string>
 			<key>movieThumbnail</key>
@@ -127,8 +123,6 @@
 		<dict>
 			<key>name</key>
 			<string>The Chase</string>
-			<key>categoryId</key>
-			<string></string>
 			<key>movieName</key>
 			<string>chase</string>
 			<key>movieThumbnail</key>
@@ -147,8 +141,6 @@
 		<dict>
 			<key>name</key>
 			<string>Play Dead</string>
-			<key>categoryId</key>
-			<string></string>
 			<key>movieName</key>
 			<string>lynch</string>
 			<key>movieThumbnail</key>
@@ -167,10 +159,8 @@
 		<dict>
 			<key>name</key>
 			<string>The End</string>
-			<key>categoryId</key>
-			<string></string>
 			<key>movieName</key>
-			<string>campFire</string>
+			<string>campfire</string>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S9-col.jpg</string>
 			<key>posterArt</key>
@@ -178,7 +168,7 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>gotta keep moving!</string>
+			<string>game over, bitches.</string>
 			<key>bonus1</key>
 			<string></string>
 			<key>bonus2</key>
