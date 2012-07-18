@@ -253,13 +253,13 @@
 {    
     NSLog(@"gasstation checkin response %@", weed.gasStation.checkInResponse);
     NSLog(@"is the scene unlocked? %@", weed.gasStation.unlocked ? @"YES": @"NO");
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"])
+    //if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"])
     {
         SceneController *gasStationScene = [[SceneController alloc] initWithScene:weed.gasStation];
         //[gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
         [self presentModalViewController:gasStationScene animated:YES]; 
     }
-    else 
+    //else 
     {
         //throw hint to log in
     }
@@ -487,7 +487,7 @@
     [scrollView addSubview:mapCAView];
     
     //--> sky
-    UIImage *skyImage = [UIImage imageNamed:@"gdw_parallax_cropped_layer=sky.jpg"];
+    UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
     CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
     [map0CA setBounds:skyFrame];
     [map0CA setPosition:CGPointMake(screenSize.width/2, mapCAView.frame.size.height)];
@@ -625,11 +625,10 @@
             float originX = [[strings objectAtIndex:0] floatValue];
             float originY = [[strings objectAtIndex:1] floatValue];
             [[buttonArray objectAtIndex:i] setCenter:CGPointMake(originX, originY)];
-            
+            //i--;
             NSString *imgName1 =[sceneDict objectForKey:@"buttonAccessible"];
             UIImage *buttonImg = [UIImage imageNamed:imgName1];
             [[buttonArray objectAtIndex:i] setImage:buttonImg forState:UIControlStateNormal];
-            NSLog(@"scene %@, i=%d, imgName %@", [key substringToIndex:3], i, imgName1);
         }
         
     }
@@ -648,7 +647,7 @@
         
         CABasicAnimation* nooseAnimation;
         nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-        nooseAnimation.fromValue = [NSNumber numberWithFloat:1.99 * M_PI];
+        nooseAnimation.fromValue = [NSNumber numberWithFloat:2.0 * M_PI];
         nooseAnimation.toValue = [NSNumber numberWithFloat:2.01 * M_PI];
         nooseAnimation.duration = 2.0;
         //animation.cumulative = YES;
@@ -670,7 +669,6 @@
         
         //the colors for the gradient.  highColor is at the right, lowColor as at the left
         UIColor * highColor = [UIColor colorWithWhite:0.0 alpha:1.0];
-        //UIColor * lowColor = [UIColor colorWithWhite:0.0 alpha:0.0];
         UIColor * lowColor = [UIColor colorWithRed:.4 green:.1 blue:.1 alpha:0];
         
         CAGradientLayer * gradient = [CAGradientLayer layer];

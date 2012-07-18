@@ -430,7 +430,8 @@
         [self searchSetup];
     }
     else {
-        [mvFoursquare removeFromSuperview];
+        [searchView removeFromSuperview];
+        //[mvFoursquare removeFromSuperview];
     }
     
     
@@ -459,7 +460,10 @@
                                              scale:1.0 orientation: UIImageOrientationUpMirrored] forState:UIControlStateNormal];
     
 }
-
+- (void)dealloc
+{
+    [request clearDelegatesAndCancel];
+}
 - (void)viewDidUnload
 {
     [super viewDidUnload];

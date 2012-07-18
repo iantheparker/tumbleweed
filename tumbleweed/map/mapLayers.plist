@@ -48,9 +48,9 @@
 			<key>img</key>
 			<string>top_lvl4_objs_2.png</string>
 			<key>position</key>
-			<string>{1295.78, 165.75}</string>
+			<string>{1895.78, 165.75}</string>
 			<key>buttonPosition</key>
-			<string>{1295.78, 80}</string>
+			<string>{1895.78, 80}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_2_ICON-on.png</string>
 		</dict>
@@ -90,7 +90,7 @@
 			<key>position</key>
 			<string>{6478.88, 160}</string>
 			<key>buttonPosition</key>
-			<string>{6478.88, 125}</string>
+			<string>{6478.88, 123}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_5_ICON-on.png</string>
 		</dict>
@@ -99,9 +99,9 @@
 			<key>img</key>
 			<string>top_lvl4_objs_7.png</string>
 			<key>position</key>
-			<string>{7774.65, 183.25}</string>
+			<string>{8174.65, 183.25}</string>
 			<key>buttonPosition</key>
-			<string>{7767, 93}</string>
+			<string>{8167, 93}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_6_ICON-on.png</string>
 		</dict>
@@ -110,9 +110,9 @@
 			<key>img</key>
 			<string>top_lvl4_objs_8.png</string>
 			<key>position</key>
-			<string>{9070.42, 160}</string>
+			<string>{9370.42, 160}</string>
 			<key>buttonPosition</key>
-			<string>{9120, 100}</string>
+			<string>{9420, 102}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_7_ICON-on.png</string>
 		</dict>
@@ -145,7 +145,7 @@
 			<key>img</key>
 			<string>top_lvl4_objs_1.png</string>
 			<key>position</key>
-			<string>{2350, 229.25}</string>
+			<string>{2150, 229.25}</string>
 		</dict>
 	</dict>
 </dict>

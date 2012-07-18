@@ -30,6 +30,7 @@
     IBOutlet UIButton *leftScroll;
     IBOutlet UIButton *rightScroll;
     IBOutlet MKMapView *mvFoursquare;
+    IBOutlet UIView *searchView;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;

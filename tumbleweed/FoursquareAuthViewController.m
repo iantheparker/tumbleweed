@@ -11,7 +11,7 @@
 
 @implementation FoursquareAuthViewController
 
-@synthesize webView;
+@synthesize webView, loadingView, containerView;
 
 - (id)init
 {
@@ -49,7 +49,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
     NSString *authenticateURLString = [NSString stringWithFormat:@"https://foursquare.com/oauth2/authenticate?display=touch&client_id=%@&response_type=token&redirect_uri=%@", CLIENT_ID, CALLBACK_URL];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:authenticateURLString]];
     [webView loadRequest:request];
@@ -63,8 +62,12 @@
 }
 
 #pragma mark - Web view delegate
+//- (void)webViewDidStartLoad:
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
+    [activityIndicator stopAnimating];
+    activityIndicator.hidden = TRUE;
+    [loadingLabel setText:@""];
     NSString *URLString = [[self.webView.request URL] absoluteString];
     NSLog(@"--> %@", URLString);
     if ([URLString rangeOfString:@"access_token="].location != NSNotFound) {

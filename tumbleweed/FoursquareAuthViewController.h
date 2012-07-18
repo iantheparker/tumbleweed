@@ -11,9 +11,14 @@
 
 @interface FoursquareAuthViewController : UIViewController <UIWebViewDelegate> {
     IBOutlet UIWebView *webView;
+    IBOutlet UIActivityIndicatorView *activityIndicator;
+    IBOutlet UILabel *loadingLabel;
 }
 
 @property (nonatomic, retain) UIWebView *webView;
+@property (nonatomic, retain) UIView *loadingView;
+@property (nonatomic, retain) UIView *containerView;
+
 
 - (IBAction) dismissModal:(id)sender;
 

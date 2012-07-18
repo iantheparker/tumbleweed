@@ -7,7 +7,7 @@
 //
 
 #import "Foursquare.h"
-
+#define vDate "20120720"
 
 
 @implementation Foursquare
