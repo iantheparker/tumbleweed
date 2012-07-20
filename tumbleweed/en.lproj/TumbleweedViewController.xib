@@ -40,6 +40,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{160, 189}, {150, 24}}</string>
 						<reference key="NSSuperview" ref="103644459"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="570489501"/>
 						<string key="NSReuseIdentifierKey">_NS:225</string>
 						<bool key="IBUIOpaque">NO</bool>
@@ -62,7 +63,7 @@
 						</object>
 						<object class="NSCustomResource" key="IBUINormalImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">foursquare-connect.png</string>
+							<string key="NSResourceName">connect-blue.png</string>
 						</object>
 						<object class="IBUIFontDescription" key="IBUIFontDescription" id="545263041">
 							<int key="type">2</int>
@@ -79,6 +80,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{5722, 280}, {40, 40}}</string>
 						<reference key="NSSuperview" ref="103644459"/>
+						<reference key="NSWindow"/>
 						<string key="NSReuseIdentifierKey">_NS:225</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -106,6 +108,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{248, 40}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="401068443"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
@@ -126,6 +129,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{64, 40}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="641849309"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
@@ -146,6 +150,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{426, 40}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="615697473"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
@@ -166,6 +171,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{826, 45}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="1015539703"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
@@ -186,6 +192,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{1044, 45}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="542276061"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
@@ -206,6 +213,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{1274, 45}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="586684648"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
@@ -226,6 +234,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{1502, 45}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="944323818"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<bool key="IBUIOpaque">NO</bool>
@@ -246,6 +255,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{628, 45}, {80, 80}}</string>
 								<reference key="NSSuperview" ref="570489501"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="352101534"/>
 								<string key="NSReuseIdentifierKey">_NS:225</string>
 								<object class="NSColor" key="IBUIBackgroundColor" id="994173813">
@@ -273,6 +283,7 @@
 						</array>
 						<string key="NSFrame">{{979, 95}, {2891, 160}}</string>
 						<reference key="NSSuperview" ref="103644459"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="1049841733"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<reference key="IBUIBackgroundColor" ref="994173813"/>
@@ -284,6 +295,7 @@
 				</array>
 				<string key="NSFrameSize">{5782, 320}</string>
 				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="83904937"/>
 				<string key="NSReuseIdentifierKey">_NS:196</string>
 				<object class="NSColor" key="IBUIBackgroundColor">
@@ -629,7 +641,146 @@
 			<nil key="sourceID"/>
 			<int key="maxID">103</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes"/>
+		<object class="IBClassDescriber" key="IBDocument.Classes">
+			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
+				<object class="IBPartialClassDescription">
+					<string key="className">TumbleweedViewController</string>
+					<string key="superclassName">UIViewController</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="barPressed:">UIButton</string>
+						<string key="campFirePressed:">UIButton</string>
+						<string key="dealPressed:">UIButton</string>
+						<string key="desertChasePressed:">UIButton</string>
+						<string key="desertLynchPressed:">UIButton</string>
+						<string key="foursquareConnect:">UIButton</string>
+						<string key="gasStationPressed:">UIButton</string>
+						<string key="handleSingleTap:">UIGestureRecognizer</string>
+						<string key="introPressed:">UIButton</string>
+						<string key="riverbed1Pressed:">UIButton</string>
+						<string key="riverbed2Pressed:">UIButton</string>
+						<string key="toggleBlackPanel:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="barPressed:">
+							<string key="name">barPressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="campFirePressed:">
+							<string key="name">campFirePressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="dealPressed:">
+							<string key="name">dealPressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="desertChasePressed:">
+							<string key="name">desertChasePressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="desertLynchPressed:">
+							<string key="name">desertLynchPressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="foursquareConnect:">
+							<string key="name">foursquareConnect:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="gasStationPressed:">
+							<string key="name">gasStationPressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="handleSingleTap:">
+							<string key="name">handleSingleTap:</string>
+							<string key="candidateClassName">UIGestureRecognizer</string>
+						</object>
+						<object class="IBActionInfo" key="introPressed:">
+							<string key="name">introPressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="riverbed1Pressed:">
+							<string key="name">riverbed1Pressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="riverbed2Pressed:">
+							<string key="name">riverbed2Pressed:</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBActionInfo" key="toggleBlackPanel:">
+							<string key="name">toggleBlackPanel:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="barButton">UIButton</string>
+						<string key="buttonContainer">UIView</string>
+						<string key="campFireButton">UIButton</string>
+						<string key="dealButton">UIButton</string>
+						<string key="desertChaseButton">UIButton</string>
+						<string key="desertLynchButton">UIButton</string>
+						<string key="foursquareConnectButton">UIButton</string>
+						<string key="gasStationButton">UIButton</string>
+						<string key="introButton">UIButton</string>
+						<string key="riverBed1Button">UIButton</string>
+						<string key="riverBed2Button">UIButton</string>
+						<string key="scrollView">UIScrollView</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="barButton">
+							<string key="name">barButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="buttonContainer">
+							<string key="name">buttonContainer</string>
+							<string key="candidateClassName">UIView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="campFireButton">
+							<string key="name">campFireButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="dealButton">
+							<string key="name">dealButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="desertChaseButton">
+							<string key="name">desertChaseButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="desertLynchButton">
+							<string key="name">desertLynchButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="foursquareConnectButton">
+							<string key="name">foursquareConnectButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="gasStationButton">
+							<string key="name">gasStationButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="introButton">
+							<string key="name">introButton</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="riverBed1Button">
+							<string key="name">riverBed1Button</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="riverBed2Button">
+							<string key="name">riverBed2Button</string>
+							<string key="candidateClassName">UIButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="scrollView">
+							<string key="name">scrollView</string>
+							<string key="candidateClassName">UIScrollView</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/TumbleweedViewController.h</string>
+					</object>
+				</object>
+			</array>
+		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaTouchFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
@@ -640,7 +791,7 @@
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<dictionary class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
 			<string key="appicon_114.png">{57, 57}</string>
-			<string key="foursquare-connect.png">{150, 24}</string>
+			<string key="connect-blue.png">{150, 24}</string>
 		</dictionary>
 		<string key="IBCocoaTouchPluginVersion">1181</string>
 	</data>

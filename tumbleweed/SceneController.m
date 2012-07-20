@@ -70,13 +70,22 @@
     //[mvFoursquare selectAnnotation:annotation animated:YES];
 }
 
-
+//set the nib width to venuescrollview paging width
 
 - (void) processVenues: (NSArray*) items
 {
     [activityIndicator stopAnimating];
     //[activityIndicator removeFromSuperview];
     NSLog(@"processing foursquare venues");
+    
+    if ([items count] == 0) {
+        UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
+        [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+        [nameLabel setText:@"Nothing around. Try later."];
+        UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+        [nameLabel setTextColor:redText];
+        return;
+    }
     
     [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
 

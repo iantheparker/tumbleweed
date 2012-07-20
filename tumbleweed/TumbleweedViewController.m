@@ -199,6 +199,14 @@
         }
     }
 }
+-(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    NSLog(@"hit");
+
+        UITouch *touch = [[event allTouches] anyObject];
+        
+        CGPoint touchLocation = [touch locationInView:self.view];
+}
 
 #pragma mark animation controls
 
@@ -731,7 +739,7 @@
     [scrollView addSubview:foursquareConnectButton];
     [scrollView addSubview:campFireButton];
     //UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-    //[mapCAView addGestureRecognizer:tapHandler];
+    //[buttonContainer addGestureRecognizer:tapHandler];
     
     [CATransaction commit];
 

@@ -105,15 +105,13 @@ void uncaughtExceptionHandler(NSException *exception) {
 {
     NSLog(@"application: %@ didFailToRegisterForRemoteNotificationsWithError: %@", application, [error localizedDescription]);
 }
-- (void)application:(UIApplication *)app didReceiveRemoteNotification:(NSDictionary *)
-userInfo 
+- (void)application:(UIApplication *)app didReceiveRemoteNotification:(NSDictionary *)userInfo 
 {
 	NSLog(@"In did receive  Remote Notifications %@", userInfo);
 }
 
 //You can alternately implement the pushNotification API
-+(void)pushNotification:(UIApplication*)application
-notifyData:(NSDictionary *)userInfo
++(void)pushNotification:(UIApplication*)application notifyData:(NSDictionary *)userInfo
 {
     
 }
