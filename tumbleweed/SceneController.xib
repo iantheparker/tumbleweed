@@ -267,7 +267,6 @@
 										<bool key="IBUIUserInteractionEnabled">NO</bool>
 										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 										<bool key="IBMKZoomEnabled">NO</bool>
-										<bool key="IBMKScrollEnabled">NO</bool>
 										<bool key="IBMKShowsUserLocation">YES</bool>
 									</object>
 									<object class="IBUIImageView" id="480956512">

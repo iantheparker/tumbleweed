@@ -7,19 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Tumbleweed.h"
 
 @class TumbleweedViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 {
     TumbleweedViewController *viewController;
-    
+    Tumbleweed *weed;
 
 }
 
 @property (strong, nonatomic) UIWindow *window;
-
 @property (strong, nonatomic) TumbleweedViewController *viewController;
+@property (strong, nonatomic) Tumbleweed *weed;
 
 void uncaughtExceptionHandler(NSException *exception);
 

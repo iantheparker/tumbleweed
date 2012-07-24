@@ -36,6 +36,7 @@
     NSMutableDictionary *allVenues;
     Scene *scene;
     //MKMapView *mvFoursquare;
+    //__unsafe_unretained __block ASIHTTPRequest *request;
     ASIHTTPRequest *request;
     UIView *venueView;
     

@@ -4,42 +4,44 @@
 <dict>
 	<key>mapLayer1</key>
 	<array>
-		<string>mapLayer1_01.png</string>
-		<string>mapLayer1_02.png</string>
-		<string>mapLayer1_03.png</string>
-		<string>mapLayer1_04.png</string>
-		<string>mapLayer1_05.png</string>
-		<string>mapLayer1_06.png</string>
-		<string>mapLayer1_07.png</string>
-		<string>mapLayer1_08.png</string>
-		<string>mapLayer1_09.png</string>
-		<string>mapLayer1_10.png</string>
-		<string>mapLayer1_11.png</string>
-		<string>mapLayer1_12.png</string>
-		<string>mapLayer1_13.png</string>
-		<string>mapLayer1_14.png</string>
-		<string>mapLayer1_15.png</string>
-		<string>mapLayer1_16.png</string>
-		<string>mapLayer1_17.png</string>
-		<string>mapLayer1_18.png</string>
-		<string>mapLayer1_20.jpg</string>
-		<string>mapLayer1_21.jpg</string>
-		<string>mapLayer1_22.jpg</string>
-		<string>mapLayer1_23.jpg</string>
-		<string>mapLayer1_24.jpg</string>
-		<string>mapLayer1_25.jpg</string>
-		<string>mapLayer1_26.jpg</string>
-		<string>mapLayer1_27.jpg</string>
-		<string>mapLayer1_28.jpg</string>
-		<string>mapLayer1_29.jpg</string>
-		<string>mapLayer1_30.jpg</string>
-		<string>mapLayer1_31.jpg</string>
-		<string>mapLayer1_32.jpg</string>
-		<string>mapLayer1_33.jpg</string>
-		<string>mapLayer1_34.jpg</string>
-		<string>mapLayer1_35.jpg</string>
-		<string>mapLayer1_36.jpg</string>
-		<string>mapLayer1_37.jpg</string>
+		<string>mapLayer1_01A.png</string>
+		<string>mapLayer1_01B.jpg</string>
+		<string>mapLayer1_02A.png</string>
+		<string>mapLayer1_02B.jpg</string>
+		<string>mapLayer1_03A.png</string>
+		<string>mapLayer1_03B.jpg</string>
+		<string>mapLayer1_04A.png</string>
+		<string>mapLayer1_04B.jpg</string>
+		<string>mapLayer1_05A.png</string>
+		<string>mapLayer1_05B.jpg</string>
+		<string>mapLayer1_06A.png</string>
+		<string>mapLayer1_06B.jpg</string>
+		<string>mapLayer1_07A.png</string>
+		<string>mapLayer1_07B.jpg</string>
+		<string>mapLayer1_08A.png</string>
+		<string>mapLayer1_08B.jpg</string>
+		<string>mapLayer1_09A.png</string>
+		<string>mapLayer1_09B.jpg</string>
+		<string>mapLayer1_10A.png</string>
+		<string>mapLayer1_10B.jpg</string>
+		<string>mapLayer1_11A.png</string>
+		<string>mapLayer1_11B.jpg</string>
+		<string>mapLayer1_12A.png</string>
+		<string>mapLayer1_12B.jpg</string>
+		<string>mapLayer1_13A.png</string>
+		<string>mapLayer1_13B.jpg</string>
+		<string>mapLayer1_14A.png</string>
+		<string>mapLayer1_14B.jpg</string>
+		<string>mapLayer1_15A.png</string>
+		<string>mapLayer1_15B.jpg</string>
+		<string>mapLayer1_16A.png</string>
+		<string>mapLayer1_16B.jpg</string>
+		<string>mapLayer1_17A.png</string>
+		<string>mapLayer1_17B.jpg</string>
+		<string>mapLayer1_18A.png</string>
+		<string>mapLayer1_18B.jpg</string>
+		<string>mapLayer1_19A.png</string>
+		<string>mapLayer1_19B.jpg</string>
 	</array>
 	<key>mapLayer4</key>
 	<dict>
@@ -146,6 +148,57 @@
 			<string>top_lvl4_objs_1.png</string>
 			<key>position</key>
 			<string>{2150, 229.25}</string>
+		</dict>
+	</dict>
+	<key>mapLayer3</key>
+	<dict>
+		<key>bar</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer3_Saloon.png</string>
+			<key>position</key>
+			<string>{2230, 105}</string>
+		</dict>
+		<key>gas</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer3_Gas.png</string>
+			<key>position</key>
+			<string>{2670, 160}</string>
+		</dict>
+		<key>intro</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer3_Sign.png</string>
+			<key>position</key>
+			<string>{400, 160}</string>
+		</dict>
+	</dict>
+	<key>mapLayer1B</key>
+	<dict>
+		<key>town</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer1B_TownAFAR.png</string>
+			<key>position</key>
+			<string>{1625, 115}</string>
+		</dict>
+	</dict>
+	<key>mapLayer1C</key>
+	<dict>
+		<key>townMountains</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer1B_TownMTNS.png</string>
+			<key>position</key>
+			<string>{2800, 90}</string>
+		</dict>
+		<key>desertMountains</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer1B_TownMTNS_desert1.png</string>
+			<key>position</key>
+			<string>{3525, 82}</string>
 		</dict>
 	</dict>
 </dict>

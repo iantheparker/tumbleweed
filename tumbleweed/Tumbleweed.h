@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "Scene.h"
+#import <CoreLocation/CoreLocation.h>
 //#import "ASIHTTPRequestDelegate.h"
 //#import "ASIFormDataRequest.h"
 //#import "ASIHTTPRequest.h"
@@ -17,7 +18,7 @@
 
 
 //this tracks the path and progress of the user
-@interface Tumbleweed : NSObject{
+@interface Tumbleweed : NSObject <CLLocationManagerDelegate, ASIHTTPRequestDelegate>{
     
     Scene *intro;
     Scene *gasStation;
@@ -29,6 +30,7 @@
     Scene *desertLynch;
     Scene *campFire;
     @private NSMutableDictionary *allScenes;
+    CLLocationManager *locationManager;
 
 }
 
@@ -41,6 +43,8 @@
 @property (nonatomic, retain) Scene *desertChase;
 @property (nonatomic, retain) Scene *desertLynch;
 @property (nonatomic, retain) Scene *campFire;
+
+@property (nonatomic, retain) CLLocationManager *locationManager;
 
 + (Tumbleweed *) weed;
 - (BOOL)saveChanges;

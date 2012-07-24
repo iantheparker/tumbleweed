@@ -15,10 +15,18 @@
 //#import "ASIFormDataRequest.h"
 //#import "ASIHTTPRequest.h"
 
+@interface SceneController()
+
+@property (nonatomic) CLLocationCoordinate2D centerCoordinate;
+@property (retain) ASIHTTPRequest *request;
+
+@end
+
 
 @implementation SceneController
 
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, moviePlayer, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, centerCoordinate;
+@synthesize moviePlayer, request;
 
 
 
@@ -78,14 +86,7 @@
     //[activityIndicator removeFromSuperview];
     NSLog(@"processing foursquare venues");
     
-    if ([items count] == 0) {
-        UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-        [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-        [nameLabel setText:@"Nothing around. Try later."];
-        UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
-        [nameLabel setTextColor:redText];
-        return;
-    }
+    
     
     [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
 
@@ -106,6 +107,16 @@
     venueScrollView.contentSize = contentSize;
     
     allVenues = nil;
+    if ([items count] == 0) {
+        UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
+        [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+        [nameLabel setText:@"Nothing around. Try again."];
+        UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+        [nameLabel setTextColor:redText];
+        [nameLabel setClearsContextBeforeDrawing:YES];
+        [venueView addSubview:venueDetailNib];
+        return;
+    }
     
     int offset = 0;
     NSMutableArray *annotations = [[NSMutableArray alloc] init];
@@ -129,10 +140,13 @@
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
+        //UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
         [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+        //[nameLabel setTextAlignment:UITextAlignmentCenter];
         [nameLabel setText:name];
         UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
         [nameLabel setTextColor:redText];
+        [nameLabel setClearsContextBeforeDrawing:YES];
 
         offset = (int)(nibwidth + padding) * i; 
         CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
@@ -144,7 +158,7 @@
         
         // capture events
         UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-        [venueDetailNib addGestureRecognizer:tapHandler];
+        [nameLabel addGestureRecognizer:tapHandler];
         
         // add it to the content view
         [venueView addSubview:venueDetailNib];
@@ -191,30 +205,7 @@
     //[button1 setEnabled:NO];
     movieThumbnailImageView.userInteractionEnabled = YES; // <--- this has to be set to YES
     [movieThumbnailImageView addSubview:button1];
-    
-    [UIView animateWithDuration:1.0 animations:^{
-        venueScrollView.alpha = 0.0;
-        UILabel *challengeText = (UILabel *) [self.view viewWithTag:-1];
-        [challengeText setText:[NSString stringWithFormat:@"You checked in at %@. Now you can watch the next scene!", [[[[scene.checkInResponse objectForKey:@"response"] objectForKey:@"checkin"] objectForKey:@"venue"] objectForKey:@"name"]]];
-        UILabel *venuename = (UILabel *) [self.view viewWithTag:2];
-        [venuename setText:@"Unlocked"];
-        UILabel *rewardBar = (UILabel *) [self.view viewWithTag:3];
-        [rewardBar setAlpha:0.0];
-        UILabel *rewardText = (UILabel *) [self.view viewWithTag:4];
-        [rewardText setAlpha:0.0];
-        
-    }];
-    [UIView animateWithDuration:1.0
-                          delay:1.0
-                        options: UIViewAnimationCurveEaseOut
-                     animations:^{
-                         CGPoint neworigin = CGPointMake(movieThumbnailImageView.center.x, 200);     
-                         movieThumbnailImageView.center = neworigin;
-                     } 
-                     completion:^(BOOL finished){
-                         NSLog(@"scene image path %@", scene.moviePath);
-                         scene.unlocked = TRUE;
-                     }];
+     
     
 */
 }
@@ -226,19 +217,53 @@
 {
     NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:scene.movieName
                                                                              ofType:@"mp4"]]; 
-    moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
-    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
+    //moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    //[self presentMoviePlayerViewControllerAnimated:moviePlayer];
+    
+    MPMoviePlayerController *movie = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+    movie.scalingMode=MPMovieScalingModeAspectFill;
+    [movie setFullscreen:YES animated:YES];
+    movie.useApplicationAudioSession = NO;
+    [self.view addSubview:movie.view];
+    [movie play];
 }
 
 - (void) searchSetup
 {
     NSLog(@"search setup");
-    //[activityIndicator setHidden:NO];
     activityIndicator.hidesWhenStopped = YES;
     [activityIndicator startAnimating];
-    locationManager = [[CLLocationManager alloc] init];
-    [locationManager setDelegate:self];
-    [locationManager startUpdatingLocation];
+    if (!locationManager) {
+        locationManager = [[CLLocationManager alloc] init];
+        [locationManager setDelegate:self];
+        [locationManager startUpdatingLocation];
+    }
+    else {
+        NSLog(@"has location, using refresh");
+        NSString *lat = [NSString stringWithFormat:@"%f", centerCoordinate.latitude];
+        NSString *lon = [NSString stringWithFormat:@"%f", centerCoordinate.longitude];
+        request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
+        [request setTimeOutSeconds:20];
+        /*
+        [request setCompletionBlock:^{
+            NSString *responseString = [request responseString];
+            NSError *err;
+            NSLog(@"searchVenues requestFinished REFRESH IN BLOCK");        
+            NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+            scene.recentSearchVenueResults = venuesDict;
+            //NSLog(@"venuesdict %@", venuesDict);
+            [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
+        }];
+        [request setFailedBlock:^{
+            NSError *error = [request error];
+            NSLog(@"error REFRESH IN BLOCK! %@", error);
+        }];
+         */
+        [request setDelegate:self];
+        [request startAsynchronous]; 
+        MKCoordinateRegion region = { centerCoordinate, { 0.009f , 0.009f } };
+        [mvFoursquare setRegion: region animated: YES];
+    }
 
 }
 
@@ -247,7 +272,6 @@
     [venueView removeFromSuperview];
     scene.recentSearchVenueResults = Nil;
     [activityIndicator startAnimating];
-    //remove annotations from mapview
     [self.mvFoursquare removeAnnotations:mvFoursquare.annotations];
     [UIView animateWithDuration:.5
                           delay:0
@@ -265,44 +289,7 @@
     
 }
 
-#pragma mark - Required CoreLocation methods
-
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
-{
-    [locationManager stopUpdatingLocation];
-    
-    // How many seconds ago was this new location created?
-    NSTimeInterval t = [[newLocation timestamp] timeIntervalSinceNow];
-    // CLLocationManagers will return the last found location of the
-    // device first, you don't want that data in this case.
-    // If this location was made more than 2 minutes ago, ignore it.
-
-    NSLog(@"nstimeinterval %f", t);
-    CLLocationDistance meters = [newLocation distanceFromLocation:oldLocation];
-    if (meters < 10 && scene.recentSearchVenueResults) {
-        [self processVenues:[[[[scene.recentSearchVenueResults objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
-        return; 
-    }
-    
-    scene.date = [newLocation timestamp];
-    
-    NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
-    NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
-    
-    request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
-    [request setDelegate:self];
-    [request setTimeOutSeconds:20];
-    [request startAsynchronous];    
-     
-}
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
-{
-    NSLog(@"location error is called - %@", error);
-
-}
-
-
+#pragma mark - 
 #pragma mark - Required ASIHTTP Asynchronous request methods 
 
 
@@ -327,7 +314,60 @@
     //UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
     //[alert show];
     [activityIndicator stopAnimating];
-    [activityIndicator removeFromSuperview];
+}
+
+#pragma mark -
+#pragma mark - Required CoreLocation methods
+
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+    [locationManager stopUpdatingLocation];
+    
+    // How many seconds ago was this new location created?
+    NSTimeInterval t = [[newLocation timestamp] timeIntervalSinceNow];
+    // CLLocationManagers will return the last found location of the
+    // device first, you don't want that data in this case.
+    // If this location was made more than 2 minutes ago, ignore it.
+    
+    NSLog(@"nstimeinterval %f", t);
+    CLLocationDistance meters = [newLocation distanceFromLocation:oldLocation];
+    if (meters < 10 && scene.recentSearchVenueResults) {
+        [self processVenues:[[[[scene.recentSearchVenueResults objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
+        return; 
+    }
+    
+    scene.date = [newLocation timestamp];
+    
+    NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
+    NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
+    
+    request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
+    [request setDelegate:self];
+    /*
+    request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
+    [request setTimeOutSeconds:20];
+    [request setCompletionBlock:^{
+        NSString *responseString = [request responseString];
+        NSError *err;
+        NSLog(@"searchVenues requestFinished IN BLOCK");        
+        NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        scene.recentSearchVenueResults = venuesDict;
+        //NSLog(@"venuesdict %@", venuesDict);
+        [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
+    }];
+    [request setFailedBlock:^{
+        NSError *error = [request error];
+        NSLog(@"error IN BLOCK! %@", error);
+    }];
+     */
+    [request startAsynchronous];    
+    
+}
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+    NSLog(@"location error is called - %@", error);
+    
 }
 
 #pragma mark - Map View Delegate methods
@@ -426,7 +466,15 @@
     //[mapView selectAnnotation:[[mapView annotations] lastObject] animated:YES];
     //[[views lastObject] setHighlighted:YES];
 }
+- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
+    MKCoordinateRegion region;
+    centerCoordinate = mapView.region.center;
+    region.center= centerCoordinate;
+    
+    NSLog(@"%f,%f",centerCoordinate.latitude, centerCoordinate.longitude);
+}
 
+#pragma mark -
 #pragma mark - View lifecycle
 
 
@@ -440,7 +488,19 @@
     }
     else {
         [searchView removeFromSuperview];
-        //[mvFoursquare removeFromSuperview];
+        if ([scene.name isEqualToString:@"No Man's Land"]) {
+            UIImage *introImage = [UIImage imageNamed:@"intro_text_placeholder.jpg"];
+            UIImageView *copyIntro = [[UIImageView alloc] initWithImage:introImage];
+            copyIntro.frame = CGRectMake(75, 260, introImage.size.width, introImage.size.height);
+            [checkinView addSubview:copyIntro];
+        }
+        else if ([scene.name isEqualToString:@"The End"])
+        {
+            UIImage *outroImage = [UIImage imageNamed:@"outro_text_placeholder.jpg"];
+            UIImageView *copyOutro = [[UIImageView alloc] initWithImage:outroImage];
+            copyOutro.frame = CGRectMake(75, 260, outroImage.size.width, outroImage.size.height);
+            [checkinView addSubview:copyOutro];
+        }
     }
     
     

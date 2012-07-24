@@ -20,6 +20,7 @@ static Tumbleweed *weed = nil;
 @implementation Tumbleweed
 
 @synthesize intro, gasStation, deal, bar, riverBed1, riverBed2, desertChase, desertLynch, campFire;
+@synthesize locationManager;
 
 + (Tumbleweed *)weed
 {
@@ -191,5 +192,44 @@ static Tumbleweed *weed = nil;
     //[alert show];
 }
 
+#pragma mark -
+#pragma mark - CLLocationManagerDelegate
+
+- (void)startSignificantChangeUpdates
+{
+    // Create the location manager if this object does not
+    // already have one.
+    if (nil == locationManager)
+        locationManager = [[CLLocationManager alloc] init];
+    
+    locationManager.delegate = self;
+    locationManager.distanceFilter = kCLLocationAccuracyThreeKilometers;
+    [locationManager startMonitoringSignificantLocationChanges];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+	NSLog(@"didFailWithError: %@", error);
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+    didUpdateToLocation:(CLLocation *)newLocation
+           fromLocation:(CLLocation *)oldLocation
+{
+    // If it's a relatively recent event, turn off updates to save power
+    NSDate* eventDate = newLocation.timestamp;
+    NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
+    if (abs(howRecent) < 300.0)
+    {
+        NSLog(@"latitude %+.6f, longitude %+.6f\n",
+              newLocation.coordinate.latitude,
+              newLocation.coordinate.longitude);
+        [locationManager stopMonitoringSignificantLocationChanges];
+        [Tumbleweed weed].desertChase.unlocked = true;
+        // notify the unlocking -- animate the unlocking when back to app
+        //[self scheduleNotificationWithDate:weed.riverBed2.date intervalTime:5];
+        
+    }
+    
+}
 
 @end

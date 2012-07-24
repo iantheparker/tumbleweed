@@ -9,16 +9,19 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import "Scene.h"
-#import "Tumbleweed.h"
+//#import "Tumbleweed.h"
 #import <QuartzCore/QuartzCore.h>
+#import "MapButtonView.h"
 
 
 
 @interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, CLLocationManagerDelegate>
 {
-    Tumbleweed *weed;
+    //Tumbleweed *weed;
     CALayer *map0CA;
     CALayer *map1CA;
+    CALayer *map1BCA;
+    CALayer *map1CCA;
     CALayer *map2CA;
     CALayer *map4CA;
     CALayer *janeAvatar;
@@ -27,7 +30,7 @@
     int lastContentOffset;
     BOOL walkingForward;
     //-- buttons
-    IBOutlet UIView *buttonContainer;
+    IBOutlet MapButtonView *buttonContainer;
     IBOutlet UIButton *foursquareConnectButton;
     IBOutlet UIButton *introButton;
     IBOutlet UIButton *dealButton;

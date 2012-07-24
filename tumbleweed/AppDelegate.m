@@ -18,7 +18,7 @@
 @implementation AppDelegate
 
 @synthesize window = _window;
-@synthesize viewController;
+@synthesize viewController, weed;
 
 /**
   * Catch any exceptions that leak through and report
@@ -35,15 +35,6 @@ void uncaughtExceptionHandler(NSException *exception) {
     [FlurryAnalytics startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
     [TestFlight takeOff:@"bb371df0e59558721f4be65bc1cd34b2_NTg5NDgyMDEyLTAyLTAyIDA5OjIyOjM0LjM0Nzk3MQ"];
     
-    //launching from local notification
-    UILocalNotification *localNotif =
-    [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-    if (localNotif) {
-        //NSString *notifName = [localNotif.userInfo objectForKey:ToDoItemKey];
-        //[viewController displayItem:notifName];  // custom method
-        application.applicationIconBadgeNumber = localNotif.applicationIconBadgeNumber-1;
-    }
-    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     
@@ -52,6 +43,8 @@ void uncaughtExceptionHandler(NSException *exception) {
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    
+    weed = [Tumbleweed weed];
     
     //if remote notification received at launch
     NSDictionary *pushNotificationPayload = [launchOptions valueForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
