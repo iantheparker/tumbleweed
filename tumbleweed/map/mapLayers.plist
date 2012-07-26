@@ -88,6 +88,10 @@
 			<string>{5170, 160}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_4_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_4_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_4_ICON-press.png</string>
 		</dict>
 		<key>gas</key>
 		<dict>
@@ -99,6 +103,10 @@
 			<string>{6478.88, 123}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_5_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_5_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_5_ICON-press.png</string>
 		</dict>
 		<key>riverbed1</key>
 		<dict>
@@ -110,6 +118,10 @@
 			<string>{8167, 93}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_6_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_6_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_6_ICON-press.png</string>
 		</dict>
 		<key>riverbed2</key>
 		<dict>
@@ -121,6 +133,10 @@
 			<string>{9420, 102}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_7_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_7_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_7_ICON-press.png</string>
 		</dict>
 		<key>chase-cactus</key>
 		<dict>
@@ -132,6 +148,10 @@
 			<string>{10290, 120}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_8_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_8_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_8_ICON-press.png</string>
 		</dict>
 		<key>lynch-noose</key>
 		<dict>
@@ -143,6 +163,10 @@
 			<string>{11725, 105}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_9_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_9_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_9_ICON-press.png</string>
 		</dict>
 		<key>campfire</key>
 		<dict/>

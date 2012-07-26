@@ -253,7 +253,6 @@
 }
 - (IBAction)introPressed:(UIButton *)sender
 {
-    dealButton.enabled=YES;
     introScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].intro];
     [self presentModalViewController:introScene animated:YES];
 }
@@ -265,7 +264,6 @@
 }
 - (IBAction) barPressed:(UIButton *)sender
 {
-    dealButton.selected = YES;
     barScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].bar];
     [self presentModalViewController:barScene animated:YES];
 
@@ -488,10 +486,9 @@
                 UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
                 [[topLayerButtons objectAtIndex:i] setImage:buttonImg2 forState:UIControlStateDisabled];
                 [[topLayerButtons objectAtIndex:i] setImage:buttonImg3 forState:UIControlStateSelected];
-                [[topLayerButtons objectAtIndex:i] setEnabled:NO];
+                //[[topLayerButtons objectAtIndex:i] setEnabled:NO];
             }
         }
-        
     }
     [CATransaction commit];
 }
