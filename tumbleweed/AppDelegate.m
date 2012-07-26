@@ -71,7 +71,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     NSLog(@"bytes in hex: %@", deviceToken);
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @"<" withString: @""];
     deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @">" withString: @""];
-    deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @" " withString: @""];
+    //deviceToken = [deviceToken stringByReplacingOccurrencesOfString: @" " withString: @""];
     //const void *devTokenBytes = [token bytes];
     
     if ([[NSUserDefaults standardUserDefaults] stringForKey: deviceTokenKey])

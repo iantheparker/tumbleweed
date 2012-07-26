@@ -503,7 +503,19 @@
         }
     }
     
-    
+    //if locked, show bw image
+    /*
+    CIImage *inputImage = [[CIImage alloc] initWithCGImage:[[UIImage imageNamed:scene.movieThumbnail] CGImage]];
+    CIFilter *adjustmentFilter = [CIFilter filterWithName:@"CISepiaTone"];
+    [adjustmentFilter setDefaults];
+    [adjustmentFilter setValue:inputImage forKey:@"inputImage"];
+    [adjustmentFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputIntensity"];
+    CIImage *outputImage = [adjustmentFilter valueForKey:@"outputImage"];
+    CIContext* context = [CIContext contextWithOptions:nil];
+    CGImageRef imgRef = [context createCGImage:outputImage fromRect:outputImage.extent] ;
+    UIImage* img = [[UIImage alloc] initWithCGImage:imgRef scale:1.0 orientation:UIImageOrientationDownMirrored];
+    */
+    //[movieThumbnailImageView setImage:img];
     [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
     sceneTitle.text = scene.name;
     sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:30];

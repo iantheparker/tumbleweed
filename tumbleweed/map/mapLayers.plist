@@ -73,6 +73,10 @@
 			<string>{3887.33, 105}</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_3_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_3_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_3_ICON-press.png</string>
 		</dict>
 		<key>bar</key>
 		<dict>

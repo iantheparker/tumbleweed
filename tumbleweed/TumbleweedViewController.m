@@ -159,8 +159,8 @@
     [map1BCA setPosition:layer1BPos];
     
     //--> layer2 position
-    float layer2Coefficient = .02;
-    CGPoint layer2Pos = CGPointMake(mapCenter.x - (janeOffset * layer2Coefficient), map2CA.position.y);
+    float layer2Coefficient = .03;
+    CGPoint layer2Pos = CGPointMake(mapCenter.x + (janeOffset * layer2Coefficient), map2CA.position.y);
     [map2CA setPosition:layer2Pos];
     
     //--> top layer position
@@ -253,6 +253,7 @@
 }
 - (IBAction)introPressed:(UIButton *)sender
 {
+    dealButton.enabled=YES;
     introScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].intro];
     [self presentModalViewController:introScene animated:YES];
 }
@@ -264,7 +265,7 @@
 }
 - (IBAction) barPressed:(UIButton *)sender
 {
-    //NSLog(@"pressed");
+    dealButton.selected = YES;
     barScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].bar];
     [self presentModalViewController:barScene animated:YES];
 
@@ -345,7 +346,6 @@
         //pop up hint
     }
 }
-
 - (void) gameState
 {
     /*
@@ -481,6 +481,15 @@
             NSString *imgName1 =[sceneDict objectForKey:@"buttonAccessible"];
             UIImage *buttonImg = [UIImage imageNamed:imgName1];
             [[topLayerButtons objectAtIndex:i] setImage:buttonImg forState:UIControlStateNormal];
+            if ([sceneDict objectForKey:@"buttonLocked"]) {
+                NSString *imgName2 =[sceneDict objectForKey:@"buttonLocked"];
+                NSString *imgName3 =[sceneDict objectForKey:@"buttonUnlocked"];
+                UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
+                UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
+                [[topLayerButtons objectAtIndex:i] setImage:buttonImg2 forState:UIControlStateDisabled];
+                [[topLayerButtons objectAtIndex:i] setImage:buttonImg3 forState:UIControlStateSelected];
+                [[topLayerButtons objectAtIndex:i] setEnabled:NO];
+            }
         }
         
     }
@@ -786,7 +795,7 @@
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
-        //[[Tumbleweed weed] registerUser];
+        [[Tumbleweed weed] registerUser];
     }
     //[self gameState];
 
