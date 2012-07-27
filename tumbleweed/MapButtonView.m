@@ -7,19 +7,18 @@
 //
 
 #import "MapButtonView.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface MapButtonView()
 
-@property (nonatomic, retain) NSString *layerName;
-@property (nonatomic, retain) UIView *layerView;
 
-//-(void) avatarTouched: (NSString*) layerName : (UIView*) layerView;
+
 
 @end
 
 @implementation MapButtonView
 
-@synthesize layerName, layerView;
+@synthesize layerName, layerView, janeLayer;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -44,17 +43,23 @@
     UITouch *touch = [[event allTouches] anyObject];
     CGPoint touchLocation = [touch locationInView:self];
     NSLog(@"hit %f", touchLocation.x);
-    /*
+    
     for (CALayer *layer in layerView.layer.sublayers) {
         if ([layer containsPoint:[layerView.layer convertPoint:touchLocation toLayer:layer]]) {
             if ([layer.name isEqualToString:layerName]) {
                 NSLog(@"jane hit");
             }
+            //NSLog(@"not jane hit %@ %@", layer.name, layerView.description);
         }
     }
-     */
+    
 }
 
+- (void) layerListener: (NSString *) name : (UIView *) view
+{
+    layerName = name;
+    layerView = view;
+}
 
 
 @end

@@ -764,13 +764,18 @@
     janeAvatar.name = @"janeAvatar";
     [mapCAView.layer addSublayer:janeAvatar];
     [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
-    NSLog(@"jane text %@ %@", janeAvatar.name, janeAvatar.description);
+    NSLog(@"jane text %@ %@ %@", janeAvatar.name, janeAvatar.description, mapCAView.description);
+
+    [buttonContainer layerListener:janeAvatar.name :mapCAView];
+    buttonContainer.janeLayer = janeAvatar;
+
     
     //[mapCAView addSubview:foursquareConnectButton];
     [scrollView addSubview:foursquareConnectButton];
     [scrollView addSubview:campFireButton];
     //UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
     //[buttonContainer addGestureRecognizer:tapHandler];
+    
     
     [CATransaction commit];
 

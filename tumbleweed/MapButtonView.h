@@ -11,8 +11,12 @@
 @interface MapButtonView : UIView{
     NSString *layerName;
     UIView *layerView;
+    CALayer *janeLayer;
 }
+@property (nonatomic, retain) NSString *layerName;
+@property (nonatomic, retain) UIView *layerView;
+@property (nonatomic, retain) CALayer * janeLayer;
 
-//-(void) 
+- (void) layerListener: (NSString *) name : (UIView *) view;
 
 @end

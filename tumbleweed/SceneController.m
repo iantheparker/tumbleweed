@@ -217,15 +217,19 @@
 {
     NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:scene.movieName
                                                                              ofType:@"mp4"]]; 
-    //moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
-    //[self presentMoviePlayerViewControllerAnimated:moviePlayer];
-    
+    moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    // prevent mute switch from switching off audio from movie player
+    NSError *_error = nil;
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
+    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
+    /*
     MPMoviePlayerController *movie = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
     movie.scalingMode=MPMovieScalingModeAspectFill;
     [movie setFullscreen:YES animated:YES];
     movie.useApplicationAudioSession = NO;
     [self.view addSubview:movie.view];
     [movie play];
+     */
 }
 
 - (void) searchSetup
