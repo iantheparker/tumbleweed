@@ -19,13 +19,14 @@
 
 @property (nonatomic) CLLocationCoordinate2D centerCoordinate;
 @property (retain) ASIHTTPRequest *request;
+@property int pos;
 
 @end
 
 
 @implementation SceneController
 
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, centerCoordinate, playButton;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, venueView, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, centerCoordinate, playButton, pos;
 @synthesize moviePlayer, request;
 
 
@@ -52,8 +53,8 @@
     return self;
 }
 
-
-#pragma mark Event Handlers
+#pragma mark -
+#pragma mark Button Handlers
 
 
 - (IBAction)dismissModal:(id)sender
@@ -62,8 +63,6 @@
     [locationManager stopUpdatingLocation];
     [self dismissModalViewControllerAnimated:YES];
 }
-
-
 
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
     NSString *viewId = [NSString stringWithFormat:@"%d", [sender.view hash]];    ;
@@ -78,36 +77,100 @@
     //[mvFoursquare selectAnnotation:annotation animated:YES];
 }
 
+- (IBAction) playVideo:(id)sender
+{
+    NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:scene.movieName
+                                                                             ofType:@"mp4"]];
+    moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    // prevent mute switch from switching off audio from movie player
+    NSError *_error = nil;
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
+    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
+}
+- (IBAction)refreshSearch:(id)sender
+{
+    [venueView removeFromSuperview];
+    scene.recentSearchVenueResults = Nil;
+    [activityIndicator startAnimating];
+    [self.mvFoursquare removeAnnotations:mvFoursquare.annotations];
+    [UIView animateWithDuration:.5
+                          delay:0
+                        options: UIViewAnimationCurveEaseOut
+                     animations:^{
+                         CGAffineTransform transform1 = CGAffineTransformMakeRotation(180 * M_PI / 180);
+                         CGAffineTransform transform2 = CGAffineTransformMakeRotation(360 * M_PI / 180);
+                         refreshButton.transform = transform1;
+                         refreshButton.transform = transform2;
+                     }
+                     completion:^(BOOL finished){
+                         [self searchSetup];
+                     }];
+    
+}
+- (IBAction)rightScroll:(id)sender
+{
+    pos = (int) venueScrollView.contentOffset.x / venueScrollView.frame.size.width;
+    if(pos<[allVenues count]-1){pos +=1;
+        [venueScrollView setContentOffset:CGPointMake(pos*venueScrollView.frame.size.width, 0) animated:TRUE];
+        // select proper map annotation
+        //NSLog(@"scrollview offset %f mod %f", venueScrollView.contentOffset.x, (venueScrollView.contentOffset.x / venueScrollView.frame.size.width));
+        leftScroll.enabled = YES;
+        if (pos == [allVenues count]-1) {
+            rightScroll.enabled = NO;
+        }
+    }
+    else {
+        //set state to disabled and display disabled image
+        
+    }
+}
+- (IBAction)leftScroll:(id)sender
+{
+    pos = venueScrollView.contentOffset.x / venueScrollView.frame.size.width;
+    if(pos>0){pos -=1;
+        [venueScrollView setContentOffset:CGPointMake(pos*venueScrollView.frame.size.width, 0) animated:TRUE];
+        // select proper map annotation
+        rightScroll.enabled = YES;
+        if (pos == 0) {
+            leftScroll.enabled = NO;
+        }
+    }
+    else {
+        //set state to disabled and display disabled image
+        
+    }
+}
+
 //set the nib width to venuescrollview paging width
 
 - (void) processVenues: (NSArray*) items
 {
     [activityIndicator stopAnimating];
-    //[activityIndicator removeFromSuperview];
     NSLog(@"processing foursquare venues");
     
-    
-    
-    [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
-
-    float nibwidth = venueDetailNib.frame.size.width;
-    float nibheight = venueDetailNib.frame.size.height;
-    int padding = 2;
-    
+    //init view sizes
+    float nibwidth = venueScrollView.frame.size.width;
+    float nibheight = venueScrollView.frame.size.height;
+    int padding = 0;
+    pos = 0;
     float scrollWidth = (nibwidth + padding) * [items count];
     CGSize contentSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
     
-    NSLog(@"screen width %f", scrollWidth);
-    
-    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, 800)];
+    //if re-search was hit, reset all the views and values
+    venueView = nil;
+    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, venueScrollView.frame.size.height)];
+    venueView.clearsContextBeforeDrawing = YES;
+    venueDetailNib.clearsContextBeforeDrawing = YES;
+    venueScrollView.clearsContextBeforeDrawing = YES;
+    [venueScrollView setContentOffset:CGPointMake(0, 0) animated:TRUE];
+    [allVenues removeAllObjects];
     
     [venueScrollView addSubview:venueView];
-    
-    // let the scrollview know how big the content size is
     venueScrollView.contentSize = contentSize;
     
-    allVenues = nil;
+    // If there are no search results, throw up "Nothing found."
     if ([items count] == 0) {
+        [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
         [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
         [nameLabel setText:@"Nothing around. Try again."];
@@ -117,7 +180,7 @@
         [venueView addSubview:venueDetailNib];
         return;
     }
-    
+
     int offset = 0;
     NSMutableArray *annotations = [[NSMutableArray alloc] init];
     for (int i = 0; i < [items count]; i++) {
@@ -133,14 +196,13 @@
         iconURL = [iconURL stringByReplacingOccurrencesOfString:@"https://foursquare.com/img/categories/" withString:@""];
         iconURL = [iconURL stringByReplacingOccurrencesOfString: @"/" withString: @"_"];
         UIImage *icon = [UIImage imageNamed:iconURL];
-        //UIImage *icon = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]];
         //NSLog(@"lat%f, long%f", latitude, longitude);
         //NSLog(@"icon url %@", iconURL);
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
         UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-        //UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
+        //UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, venueScrollView.frame.size.width, venueScrollView.frame.size.height)];
         [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
         //[nameLabel setTextAlignment:UITextAlignmentCenter];
         [nameLabel setText:name];
@@ -158,7 +220,7 @@
         
         // capture events
         UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-        [nameLabel addGestureRecognizer:tapHandler];
+        [venueDetailNib addGestureRecognizer:tapHandler];
         
         // add it to the content view
         [venueView addSubview:venueDetailNib];
@@ -182,16 +244,10 @@
     [mvFoursquare addAnnotations: annotations];
     //[mvFoursquare selectAnnotation:[annotations objectAtIndex:0] animated:YES];
 }
-
 - (void) processRewards
 {
-    //write logic that handles case when it's been unlocked
-    //movieThumbnailImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 220, 447, 200)];
-    //[movieThumbnailImageView setImage:scene.movieThumbnail];
-    //[self.view addSubview:movieThumbnailImageView];
 
 }
-
 - (void) animateRewards
 {
     /*
@@ -209,32 +265,11 @@
     
 */
 }
-- (IBAction) playVideo:(id)sender
-{
-    [self launchVideoPlayer];
-}
-- (void) launchVideoPlayer
-{
-    NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:scene.movieName
-                                                                             ofType:@"mp4"]]; 
-    moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
-    // prevent mute switch from switching off audio from movie player
-    NSError *_error = nil;
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
-    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
-    /*
-    MPMoviePlayerController *movie = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
-    movie.scalingMode=MPMovieScalingModeAspectFill;
-    [movie setFullscreen:YES animated:YES];
-    movie.useApplicationAudioSession = NO;
-    [self.view addSubview:movie.view];
-    [movie play];
-     */
-}
-
 - (void) searchSetup
 {
     NSLog(@"search setup");
+    [venueView removeFromSuperview];
+    scene.recentSearchVenueResults = Nil;
     activityIndicator.hidesWhenStopped = YES;
     [activityIndicator startAnimating];
     if (!locationManager) {
@@ -271,31 +306,8 @@
 
 }
 
-- (IBAction)refreshSearch:(id)sender
-{
-    [venueView removeFromSuperview];
-    scene.recentSearchVenueResults = Nil;
-    [activityIndicator startAnimating];
-    [self.mvFoursquare removeAnnotations:mvFoursquare.annotations];
-    [UIView animateWithDuration:.5
-                          delay:0
-                        options: UIViewAnimationCurveEaseOut
-                     animations:^{
-                         CGAffineTransform transform1 = CGAffineTransformMakeRotation(180 * M_PI / 180);
-                         CGAffineTransform transform2 = CGAffineTransformMakeRotation(360 * M_PI / 180);
-                         refreshButton.transform = transform1;
-                         refreshButton.transform = transform2;
-                         
-                     } 
-                     completion:^(BOOL finished){
-                         [self searchSetup];
-                     }];
-    
-}
-
 #pragma mark - 
 #pragma mark - Required ASIHTTP Asynchronous request methods 
-
 
 - (void)requestFinished:(ASIHTTPRequest *)rquest
 {
@@ -309,20 +321,23 @@
         [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
     }    
 }
-
 - (void)requestFailed:(ASIHTTPRequest *)rquest
 {
     NSError *error = [rquest error];
     NSLog(@"error! %@", error);
-    // Must add graceful network error like a pop-up saying, get internet!
-    //UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
-    //[alert show];
+    [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
+    UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
+    [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+    [nameLabel setText:@"Get some internet first!"];
+    UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+    [nameLabel setTextColor:redText];
+    [nameLabel setClearsContextBeforeDrawing:YES];
+    [venueView addSubview:venueDetailNib];
     [activityIndicator stopAnimating];
 }
 
 #pragma mark -
 #pragma mark - Required CoreLocation methods
-
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
@@ -371,10 +386,21 @@
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
     NSLog(@"location error is called - %@", error);
+    [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
+    UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
+    [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+    [nameLabel setText:@"Get some internet first!"];
+    UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+    [nameLabel setTextColor:redText];
+    [nameLabel setClearsContextBeforeDrawing:YES];
+    [venueView addSubview:venueDetailNib];
+    [activityIndicator stopAnimating];
     
 }
 
+#pragma mark - 
 #pragma mark - Map View Delegate methods
+
 - (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
 	// didUpdateUserLocation tend to repeat at times
@@ -392,7 +418,6 @@
 	MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.009f , 0.009f } };
 	[mapView setRegion: region animated: YES];
 }
-
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
     
     static NSString *identifier = @"MyLocation";
@@ -428,7 +453,6 @@
     
     return nil; 
 }
-
 - (void)mapView:(MKMapView *)mapView 
  annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
     
@@ -480,7 +504,6 @@
 
 #pragma mark -
 #pragma mark - View lifecycle
-
 
 - (void)viewDidLoad
 {
@@ -543,10 +566,6 @@
     [checkinScrollView addSubview:checkinView];
     venueScrollView.pagingEnabled = YES;
     mvFoursquare.layer.cornerRadius = 10.0;
-    
-    UIImage *leftArrowOn = [UIImage imageNamed:@"carosel_arrow-on.png"];
-    [leftScroll setImage:[UIImage imageWithCGImage:leftArrowOn.CGImage 
-                                             scale:1.0 orientation: UIImageOrientationUpMirrored] forState:UIControlStateNormal];
     
 }
 - (void)dealloc

@@ -51,6 +51,7 @@
 @property (nonatomic, retain) UILabel *checkInIntructions;
 @property (nonatomic, retain) UIView *checkinView;
 @property (nonatomic, retain) UIView *venueDetailNib;
+@property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
@@ -68,17 +69,18 @@
 //initializers
 - (id) initWithScene: (Scene *) scn;
 
+// touch events
+- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;
 - (IBAction) dismissModal:(id)sender;
 - (IBAction) playVideo:(id)sender;
-- (void) launchVideoPlayer;
+- (IBAction)refreshSearch:(id)sender;
+- (IBAction)leftScroll :(id)sender;
+- (IBAction)rightScroll :(id)sender;
+
 - (void) processVenues: (NSArray *) items;
 - (void) processRewards;
 - (void) animateRewards;
 - (void) searchSetup;
-- (IBAction)refreshSearch:(id)sender;
-
-// touch events
-- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;
 
 
 @end
