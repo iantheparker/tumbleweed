@@ -25,7 +25,7 @@
 
 @implementation SceneController
 
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, centerCoordinate;
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, centerCoordinate, playButton;
 @synthesize moviePlayer, request;
 
 
@@ -485,8 +485,24 @@
     if (scene.categoryId && !scene.unlocked) 
     {
         [self searchSetup];
+        //sepia image if locked
+        {
+            CIImage *inputImage = [[CIImage alloc] initWithCGImage:[[UIImage imageNamed:scene.movieThumbnail] CGImage]];
+            CIFilter *adjustmentFilter = [CIFilter filterWithName:@"CISepiaTone"];
+            [adjustmentFilter setDefaults];
+            [adjustmentFilter setValue:inputImage forKey:@"inputImage"];
+            [adjustmentFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputIntensity"];
+            CIImage *outputImage = [adjustmentFilter valueForKey:@"outputImage"];
+            CIContext* context = [CIContext contextWithOptions:nil];
+            CGImageRef imgRef = [context createCGImage:outputImage fromRect:outputImage.extent] ;
+            UIImage* img = [[UIImage alloc] initWithCGImage:imgRef scale:1.0 orientation:UIImageOrientationUp];
+            [movieThumbnailImageView setImage:img];
+        }
+        playButton.enabled = NO;
     }
     else {
+        [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
+        playButton.enabled = YES;
         [searchView removeFromSuperview];
         if ([scene.name isEqualToString:@"No Man's Land"]) {
             UIImage *introImage = [UIImage imageNamed:@"intro_text_placeholder.jpg"];
@@ -502,21 +518,9 @@
             [checkinView addSubview:copyOutro];
         }
     }
-    
-    //if locked, show bw image
-    /*
-    CIImage *inputImage = [[CIImage alloc] initWithCGImage:[[UIImage imageNamed:scene.movieThumbnail] CGImage]];
-    CIFilter *adjustmentFilter = [CIFilter filterWithName:@"CISepiaTone"];
-    [adjustmentFilter setDefaults];
-    [adjustmentFilter setValue:inputImage forKey:@"inputImage"];
-    [adjustmentFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputIntensity"];
-    CIImage *outputImage = [adjustmentFilter valueForKey:@"outputImage"];
-    CIContext* context = [CIContext contextWithOptions:nil];
-    CGImageRef imgRef = [context createCGImage:outputImage fromRect:outputImage.extent] ;
-    UIImage* img = [[UIImage alloc] initWithCGImage:imgRef scale:1.0 orientation:UIImageOrientationDownMirrored];
-    */
-    //[movieThumbnailImageView setImage:img];
-    [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
+
+    [playButton setImage:[UIImage imageNamed:@"play_icon.png"] forState:UIControlStateNormal];
+    [playButton setImage:[UIImage imageNamed:@"lock_icon.png"] forState:UIControlStateDisabled];
     sceneTitle.text = scene.name;
     sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:30];
     UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];

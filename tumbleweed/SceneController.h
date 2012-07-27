@@ -14,6 +14,7 @@
 #import "FoursquareAnnotation.h"
 #import <MapKit/MapKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import <CoreImage/CoreImage.h>
 
 
 @interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate, UIScrollViewDelegate>
@@ -31,6 +32,7 @@
     IBOutlet UIButton *rightScroll;
     IBOutlet MKMapView *mvFoursquare;
     IBOutlet UIView *searchView;
+    IBOutlet UIButton *playButton;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
@@ -60,6 +62,7 @@
 @property (nonatomic, retain) UIActivityIndicatorView *activityIndicator;
 @property (nonatomic, retain) UIButton *leftScroll;
 @property (nonatomic, retain) UIButton *rightScroll;
+@property (nonatomic, retain) UIButton *playButton;
 
 //initializers
 - (id) initWithScene: (Scene *) scn;
