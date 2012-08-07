@@ -194,13 +194,6 @@
 			<key>position</key>
 			<string>{2670, 160}</string>
 		</dict>
-		<key>intro</key>
-		<dict>
-			<key>img</key>
-			<string>mapLayer3_Sign.png</string>
-			<key>position</key>
-			<string>{400, 160}</string>
-		</dict>
 	</dict>
 	<key>mapLayer1B</key>
 	<dict>
