@@ -8,6 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-@interface Environment : NSObject
+@interface Environment : NSObject{
+    
+}
+@property (nonatomic, retain) NSString *server_url;
+@property (nonatomic, retain) NSString *foursquare_client_id;
+@property (nonatomic, retain) NSString *callback_url;
+
++ (Environment *)sharedInstance;
+
 
 @end

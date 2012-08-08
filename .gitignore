@@ -2,7 +2,7 @@
 *.swp
 *~.nib
 
-*Constants.h
+*environments.plist
 
 build/
 

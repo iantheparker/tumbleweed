@@ -42,7 +42,7 @@ static Tumbleweed *weed = nil;
         return weed;
     }
     self = [super init];
-    [self loadScenes]; 
+    [self loadScenes];
     return self;
 }
 
@@ -133,7 +133,7 @@ static Tumbleweed *weed = nil;
         NSString *foursquare_id = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"id"];
         NSString *foursquare_first_name = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"firstName"];
         NSString *foursquare_last_name = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"lastName"];
-        NSString *urlString = [NSString stringWithFormat:@"https://tumbleweed.herokuapp.com/register"];
+        NSString *urlString = [NSString stringWithFormat:@"%@/register", [[Environment sharedInstance] server_url]];
         NSURL *url = [NSURL URLWithString:urlString];
         ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
         [request setPostValue:foursquare_id forKey:@"foursquare_id"];
@@ -154,7 +154,7 @@ static Tumbleweed *weed = nil;
 }
 - (void) postToServer
 {
-    NSString *urlString = [NSString stringWithFormat:@"https://tumbleweed.herokuapp.com/user"];
+    NSString *urlString = [NSString stringWithFormat:@"%@/user", [[Environment sharedInstance] server_url]];
     NSURL *url = [NSURL URLWithString:urlString];
     ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
     [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"tumbleweedID"] forKey:@"tumbleweedID"];

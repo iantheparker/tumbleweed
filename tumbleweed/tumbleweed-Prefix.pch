@@ -18,4 +18,5 @@
     #import "Foursquare.h"
     #import "NSDictionary_JSONExtensions.h"
     #import "Tumbleweed.h"
+    #import "Environment.h"
 #endif

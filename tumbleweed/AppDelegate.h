@@ -15,7 +15,6 @@
 {
     TumbleweedViewController *viewController;
     Tumbleweed *weed;
-
 }
 
 @property (strong, nonatomic) UIWindow *window;

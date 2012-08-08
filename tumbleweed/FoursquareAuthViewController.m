@@ -7,7 +7,6 @@
 //
 
 #import "FoursquareAuthViewController.h"
-#import "Constants.h"
 
 @implementation FoursquareAuthViewController
 
@@ -49,7 +48,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSString *authenticateURLString = [NSString stringWithFormat:@"https://foursquare.com/oauth2/authenticate?display=touch&client_id=%@&response_type=token&redirect_uri=%@", CLIENT_ID, CALLBACK_URL];
+    NSString *authenticateURLString = [NSString stringWithFormat:@"https://foursquare.com/oauth2/authenticate?display=touch&client_id=%@&response_type=token&redirect_uri=%@", [[Environment sharedInstance] foursquare_client_id], [[Environment sharedInstance] callback_url] ];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:authenticateURLString]];
     [webView loadRequest:request];
     
