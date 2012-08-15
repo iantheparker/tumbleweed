@@ -114,6 +114,16 @@ void uncaughtExceptionHandler(NSException *exception) {
     //trigger animation of unlocking from here?
 }
 
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
+{
+    if (!url) {  return NO; }
+    
+    NSString *URLString = [url absoluteString];
+    [[NSUserDefaults standardUserDefaults] setObject:URLString forKey:@"url"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    return YES;
+}
+
 #pragma mark - Application LifeCycle
 
 - (void)applicationWillResignActive:(UIApplication *)application

@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "Scene.h"
 #import <CoreLocation/CoreLocation.h>
-//#import "ASIHTTPRequestDelegate.h"
+#import "ASIHTTPRequestDelegate.h"
 //#import "ASIFormDataRequest.h"
 //#import "ASIHTTPRequest.h"
 //#import "Foursquare.h"

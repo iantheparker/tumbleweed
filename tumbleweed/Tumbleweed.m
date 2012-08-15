@@ -133,6 +133,7 @@ static Tumbleweed *weed = nil;
         NSString *foursquare_id = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"id"];
         NSString *foursquare_first_name = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"firstName"];
         NSString *foursquare_last_name = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"lastName"];
+        NSLog(@"foursquare user response %@, first %@, last %@", foursquare_id, foursquare_first_name, foursquare_last_name);
         NSString *urlString = [NSString stringWithFormat:@"%@/register", [[Environment sharedInstance] server_url]];
         NSURL *url = [NSURL URLWithString:urlString];
         ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
@@ -140,6 +141,7 @@ static Tumbleweed *weed = nil;
         [request setPostValue:foursquare_first_name forKey:@"first_name"];
         [request setPostValue:foursquare_last_name forKey:@"last_name"];
         [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"devtok"] forKey:@"device_token"];
+        [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] forKey:@"oauth_token"];
         request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"registerUser", @"operation", nil];
         [request setDelegate:self];
         [request setTimeOutSeconds:20];
@@ -149,12 +151,13 @@ static Tumbleweed *weed = nil;
         [defaults synchronize];
     }
     else NSLog(@"registration failed %@", err);
+    
 
 
 }
 - (void) postToServer
 {
-    NSString *urlString = [NSString stringWithFormat:@"%@/user", [[Environment sharedInstance] server_url]];
+    NSString *urlString = [NSString stringWithFormat:@"%@/level", [[Environment sharedInstance] server_url]];
     NSURL *url = [NSURL URLWithString:urlString];
     ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
     [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"tumbleweedID"] forKey:@"tumbleweedID"];
@@ -172,15 +175,16 @@ static Tumbleweed *weed = nil;
     if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"registerUser"]) {
         NSDictionary *registerResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
         //fix the path when dave gives it
-        NSString *tumbleweedID = [[[registerResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"id"];
+        NSString *tumbleweedID = [registerResponse objectForKey:@"id"];
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:tumbleweedID forKey:@"tumbleweedID"];
         [defaults synchronize];
         NSLog(@"tumbleweedID is %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"tumbleweedID"]);
+        //[self postToServer];
     }    
     else if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"postToServer"]) {
-        NSDictionary *registerResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        NSLog(@"register response %@", registerResponse);
+        NSDictionary *postResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        NSLog(@"register response %@", postResponse);
     
     }
 }

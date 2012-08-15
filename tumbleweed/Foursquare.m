@@ -7,7 +7,8 @@
 //
 
 #import "Foursquare.h"
-#define vDate "20120720"
+
+static int vDate = 20120813;
 
 
 @implementation Foursquare
@@ -23,7 +24,8 @@
     [request setPostValue:venueId forKey:@"venueId"];
     [request setPostValue:shoutText forKey:@"shout"];
     [request setPostValue:@"private" forKey:@"broadcast"];
-    NSLog(@"%@", [NSString stringWithFormat:@"%@?oauth_token=%@&venueId=%@&broadcast=private",urlString, access_token, venueId]);
+    [request setPostValue:[NSNumber numberWithInt:vDate] forKey:@"v"];
+    NSLog(@"%@", [NSString stringWithFormat:@"%@?oauth_token=%@&venueId=%@&broadcast=private&v=%i",urlString, access_token, venueId, vDate]);
     request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"checkin", @"operation", nil]; 
     return request;
 
@@ -36,7 +38,7 @@
 	
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
     NSString *searchVenueURL = [NSString stringWithFormat:@"https://api.foursquare.com/v2/venues/search"];
-    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@&categoryId=%@&ll=%@,%@&limit=10&radius=500",searchVenueURL, access_token, category, lat, lon];
+    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@&categoryId=%@&ll=%@,%@&limit=10&radius=500&v=%i",searchVenueURL, access_token, category, lat, lon, vDate];
     NSLog(@"hitting %@", urlString);    
     NSURL *url = [NSURL URLWithString:urlString];
     ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
@@ -50,7 +52,7 @@
 {
     NSString *access_token = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
     NSString *getUserURL = [NSString stringWithFormat:@"https://api.foursquare.com/v2/users/self"];
-    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@",getUserURL, access_token];
+    NSString *urlString = [NSString stringWithFormat:@"%@?oauth_token=%@&v=%i",getUserURL, access_token, vDate];
     NSURL *url = [NSURL URLWithString:urlString];
     ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
     NSLog(@"userid request url %@",urlString);

@@ -66,6 +66,7 @@
         NSLog(@"checkin id %@", [[[checkinResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
         [self dismissModalViewControllerAnimated:YES];
         [sceneControllerId animateRewards];
+        //NSLog(@"checkin response %@", checkinResponse);
         
     }    
 }

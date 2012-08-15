@@ -32,6 +32,8 @@
 @property (nonatomic, retain) SceneController *barScene;
 @property (nonatomic, retain) SceneController *gasStationScene;
 @property (nonatomic, retain) SceneController *riverbed1Scene;
+@property (nonatomic, retain) SceneController *riverbed2Scene;
+
 
 -(void)pauseLayer:(CALayer*)layer;
 -(void)resumeLayer:(CALayer*)layer;
@@ -45,7 +47,7 @@
 @implementation TumbleweedViewController
 
 @synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward;
-@synthesize introScene, dealScene, barScene, gasStationScene, riverbed1Scene;
+@synthesize introScene, dealScene, barScene, gasStationScene, riverbed1Scene, riverbed2Scene;
 
 //-- scene buttons
 @synthesize foursquareConnectButton, introButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, buttonContainer, blackPanel;
@@ -253,18 +255,19 @@
 }
 - (IBAction)introPressed:(UIButton *)sender
 {
-    introScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].intro];
+    [[Tumbleweed weed] registerUser];
+    if (!introScene) introScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].intro];
     [self presentModalViewController:introScene animated:YES];
 }
 - (IBAction)dealPressed:(UIButton *)sender
 {
     //NSLog(@"pressed");
-    dealScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].deal];
+    if (!dealScene) dealScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].deal];
     [self presentModalViewController:dealScene animated:YES];
 }
 - (IBAction) barPressed:(UIButton *)sender
 {
-    barScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].bar];
+    if (!barScene) barScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].bar];
     [self presentModalViewController:barScene animated:YES];
 
 }
@@ -272,41 +275,21 @@
 {    
     NSLog(@"gasstation checkin response %@", [Tumbleweed weed].gasStation.checkInResponse);
     NSLog(@"is the scene unlocked? %@", [Tumbleweed weed].gasStation.unlocked ? @"YES": @"NO");
-    //if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"])
-    {
-        gasStationScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].gasStation];
-        //[gasStationScene setModalTransitionStyle:UIModalTransitionStylePartialCurl];
-        [self presentModalViewController:gasStationScene animated:YES]; 
-    }
-    //else 
-    {
-        //throw hint to log in
-    }
+    if (!gasStationScene) gasStationScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].gasStation];
+    [self presentModalViewController:gasStationScene animated:YES];
+
     
 }
 - (IBAction)riverbed1Pressed:(UIButton *)sender
 {
-    if (![Tumbleweed weed].riverBed1.accessible)
-    {
-        riverbed1Scene = [[SceneController alloc] initWithScene:[Tumbleweed weed].riverBed1];
-        [self presentModalViewController:riverbed1Scene animated:YES];
-    }
-    else
-    {
-        //pop up hint
-    }
+    if(!riverbed1Scene) riverbed1Scene = [[SceneController alloc] initWithScene:[Tumbleweed weed].riverBed1];
+    [self presentModalViewController:riverbed1Scene animated:YES];
 }
 - (IBAction) riverbed2Pressed:(UIButton *)sender
 {
-    if (![Tumbleweed weed].riverBed2.accessible)
-    {
-        SceneController *riverbed2Scene = [[SceneController alloc] initWithScene:[Tumbleweed weed].riverBed2];
-        [self presentModalViewController:riverbed2Scene animated:YES];
-    }
-    else
-    {
-        //pop up hint
-    }
+    if (!riverbed2Scene) riverbed2Scene = [[SceneController alloc] initWithScene:[Tumbleweed weed].riverBed2];
+    [self presentModalViewController:riverbed2Scene animated:YES];
+
 }
 - (IBAction) desertChasePressed:(UIButton *)sender
 {

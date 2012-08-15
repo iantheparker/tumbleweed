@@ -70,11 +70,9 @@
     NSString *venueName = [venueDetails objectForKey:@"name"];
     NSString *venueId = [venueDetails objectForKey:@"id"];
     NSLog(@"venue name %@ : id %@", venueName, venueId);
-    //CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
-    //[checkIn setVenueDetails:venueDetails];
-    //[self presentModalViewController:checkIn animated:YES];
-    
-    //[mvFoursquare selectAnnotation:annotation animated:YES];
+    CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
+    [checkIn setVenueDetails:venueDetails];
+    [self presentModalViewController:checkIn animated:YES];
 }
 
 - (IBAction) playVideo:(id)sender
@@ -192,12 +190,13 @@
         //int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
         CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
 		CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
-        NSString *iconURL = [[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"];
-        iconURL = [iconURL stringByReplacingOccurrencesOfString:@"https://foursquare.com/img/categories/" withString:@""];
+        NSString *iconURL = [[[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"] objectForKey:@"prefix"];
+        iconURL = [iconURL stringByReplacingOccurrencesOfString:@"https://foursquare.com/img/categories_v2/" withString:@""];
         iconURL = [iconURL stringByReplacingOccurrencesOfString: @"/" withString: @"_"];
+        if ( [iconURL length] > 0) iconURL = [iconURL substringToIndex:[iconURL length] - 1];
+
         UIImage *icon = [UIImage imageNamed:iconURL];
         //NSLog(@"lat%f, long%f", latitude, longitude);
-        //NSLog(@"icon url %@", iconURL);
 
         [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
        
@@ -250,20 +249,7 @@
 }
 - (void) animateRewards
 {
-    /*
-    UIButton *button1 = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    button1.frame = CGRectMake(100.f, 0.f, 50.f, 50.f);
-    [button1 setTitle:@"video 1" 
-             forState:(UIControlState)UIControlStateNormal];
-    [button1 addTarget:self
-                action:@selector(launchVideoPlayer) 
-      forControlEvents:(UIControlEvents)UIControlEventTouchDown];
-    //[button1 setEnabled:NO];
-    movieThumbnailImageView.userInteractionEnabled = YES; // <--- this has to be set to YES
-    [movieThumbnailImageView addSubview:button1];
-     
-    
-*/
+
 }
 - (void) searchSetup
 {
@@ -318,8 +304,8 @@
         NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
         scene.recentSearchVenueResults = venuesDict;
         //NSLog(@"venuesdict %@", venuesDict);
-        [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
-    }    
+        [self processVenues:[[venuesDict objectForKey:@"response"] objectForKey:@"venues"]];
+    }
 }
 - (void)requestFailed:(ASIHTTPRequest *)rquest
 {
