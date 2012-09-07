@@ -400,6 +400,20 @@
 -(IBAction)toggleBlackPanel:(id)sender
 {
     [blackPanel removeFromSuperlayer];
+    
+    CGSize fixedSize = CGSizeMake(685, 503);
+    CGImageRef campfireImage = [[UIImage imageNamed:@"campfire"] CGImage];
+    MCSpriteLayer* campefireSprite = [MCSpriteLayer layerWithImage:campfireImage sampleSize:fixedSize];
+    campefireSprite.position = CGPointMake(scrollView.contentSize.width - fixedSize.width/3, scrollView.contentSize.height/2);
+    
+    CABasicAnimation *campfireAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
+    campfireAnimation.fromValue = [NSNumber numberWithInt:1];
+    campfireAnimation.toValue = [NSNumber numberWithInt:4];
+    campfireAnimation.duration = .25f;
+    campfireAnimation.repeatCount = HUGE_VALF;
+    
+    [campefireSprite addAnimation:campfireAnimation forKey:nil];
+    [map1CA addSublayer:campefireSprite];
 }
 
 -(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer : (NSMutableArray*) topLayerButtons
@@ -707,7 +721,7 @@
         [blackPanel addSublayer:roundRect];
         
         CGSize fixedSize = CGSizeMake(619, 152);
-        CGImageRef eyesImage = [[UIImage imageNamed:@"eyeBlink.png"] CGImage];
+        CGImageRef eyesImage = [[UIImage imageNamed:@"eyeBlink"] CGImage];
         MCSpriteLayer* eyesSprite = [MCSpriteLayer layerWithImage:eyesImage sampleSize:fixedSize];
         eyesSprite.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/2);
     

@@ -58,12 +58,17 @@
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
-    NSString *responseString = [request responseString];
+    //NSString *responseString = [request responseString];
     NSError *err;
     if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"checkin"]) {
-        NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        sceneControllerId.scene.checkInResponse = checkinResponse;
-        NSLog(@"checkin id %@", [[[checkinResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
+        //NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        NSDictionary *json = [NSJSONSerialization
+                              JSONObjectWithData:[request responseData] //1
+                              
+                              options:kNilOptions
+                              error:&err];
+        sceneControllerId.scene.checkInResponse = json;
+        NSLog(@"checkin id %@", [[[json objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
         [self dismissModalViewControllerAnimated:YES];
         [sceneControllerId animateRewards];
         //NSLog(@"checkin response %@", checkinResponse);

@@ -70,6 +70,7 @@
     NSString *venueName = [venueDetails objectForKey:@"name"];
     NSString *venueId = [venueDetails objectForKey:@"id"];
     NSLog(@"venue name %@ : id %@", venueName, venueId);
+    // build a catch to make sure user is within 200-250m. if not, throw warning.
     CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     [checkIn setVenueDetails:venueDetails];
     [self presentModalViewController:checkIn animated:YES];
@@ -297,14 +298,19 @@
 
 - (void)requestFinished:(ASIHTTPRequest *)rquest
 {
-    NSString *responseString = [rquest responseString];
+    //NSString *responseString = [rquest responseString];
     NSError *err;
     if ([[rquest.userInfo valueForKey:@"operation"] isEqualToString:@"searchVenues"]) {
         NSLog(@"searchVenues requestFinished");        
-        NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        scene.recentSearchVenueResults = venuesDict;
-        //NSLog(@"venuesdict %@", venuesDict);
-        [self processVenues:[[venuesDict objectForKey:@"response"] objectForKey:@"venues"]];
+        //NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
+        NSDictionary *json = [NSJSONSerialization
+                              JSONObjectWithData:[rquest responseData] //1
+                              
+                              options:kNilOptions 
+                              error:&err];
+        scene.recentSearchVenueResults = json;
+        //NSLog(@"NSJson %@", json);
+        [self processVenues:[[json objectForKey:@"response"] objectForKey:@"venues"]];
     }
 }
 - (void)requestFailed:(ASIHTTPRequest *)rquest
