@@ -48,10 +48,24 @@
     [activityIndicator setHidden:NO];
     [activityIndicator startAnimating];
     // add publicSwitch.on to checkin method
-    ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"] shout:shoutText];
-    [request setDelegate:self];
-    [request startAsynchronous];
+    //ASIFormDataRequest *request = [Foursquare checkInFoursquare:[venueDetails objectForKey:@"id"] shout:shoutText];
+    //[request setDelegate:self];
+    //[request startAsynchronous];
     
+    [Foursquare checkIn:[venueDetails objectForKey:@"id"] shout:shoutText WithBlock:^(NSDictionary *checkInResponse, NSError *error) {
+        if (error) {
+            NSLog(@"error checking in %@", error);
+        }
+        else {
+            [self dismissViewControllerAnimated:YES completion:^{
+                sceneControllerId.scene.checkInResponse = checkInResponse;
+                NSLog(@"foursquare checkinresponse %@", checkInResponse);
+
+                //NSLog(@"foursquare checkinresponse %@", [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
+            }];
+            
+        }
+    }];
 }
 
 #pragma mark ASIHTTPRequest Protocol

@@ -401,10 +401,11 @@
 {
     [blackPanel removeFromSuperlayer];
     
-    CGSize fixedSize = CGSizeMake(685, 503);
+    //should read from plist if i want to support non-retina
+    CGSize fixedSize = CGSizeMake(256, 289);
     CGImageRef campfireImage = [[UIImage imageNamed:@"campfire"] CGImage];
     MCSpriteLayer* campefireSprite = [MCSpriteLayer layerWithImage:campfireImage sampleSize:fixedSize];
-    campefireSprite.position = CGPointMake(scrollView.contentSize.width - fixedSize.width/3, scrollView.contentSize.height/2);
+    campefireSprite.position = CGPointMake(scrollView.contentSize.width - (fixedSize.width - 14), scrollView.contentSize.height/2 + 26);
     
     CABasicAnimation *campfireAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
     campfireAnimation.fromValue = [NSNumber numberWithInt:1];
@@ -694,7 +695,7 @@
         nooseAnimation.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
         [hangnoose2 addAnimation:nooseAnimation forKey:@"transform.rotation.z"];
     }
-    //-->campFire
+    //-->campFire eyes animation
     {
         blackPanel = [CALayer layer];
         [blackPanel setBounds:CGRectMake(0, 0, 340, screenSize.height)];
@@ -753,7 +754,22 @@
         [eyesSprite addAnimation:eyesAnimation forKey:@"eyeBlink"];
         [blackPanel addSublayer:eyesSprite];
     }
-    
+    //-->bird animation
+    {
+        CGSize fixedSize = CGSizeMake(116, 74);
+        CGImageRef birdImage = [[UIImage imageNamed:@"bird"] CGImage];
+        MCSpriteLayer* birdSprite = [MCSpriteLayer layerWithImage:birdImage sampleSize:fixedSize];
+        birdSprite.position = CGPointMake(640*2, scrollView.contentSize.height/6);
+        
+        CABasicAnimation *birdAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
+        birdAnimation.fromValue = [NSNumber numberWithInt:1];
+        birdAnimation.toValue = [NSNumber numberWithInt:14];
+        birdAnimation.duration = 2.0f;
+        birdAnimation.repeatCount = HUGE_VALF;
+        
+        [birdSprite addAnimation:birdAnimation forKey:nil];
+        [map1BCA addSublayer:birdSprite];
+    }
     //--> avatar
     CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed.png"] CGImage];
     [janeAvatar setContents:(__bridge id)avatarImage];
@@ -794,7 +810,7 @@
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
-        [[Tumbleweed weed] registerUser];
+        //[[Tumbleweed weed] registerUser];
     }
     //[self gameState];
 

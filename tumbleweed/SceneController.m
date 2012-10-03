@@ -14,21 +14,26 @@
 
 //#import "ASIFormDataRequest.h"
 //#import "ASIHTTPRequest.h"
+#import "AFFoursquareAPIClient.h"
+#import "AFNetworking.h"
 
 @interface SceneController()
 
-@property (nonatomic) CLLocationCoordinate2D centerCoordinate;
+//@property (nonatomic) CLLocationCoordinate2D centerCoordinate;
 @property (retain) ASIHTTPRequest *request;
-@property int pos;
+//@property int pos;
 
 @end
 
 
-@implementation SceneController
-
-@synthesize checkinScrollView, venueScrollView, venueDetailNib, venueView, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, centerCoordinate, playButton, pos;
+@implementation SceneController {
+@private
+    CLLocationCoordinate2D centerCoordinate;
+    int pos;
+}
+@synthesize checkinScrollView, venueScrollView, venueDetailNib, venueView, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, playButton;
 @synthesize moviePlayer, request;
-
+// @synthesize centerCoordinate, pos;
 
 
 - (id) initWithScene:(Scene *) scn
@@ -59,9 +64,10 @@
 
 - (IBAction)dismissModal:(id)sender
 {
-    [request clearDelegatesAndCancel];
-    [locationManager stopUpdatingLocation];
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:^{
+        [Foursquare cancelSearchVenues];
+        [locationManager stopUpdatingLocation];
+    }];
 }
 
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
@@ -88,10 +94,12 @@
 }
 - (IBAction)refreshSearch:(id)sender
 {
+    //clear all previous results
     [venueView removeFromSuperview];
     scene.recentSearchVenueResults = Nil;
     [activityIndicator startAnimating];
     [self.mvFoursquare removeAnnotations:mvFoursquare.annotations];
+    //animate the refresh button and call searchSetup
     [UIView animateWithDuration:.5
                           delay:0
                         options: UIViewAnimationCurveEaseOut
@@ -140,7 +148,6 @@
     }
 }
 
-//set the nib width to venuescrollview paging width
 
 - (void) processVenues: (NSArray*) items
 {
@@ -268,8 +275,15 @@
         NSLog(@"has location, using refresh");
         NSString *lat = [NSString stringWithFormat:@"%f", centerCoordinate.latitude];
         NSString *lon = [NSString stringWithFormat:@"%f", centerCoordinate.longitude];
-        request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
-        [request setTimeOutSeconds:20];
+        [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId WithBlock:^(NSArray *venues, NSError *error) {
+            if (error) {
+                NSLog(@"error %@", error);
+            } else {
+                [self processVenues:venues];
+            }
+        }];
+        //request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
+        //[request setTimeOutSeconds:20];
         /*
         [request setCompletionBlock:^{
             NSString *responseString = [request responseString];
@@ -285,8 +299,8 @@
             NSLog(@"error REFRESH IN BLOCK! %@", error);
         }];
          */
-        [request setDelegate:self];
-        [request startAsynchronous]; 
+        //[request setDelegate:self];
+        //[request startAsynchronous];
         MKCoordinateRegion region = { centerCoordinate, { 0.009f , 0.009f } };
         [mvFoursquare setRegion: region animated: YES];
     }
@@ -294,7 +308,7 @@
 }
 
 #pragma mark - 
-#pragma mark - Required ASIHTTP Asynchronous request methods 
+#pragma mark - Required ASIHTTP Asynchronous request delegate methods 
 
 - (void)requestFinished:(ASIHTTPRequest *)rquest
 {
@@ -329,7 +343,7 @@
 }
 
 #pragma mark -
-#pragma mark - Required CoreLocation methods
+#pragma mark - Required CoreLocation delegate methods
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
@@ -355,24 +369,17 @@
     
     request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
     [request setDelegate:self];
-    /*
-    request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
-    [request setTimeOutSeconds:20];
-    [request setCompletionBlock:^{
-        NSString *responseString = [request responseString];
-        NSError *err;
-        NSLog(@"searchVenues requestFinished IN BLOCK");        
-        NSDictionary *venuesDict = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        scene.recentSearchVenueResults = venuesDict;
-        //NSLog(@"venuesdict %@", venuesDict);
-        [self processVenues:[[[[venuesDict objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
+    //[request startAsynchronous];
+    
+    [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId WithBlock:^(NSArray *venues, NSError *error) {
+        if (error) {
+            NSLog(@"error %@", error);
+        } else {
+            [self processVenues:venues];
+        }
     }];
-    [request setFailedBlock:^{
-        NSError *error = [request error];
-        NSLog(@"error IN BLOCK! %@", error);
-    }];
-     */
-    [request startAsynchronous];    
+    
+    
     
 }
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
@@ -559,11 +566,9 @@
     venueScrollView.pagingEnabled = YES;
     mvFoursquare.layer.cornerRadius = 10.0;
     
+
 }
-- (void)dealloc
-{
-    [request clearDelegatesAndCancel];
-}
+
 - (void)viewDidUnload
 {
     [super viewDidUnload];
