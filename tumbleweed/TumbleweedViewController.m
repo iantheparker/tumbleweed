@@ -409,8 +409,8 @@
     
     CABasicAnimation *campfireAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
     campfireAnimation.fromValue = [NSNumber numberWithInt:1];
-    campfireAnimation.toValue = [NSNumber numberWithInt:4];
-    campfireAnimation.duration = .25f;
+    campfireAnimation.toValue = [NSNumber numberWithInt:5];
+    campfireAnimation.duration = .40f;
     campfireAnimation.repeatCount = HUGE_VALF;
     
     [campefireSprite addAnimation:campfireAnimation forKey:nil];
@@ -686,7 +686,7 @@
         nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
         nooseAnimation.fromValue = [NSNumber numberWithFloat:2.0 * M_PI];
         nooseAnimation.toValue = [NSNumber numberWithFloat:2.01 * M_PI];
-        nooseAnimation.duration = 2.0;
+        nooseAnimation.duration = 1.5;
         //animation.cumulative = YES;
         nooseAnimation.autoreverses = YES;
         nooseAnimation.repeatCount = HUGE_VAL;
@@ -763,12 +763,28 @@
         
         CABasicAnimation *birdAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
         birdAnimation.fromValue = [NSNumber numberWithInt:1];
-        birdAnimation.toValue = [NSNumber numberWithInt:14];
+        birdAnimation.toValue = [NSNumber numberWithInt:15];
         birdAnimation.duration = 2.0f;
         birdAnimation.repeatCount = HUGE_VALF;
         
         [birdSprite addAnimation:birdAnimation forKey:nil];
         [map1BCA addSublayer:birdSprite];
+    }
+    //-->riverWaves animation
+    {
+        CGSize fixedSize = CGSizeMake(924, 240);
+        CGImageRef riverImage = [[UIImage imageNamed:@"riverWaves"] CGImage];
+        MCSpriteLayer* riverSprite = [MCSpriteLayer layerWithImage:riverImage sampleSize:fixedSize];
+        riverSprite.position = CGPointMake(640*4 + 423, scrollView.contentSize.height/2 +3);
+        
+        CABasicAnimation *riverAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
+        riverAnimation.fromValue = [NSNumber numberWithInt:1];
+        riverAnimation.toValue = [NSNumber numberWithInt:3];
+        riverAnimation.duration = 1.4f;
+        riverAnimation.repeatCount = HUGE_VALF;
+        
+        [riverSprite addAnimation:riverAnimation forKey:nil];
+        [map1CA addSublayer:riverSprite];
     }
     //--> avatar
     CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed.png"] CGImage];

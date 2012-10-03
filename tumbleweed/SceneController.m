@@ -8,19 +8,13 @@
 
 #import "SceneController.h"
 #import "CheckInController.h"
-//#import "Foursquare.h"
 
-//#import "NSDictionary_JSONExtensions.h"
-
-//#import "ASIFormDataRequest.h"
-//#import "ASIHTTPRequest.h"
 #import "AFFoursquareAPIClient.h"
 #import "AFNetworking.h"
 
 @interface SceneController()
 
 //@property (nonatomic) CLLocationCoordinate2D centerCoordinate;
-@property (retain) ASIHTTPRequest *request;
 //@property int pos;
 
 @end
@@ -32,7 +26,7 @@
     int pos;
 }
 @synthesize checkinScrollView, venueScrollView, venueDetailNib, venueView, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, playButton;
-@synthesize moviePlayer, request;
+@synthesize moviePlayer;
 // @synthesize centerCoordinate, pos;
 
 
@@ -309,7 +303,7 @@
 
 #pragma mark - 
 #pragma mark - Required ASIHTTP Asynchronous request delegate methods 
-
+/*
 - (void)requestFinished:(ASIHTTPRequest *)rquest
 {
     //NSString *responseString = [rquest responseString];
@@ -341,6 +335,7 @@
     [venueView addSubview:venueDetailNib];
     [activityIndicator stopAnimating];
 }
+ */
 
 #pragma mark -
 #pragma mark - Required CoreLocation delegate methods
@@ -367,9 +362,6 @@
     NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
     NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
     
-    request = [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId];
-    [request setDelegate:self];
-    //[request startAsynchronous];
     
     [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId WithBlock:^(NSArray *venues, NSError *error) {
         if (error) {

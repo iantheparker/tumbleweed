@@ -7,14 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-//#import "Foursquare.h"
-//#import "ASIHTTPRequestDelegate.h"
-//#import "ASIFormDataRequest.h"
-//#import "NSDictionary_JSONExtensions.h"
 #import "SceneController.h"
 
 
-@interface CheckInController : UIViewController <ASIHTTPRequestDelegate, UITextViewDelegate>{
+@interface CheckInController : UIViewController <UITextViewDelegate>{
     IBOutlet UIButton *backButton;
     IBOutlet UIButton *photoButton;
     IBOutlet UILabel *characterCounter;

@@ -68,36 +68,6 @@
     }];
 }
 
-#pragma mark ASIHTTPRequest Protocol
-
-- (void)requestFinished:(ASIHTTPRequest *)request
-{
-    //NSString *responseString = [request responseString];
-    NSError *err;
-    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"checkin"]) {
-        //NSDictionary *checkinResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        NSDictionary *json = [NSJSONSerialization
-                              JSONObjectWithData:[request responseData] //1
-                              
-                              options:kNilOptions
-                              error:&err];
-        sceneControllerId.scene.checkInResponse = json;
-        NSLog(@"checkin id %@", [[[json objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);
-        [self dismissModalViewControllerAnimated:YES];
-        [sceneControllerId animateRewards];
-        //NSLog(@"checkin response %@", checkinResponse);
-        
-    }    
-}
-
-- (void)requestFailed:(ASIHTTPRequest *)request
-{
-    NSError *error = [request error];
-    NSLog(@"error! %@", error);
-    // Must add graceful network error like a pop-up saying, get internet!
-}
-
-
 
 #pragma mark UITextViewDelegate protocol
 

@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-//#import "ASIHTTPRequestDelegate.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "Scene.h"
 #import "FoursquareAnnotation.h"
@@ -18,7 +17,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, ASIHTTPRequestDelegate, MKMapViewDelegate, UIScrollViewDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate>
 {
     IBOutlet UIScrollView *checkinScrollView;
     IBOutlet UIView *checkinView;
@@ -39,8 +38,6 @@
     NSMutableDictionary *allVenues;
     Scene *scene;
     //MKMapView *mvFoursquare;
-    //__unsafe_unretained __block ASIHTTPRequest *request;
-    ASIHTTPRequest *request;
     UIView *venueView;
     
 }

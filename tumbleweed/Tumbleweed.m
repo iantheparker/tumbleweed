@@ -97,14 +97,6 @@ static Tumbleweed *weed = nil;
 }
 
 
-- (NSString *)sceneArchivePath
-{
-    // The returned path will be Sandbox/Documents/possessions.data
-    // Both the saving and loading methods will call this method to get the same path,
-    // preventing a typo in the path name of either method
-    return pathInDocumentDirectory(@"tumbleweedScenes.data");
-}
-
 - (BOOL)saveChanges
 {
     //pack Scenes into allScenes for archive
@@ -125,37 +117,23 @@ static Tumbleweed *weed = nil;
 
 - (void) registerUser
 {
-    ASIHTTPRequest *request = [Foursquare getUserId];
-    [request startSynchronous];
-    NSError *err = [request error];
-    if (!err) {
-        //NSDictionary *userResponse = [NSDictionary dictionaryWithJSONString:[request responseString] error:&err];
-        NSDictionary *userResponse = [NSJSONSerialization
-                              JSONObjectWithData:[request responseData] //1
-                              
-                              options:kNilOptions
-                              error:&err];
-        NSString *foursquare_id = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"id"];
-        NSString *foursquare_first_name = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"firstName"];
-        NSString *foursquare_last_name = [[[userResponse objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"lastName"];
-        NSLog(@"foursquare user response %@, first %@, last %@", foursquare_id, foursquare_first_name, foursquare_last_name);
-        NSString *urlString = [NSString stringWithFormat:@"%@/register", [[Environment sharedInstance] server_url]];
-        NSURL *url = [NSURL URLWithString:urlString];
-        ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
-        [request setPostValue:foursquare_id forKey:@"foursquare_id"];
-        [request setPostValue:foursquare_first_name forKey:@"first_name"];
-        [request setPostValue:foursquare_last_name forKey:@"last_name"];
-        [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"devtok"] forKey:@"device_token"];
-        [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] forKey:@"oauth_token"];
-        request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"registerUser", @"operation", nil];
-        [request setDelegate:self];
-        [request setTimeOutSeconds:20];
-        [request startAsynchronous];
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        [defaults setObject:foursquare_id forKey:@"foursquare_id"];
-        [defaults synchronize];
-    }
-    else NSLog(@"registration failed %@", err);
+    
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 //foursquare_id, @"foursquare_id",
+                                 //foursquare_first_name, @"first_name",
+                                 //foursquare_last_name, @"last_name",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"devtok"], @"device_token", nil];
+    //NSString *url = [NSString stringWithFormat:@"checkins/add?oauth_token=%@&venueId=%@&broadcast=private&shout=%@&v=%i", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], venueId, shoutText, vDate];
+    [[AFTumbleweedClient sharedClient] postPath:@"register" parameters:queryParams
+                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                               NSString *tumbleweedID = [JSON objectForKey:@"id"];
+                                               NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                                               [defaults setObject:tumbleweedID forKey:@"tumbleweedID"];
+                                               [defaults synchronize];                                               
+                                           } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                               
+                                           }];
     
 
 
@@ -164,55 +142,9 @@ static Tumbleweed *weed = nil;
 {
     NSString *urlString = [NSString stringWithFormat:@"%@/level", [[Environment sharedInstance] server_url]];
     NSURL *url = [NSURL URLWithString:urlString];
-    ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];   
-    [request setPostValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"tumbleweedID"] forKey:@"tumbleweedID"];
-    request.userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"postToServer", @"operation", nil];
-    [request setDelegate:self];
-    [request startAsynchronous];
-}
-
-#pragma mark - Required ASIHTTP Asynchronous request methods 
-
-- (void)requestFinished:(ASIHTTPRequest *)request
-{
-    //NSString *responseString = [request responseString];
-    NSError *err;
-    if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"registerUser"]) {
-        //NSDictionary *registerResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        NSDictionary *registerResponse = [NSJSONSerialization
-                              JSONObjectWithData:[request responseData] //1
-                              
-                              options:kNilOptions
-                              error:&err];
-        //fix the path when dave gives it
-        NSString *tumbleweedID = [registerResponse objectForKey:@"id"];
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        [defaults setObject:tumbleweedID forKey:@"tumbleweedID"];
-        [defaults synchronize];
-        NSLog(@"tumbleweedID is %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"tumbleweedID"]);
-        //[self postToServer];
-    }    
-    else if ([[request.userInfo valueForKey:@"operation"] isEqualToString:@"postToServer"]) {
-        //NSDictionary *postResponse = [NSDictionary dictionaryWithJSONString:responseString error:&err];
-        NSDictionary *postResponse = [NSJSONSerialization
-                                          JSONObjectWithData:[request responseData] //1
-                                          
-                                          options:kNilOptions
-                                          error:&err];
-        NSLog(@"register response %@", postResponse);
     
-    }
 }
 
-- (void)requestFailed:(ASIHTTPRequest *)request
-{
-    NSError *error = [request error];
-    //if ([[request.userInfo valueForKey:@"operation"] isEqualToString:NSURLErrorNetworkConnectionLost]) {}
-    NSLog(@"%@ error! %@", [request.userInfo valueForKey:@"operation"], error);
-    // Must add graceful network error like a pop-up saying, get internet!
-    //UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connection Timeout" message:@"Are you sure you have internet right now...?" delegate:self cancelButtonTitle:@"Dismiss" otherButtonTitles:nil] ;
-    //[alert show];
-}
 
 #pragma mark -
 #pragma mark - CLLocationManagerDelegate

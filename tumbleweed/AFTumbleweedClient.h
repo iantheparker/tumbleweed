@@ -10,4 +10,7 @@
 
 @interface AFTumbleweedClient : AFHTTPClient
 
++ (AFTumbleweedClient *)sharedClient;
+
+
 @end
