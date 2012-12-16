@@ -11,6 +11,10 @@
 static Tumbleweed *weed = nil;
 
 @interface Tumbleweed()
+@property int tumbleweedId;
+@property (nonatomic, readonly) NSString *fsqId;
+@property (nonatomic, readonly) NSString *fsqFirstName;
+@property (nonatomic, readonly) NSString *fsqLastName;
 - (NSString *)sceneArchivePath;
 - (void) loadScenes;
 - (void) createScenes;
@@ -21,6 +25,7 @@ static Tumbleweed *weed = nil;
 
 @synthesize intro, gasStation, deal, bar, riverBed1, riverBed2, desertChase, desertLynch, campFire;
 @synthesize locationManager;
+@synthesize tumbleweedLevel;
 
 + (Tumbleweed *)weed
 {
@@ -81,9 +86,11 @@ static Tumbleweed *weed = nil;
 
 - (void) createScenes
 {
+    //read all default values from plist, which is ordered by array index
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"scenes" ofType:@"plist"];
     NSDictionary *mainDict = [NSDictionary dictionaryWithContentsOfFile:plistPath];
     NSArray *array = [NSArray arrayWithArray:[mainDict objectForKey:@"Scenes"]];
+    
     intro = [[Scene alloc] initWithDictionary:[array objectAtIndex:0]];
     deal  = [[Scene alloc] initWithDictionary:[array objectAtIndex:1]];
     bar = [[Scene alloc] initWithDictionary:[array objectAtIndex:2]];
@@ -95,7 +102,6 @@ static Tumbleweed *weed = nil;
     campFire = [[Scene alloc] initWithDictionary:[array objectAtIndex:8]];
 
 }
-
 
 - (BOOL)saveChanges
 {
@@ -117,32 +123,95 @@ static Tumbleweed *weed = nil;
 
 - (void) registerUser
 {
-    
-    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+    //if (_tumbleweedId) return;
+    if ([[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]) return;
+    [Foursquare getUserIdWithBlock:^(NSDictionary *userCred, NSError *error) {
+        if (error) {
+            NSLog(@"userCred error %@", error);
+        }
+        else{
+            _fsqId = [userCred objectForKey:@"id"];
+            _fsqFirstName = [userCred objectForKey:@"firstName"];
+            _fsqLastName = [userCred objectForKey:@"lastName"];
+            tumbleweedLevel = [[userCred objectForKey:@"level"] intValue];
+            NSLog(@"fsqid: %@, name: %@ %@ level: %d", _fsqId, _fsqFirstName, _fsqLastName, tumbleweedLevel);
+            NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 //foursquare_id, @"foursquare_id",
-                                 //foursquare_first_name, @"first_name",
-                                 //foursquare_last_name, @"last_name",
+                                 _fsqId, @"foursquare_id",
+                                 _fsqFirstName, @"first_name",
+                                 _fsqLastName, @"last_name",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"devtok"], @"device_token", nil];
-    //NSString *url = [NSString stringWithFormat:@"checkins/add?oauth_token=%@&venueId=%@&broadcast=private&shout=%@&v=%i", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], venueId, shoutText, vDate];
-    [[AFTumbleweedClient sharedClient] postPath:@"register" parameters:queryParams
-                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
-                                               NSString *tumbleweedID = [JSON objectForKey:@"id"];
-                                               NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-                                               [defaults setObject:tumbleweedID forKey:@"tumbleweedID"];
-                                               [defaults synchronize];                                               
-                                           } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                                               
-                                           }];
-    
+            //NSString *urlstring = [NSString stringWithFormat:@"register?oauth_token=%@&foursquare_id=%@&first_name=%@&last_name=%@&device_token=%@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], _fsqId, _fsqFirstName, _fsqLastName, [[NSUserDefaults standardUserDefaults] stringForKey:@"devtok"]];
 
-
+            [[AFTumbleweedClient sharedClient] postPath:@"register" parameters:queryParams
+                                                   success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                                       _tumbleweedId = [[JSON objectForKey:@"id"] intValue];
+                                                       NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                                                       [defaults setInteger:_tumbleweedId forKey:@"tumbleweedID"];
+                                                       [defaults synchronize];
+                                                       NSLog(@"tumbleweed id %d", _tumbleweedId);
+                                                       NSLog(@"tumbleweed json %@", JSON);
+                                                   } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                                       NSLog(@"tumbleweed id error %@", error);
+                                                   }];
+        }
+    }];
 }
-- (void) postToServer
+
+- (void) getUser
 {
-    NSString *urlString = [NSString stringWithFormat:@"%@/level", [[Environment sharedInstance] server_url]];
-    NSURL *url = [NSURL URLWithString:urlString];
-    
+    if (![[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]) return;
+    NSString *userPath = [NSString stringWithFormat:@"users/%d", [[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]];
+    [[AFTumbleweedClient sharedClient] getPath:userPath parameters:nil
+                                       success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                           tumbleweedLevel = [[JSON objectForKey:@"level"] intValue];
+                                           NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                                           [defaults setInteger:_tumbleweedId forKey:@"tumbleweedID"];
+                                           [defaults synchronize];
+                                           NSLog(@"tumbleweed- getUser json %@", JSON);
+                                       } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                           NSLog(@"tumbleweed- getUser error %@", error);
+                                       }];
+}
+
+- (void) getUserWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block
+{
+    if (![[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]) return;
+    NSString *userPath = [NSString stringWithFormat:@"users/%d", [[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]];
+    [[AFTumbleweedClient sharedClient] getPath:userPath parameters:nil
+                                       success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                           tumbleweedLevel = [[JSON objectForKey:@"level"] intValue];
+                                           NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                                           [defaults setInteger:_tumbleweedId forKey:@"tumbleweedID"];
+                                           [defaults synchronize];
+                                           NSLog(@"tumbleweed- getUser json %@", JSON);
+                                           NSDictionary *results = [NSDictionary dictionaryWithDictionary:JSON];
+                                           if (block) {
+                                               block(results, nil);
+                                           }
+                                       } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                           NSLog(@"tumbleweed- getUser error %@", error);
+                                           if (block) {
+                                               block([NSDictionary dictionary], error);
+                                               NSLog(@"error from getUser %@", error);
+                                           }
+                                       }];
+}
+
+
+- (void) updateUser
+{
+    if (![[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]) return;
+    NSString *userPath = [NSString stringWithFormat:@"users/%d", [[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]];
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSString stringWithFormat:@"%d",tumbleweedLevel], @"level", nil];
+    [[AFTumbleweedClient sharedClient] putPath:userPath parameters:queryParams
+                                       success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                           NSLog(@"tumbleweed- updatetUser json %@", JSON);
+                                       } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                           NSLog(@"tumbleweed- updateUser error %@", error);
+                                       }];
+    //block built-in to auto-update UI when finished
 }
 
 

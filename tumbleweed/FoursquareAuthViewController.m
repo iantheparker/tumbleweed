@@ -76,16 +76,7 @@
         [defaults synchronize];
        // if we want a web splash "succes page" 
         NSLog(@"got access token, closing modal %@", accessToken);
-        /*
-        [Foursquare getUserIdWithBlock:^(NSDictionary *userCred, NSError *error) {
-            if (error) {
-                NSLog(@"error getting id %@", error);
-            }
-            else {
-                NSLog(@"foursquare user creds %@", userCred);
-            }
-        }];
-        */ 
+       
         [self dismissModalViewControllerAnimated:YES];
     } 
     else NSLog(@"no access token, ignoring");

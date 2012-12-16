@@ -43,6 +43,12 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     
+    nibNameOrNil = @"SceneController";
+    if([UIScreen mainScreen].bounds.size.height == 568)
+    {
+        nibNameOrNil = @"SceneController_5";
+        
+    }
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     
     if (self) {
@@ -73,7 +79,8 @@
     // build a catch to make sure user is within 200-250m. if not, throw warning.
     CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     [checkIn setVenueDetails:venueDetails];
-    [self presentModalViewController:checkIn animated:YES];
+    [checkIn setModalTransitionStyle:UIModalTransitionStylePartialCurl];
+    [self presentViewController:checkIn animated:YES completion:NULL];
 }
 
 - (IBAction) playVideo:(id)sender
@@ -251,6 +258,9 @@
 }
 - (void) animateRewards
 {
+    [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
+    playButton.enabled = YES;
+    [searchView removeFromSuperview];
 
 }
 - (void) searchSetup
@@ -406,7 +416,7 @@
 	// set the mapView's region the same as the user's coordinate
 	CLLocationCoordinate2D userCoords = [userLocation coordinate];
 	// with a fixed zoom level with an animation
-	MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.009f , 0.009f } };
+	MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.003f , 0.003f } };
 	[mapView setRegion: region animated: YES];
 }
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
@@ -519,9 +529,12 @@
         playButton.enabled = NO;
     }
     else {
+        /*
         [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
         playButton.enabled = YES;
         [searchView removeFromSuperview];
+         */
+        [self animateRewards];
         if ([scene.name isEqualToString:@"No Man's Land"]) {
             UIImage *introImage = [UIImage imageNamed:@"intro_text_placeholder.jpg"];
             UIImageView *copyIntro = [[UIImageView alloc] initWithImage:introImage];

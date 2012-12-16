@@ -11,7 +11,7 @@
 #import "Tumbleweed.h"
 
 #import "TestFlight.h"
-#import "FlurryAnalytics.h"
+#import "Flurry.h"
 
 #define deviceTokenKey   @"devtok"
 
@@ -24,7 +24,7 @@
   * Catch any exceptions that leak through and report
   */
 void uncaughtExceptionHandler(NSException *exception) {
-    [FlurryAnalytics logError:@"Uncaught" message:@"Crash!" exception:exception];
+    [Flurry logError:@"Uncaught" message:@"Crash!" exception:exception];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -32,7 +32,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
     
     // analytics
-    [FlurryAnalytics startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
+    [Flurry startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
     [TestFlight takeOff:@"bb371df0e59558721f4be65bc1cd34b2_NTg5NDgyMDEyLTAyLTAyIDA5OjIyOjM0LjM0Nzk3MQ"];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
@@ -45,6 +45,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     
     weed = [Tumbleweed weed];
+    [weed getUser];
     
     //if remote notification received at launch
     NSDictionary *pushNotificationPayload = [launchOptions valueForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
@@ -142,7 +143,8 @@ void uncaughtExceptionHandler(NSException *exception) {
      */
 
     [viewController saveAvatarPosition];
-    [[Tumbleweed weed] saveChanges];
+    //[[Tumbleweed weed] saveChanges];
+    [[Tumbleweed weed] updateUser];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application

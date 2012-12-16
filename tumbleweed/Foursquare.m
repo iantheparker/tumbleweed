@@ -15,21 +15,22 @@ static int vDate = 20120927;
 + (void)getUserIdWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block
 {
     
-    [[AFFoursquareAPIClient sharedClient] getPath:@"users/self" parameters:[NSDictionary dictionaryWithObject:[[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] forKey:@"oauth_token"]
+    [[AFFoursquareAPIClient sharedClient] getPath:@"users/self" parameters:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                                            [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                                                            [NSNumber numberWithInt:vDate], @"v", nil]
                                           success:^(AFHTTPRequestOperation *operation, id response) {
                                               NSDictionary *results = [[response objectForKey:@"response"] objectForKey:@"user"];
-                                              //NSLog(@"results = %@", results);
-                                              //userId = [[[response objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"id"];
-                                              NSString *foursquare_first_name = [[[response objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"firstName"];
-                                              NSString *foursquare_last_name = [[[response objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"lastName"];
-                                              //create Tumbleweed id
-                                              //everything should be off by default on tumbleweedviewcontroller
-                                              NSLog(@"first: %@, last: %@", foursquare_first_name, foursquare_last_name);
+                                              //NSLog(@"user = %@", results);
+                                              if (block) {
+                                                  block(results, nil);
+                                              }
                                               
                                           }
                                           failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                                              NSLog(@"Error!");
-                                              NSLog(@"%@", error);
+                                              if (block) {
+                                                  block([NSDictionary dictionary], error);
+                                                  NSLog(@"error from getUser %@", error);
+                                              }
                                           }];
 }
 
@@ -40,8 +41,8 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
-                                 @"10", @"limit",
-                                 @"500", @"radius",
+                                 @"5", @"limit",
+                                 @"250", @"radius",
                                  category, @"categoryId",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];

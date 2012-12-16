@@ -30,7 +30,7 @@
     
     [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
     [self setDefaultHeader:@"Accept" value:@"application/json"];
-    self.parameterEncoding = AFJSONParameterEncoding;
+    self.parameterEncoding = AFFormURLParameterEncoding;
     return self;
 }
 

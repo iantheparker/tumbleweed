@@ -1,0 +1,17 @@
+
+PODS:
+- AFNetworking (1.0.1)
+- FlurrySDK (4.0.5)
+- TestFlightSDK (1.2)
+
+DEPENDENCIES:
+- AFNetworking
+- FlurrySDK
+- TestFlightSDK
+
+SPEC CHECKSUMS:
+  AFNetworking: 4c11f857c9a18d65f4257c90a1e74ac49f0ac422
+  FlurrySDK: 75dec170404f5cb8344d2097b7e8df23a6ca9325
+  TestFlightSDK: 29e194fb148e4861f92e4c1195b9697e1f3ad19a
+
+COCOAPODS: 0.16.0

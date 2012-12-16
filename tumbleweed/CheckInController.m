@@ -59,6 +59,9 @@
         else {
             [self dismissViewControllerAnimated:YES completion:^{
                 sceneControllerId.scene.checkInResponse = checkInResponse;
+                sceneControllerId.scene.unlocked = YES;
+                //[Tumbleweed weed].tumbleweedLevel ++;
+                [sceneControllerId animateRewards];
                 NSLog(@"foursquare checkinresponse %@", checkInResponse);
 
                 //NSLog(@"foursquare checkinresponse %@", [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"]);

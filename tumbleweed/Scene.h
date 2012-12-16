@@ -24,6 +24,7 @@
     NSString *checkedVenue;  //location of unlock
     NSString *hintCopy;
     NSString *checkInCopy;
+    //shared bool
 
 }
 

@@ -33,6 +33,9 @@
 @property (nonatomic, retain) SceneController *gasStationScene;
 @property (nonatomic, retain) SceneController *riverbed1Scene;
 @property (nonatomic, retain) SceneController *riverbed2Scene;
+@property (nonatomic, retain) SceneController *desertChaseScene;
+@property (nonatomic, retain) SceneController *desertLynchScene;
+@property (nonatomic, retain) SceneController *campFireScene;
 
 
 -(void)pauseLayer:(CALayer*)layer;
@@ -41,13 +44,14 @@
 -(CGRect) selectAvatarBounds:(float) position;
 -(IBAction)toggleBlackPanel:(id)sender;
 -(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer : (NSMutableArray*) topLayerButtons;
+-(void) updateSceneButtonStates;
 
 @end
 
 @implementation TumbleweedViewController
 
 @synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward;
-@synthesize introScene, dealScene, barScene, gasStationScene, riverbed1Scene, riverbed2Scene;
+@synthesize introScene, dealScene, barScene, gasStationScene, riverbed1Scene, riverbed2Scene, desertChaseScene, desertLynchScene, campFireScene;
 
 //-- scene buttons
 @synthesize foursquareConnectButton, introButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, buttonContainer, blackPanel;
@@ -261,9 +265,17 @@
 }
 - (IBAction)dealPressed:(UIButton *)sender
 {
-    //NSLog(@"pressed");
     if (!dealScene) dealScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].deal];
-    [self presentModalViewController:dealScene animated:YES];
+    
+    [UIView transitionWithView:self.view
+                      duration:1.0f
+                       options:UIViewAnimationOptionTransitionCurlDown
+                    animations:^{
+                        [self.navigationController pushViewController:dealScene.navigationController animated:NO];
+                        //[self presentModalViewController:dealScene animated:NO];
+                    }
+                    completion:NULL];
+     
 }
 - (IBAction) barPressed:(UIButton *)sender
 {
@@ -276,9 +288,7 @@
     NSLog(@"gasstation checkin response %@", [Tumbleweed weed].gasStation.checkInResponse);
     NSLog(@"is the scene unlocked? %@", [Tumbleweed weed].gasStation.unlocked ? @"YES": @"NO");
     if (!gasStationScene) gasStationScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].gasStation];
-    [self presentModalViewController:gasStationScene animated:YES];
-
-    
+    [self presentModalViewController:gasStationScene animated:YES];    
 }
 - (IBAction)riverbed1Pressed:(UIButton *)sender
 {
@@ -293,39 +303,20 @@
 }
 - (IBAction) desertChasePressed:(UIButton *)sender
 {
-    if (![Tumbleweed weed].desertChase.accessible)
-    {
-        SceneController *riverbedScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].desertChase];
-        [self presentModalViewController:riverbedScene animated:YES];
-    }
-    else
-    {
-        //pop up hint
-    }
+    if (!desertChaseScene)desertChaseScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].desertChase];
+    [self presentModalViewController:desertChaseScene animated:YES];
 }
 - (IBAction) desertLynchPressed:(UIButton *)sender
 {
-    if (![Tumbleweed weed].desertLynch.accessible)
-    {
-        SceneController *riverbedScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].desertLynch];
-        [self presentModalViewController:riverbedScene animated:YES];
-    }
-    else
-    {
-        //pop up hint
-    }
+    if (!desertLynchScene) desertLynchScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].desertLynch];
+    [self presentModalViewController:desertLynchScene animated:YES];
+    
 }
 - (IBAction) campFirePressed:(UIButton *)sender
 {
-    if (![Tumbleweed weed].campFire.accessible)
-    {
-        SceneController *riverbedScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].campFire];
-        [self presentModalViewController:riverbedScene animated:YES];
-    }
-    else
-    {
-        //pop up hint
-    }
+    if (!campFireScene) campFireScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].campFire];
+    [self presentModalViewController:campFireScene animated:YES];
+
 }
 - (void) gameState
 {
@@ -395,7 +386,97 @@
      
 }
 
+-(void) updateSceneButtonStates
+{
+    // switch statement.
+    // array or explicit?
+    
+    
+    //NSLog(@"tumb level %d", [Tumbleweed weed].tumbleweedLevel);
+    //if level all 3 first scenes have unlocked
+    //after every checkin there should be a pull from the server - lots of pings though
+    [[Tumbleweed weed] getUserWithBlock:^(NSDictionary *userCred, NSError *error) {
+        if (error) {
+            //
 
+        }
+        else {
+            NSLog(@"userlevel %@ tumbleweedDefault %d", [userCred objectForKey:@"level"], [[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]);
+            switch ([Tumbleweed weed].tumbleweedLevel) {
+                case 0:
+                    if([Tumbleweed weed].deal.unlocked) dealButton.selected = YES;
+                    if([Tumbleweed weed].bar.unlocked) barButton.selected = YES;
+                    if([Tumbleweed weed].gasStation.unlocked) gasStationButton.selected = YES;
+                    riverBed1Button.enabled = YES;
+                    break;
+                case 1:
+                    dealButton.selected = YES;
+                    barButton.selected = YES;
+                    gasStationButton.selected = YES;
+                    riverBed1Button.enabled = YES;
+                    break;
+                case 2:
+                    dealButton.selected = YES;
+                    barButton.selected = YES;
+                    gasStationButton.selected = YES;
+                    riverBed1Button.selected = YES;
+                    riverBed2Button.enabled = YES;
+                    break;
+                case 3:
+                    dealButton.selected = YES;
+                    barButton.selected = YES;
+                    gasStationButton.selected = YES;
+                    riverBed1Button.selected = YES;
+                    riverBed2Button.selected = YES;
+                    desertChaseButton.enabled = YES;
+                    break;
+                case 4:
+                    dealButton.selected = YES;
+                    barButton.selected = YES;
+                    gasStationButton.selected = YES;
+                    riverBed1Button.selected = YES;
+                    riverBed2Button.selected = YES;
+                    desertChaseButton.selected = YES;
+                    desertLynchButton.enabled = YES;
+                    break;
+                case 5:
+                    dealButton.selected = YES;
+                    barButton.selected = YES;
+                    gasStationButton.selected = YES;
+                    riverBed1Button.selected = YES;
+                    riverBed2Button.selected = YES;
+                    desertChaseButton.selected = YES;
+                    desertLynchButton.selected = YES;
+                    campFireButton.enabled = YES;
+                    break;
+                case 6:
+                    dealButton.selected = YES;
+                    barButton.selected = YES;
+                    gasStationButton.selected = YES;
+                    riverBed1Button.selected = YES;
+                    riverBed2Button.selected = YES;
+                    desertChaseButton.selected = YES;
+                    desertLynchButton.selected = YES;
+                    campFireButton.selected = YES;
+                    break;
+                    
+                default:
+                    dealButton.enabled = YES;
+                    barButton.enabled = YES;
+                    gasStationButton.enabled = YES;
+                    riverBed1Button.enabled = NO;
+                    riverBed2Button.enabled = NO;
+                    desertChaseButton.enabled = NO;
+                    desertLynchButton.enabled = NO;
+                    campFireButton.enabled = NO;
+                    
+                    break;
+            }
+        }
+    }];
+    
+    
+}
 
 -(IBAction)toggleBlackPanel:(id)sender
 {
@@ -815,6 +896,7 @@
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -826,9 +908,9 @@
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
-        //[[Tumbleweed weed] registerUser];
+        [[Tumbleweed weed] registerUser];
     }
-    //[self gameState];
+    [self updateSceneButtonStates];
 
 }
 
