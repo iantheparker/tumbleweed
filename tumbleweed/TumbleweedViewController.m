@@ -27,23 +27,15 @@
 //@property (nonatomic, retain) Tumbleweed *weed;
 @property (nonatomic, retain) CALayer *blackPanel;
 
-@property (nonatomic, retain) SceneController *dealScene;
-@property (nonatomic, retain) SceneController *introScene;
-@property (nonatomic, retain) SceneController *barScene;
-@property (nonatomic, retain) SceneController *gasStationScene;
-@property (nonatomic, retain) SceneController *riverbed1Scene;
-@property (nonatomic, retain) SceneController *riverbed2Scene;
-@property (nonatomic, retain) SceneController *desertChaseScene;
-@property (nonatomic, retain) SceneController *desertLynchScene;
-@property (nonatomic, retain) SceneController *campFireScene;
 
-
+-(void) scenePressed:(UIButton*)sender;
 -(void)pauseLayer:(CALayer*)layer;
 -(void)resumeLayer:(CALayer*)layer;
 -(void) renderScreen: (BOOL) direction : (BOOL) moving;
 -(CGRect) selectAvatarBounds:(float) position;
 -(IBAction)toggleBlackPanel:(id)sender;
--(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer : (NSMutableArray*) topLayerButtons;
+-(CGPoint) coordinatePListReader: (NSString*) positionString;
+-(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer;
 -(void) updateSceneButtonStates;
 
 @end
@@ -51,10 +43,9 @@
 @implementation TumbleweedViewController
 
 @synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward;
-@synthesize introScene, dealScene, barScene, gasStationScene, riverbed1Scene, riverbed2Scene, desertChaseScene, desertLynchScene, campFireScene;
 
 //-- scene buttons
-@synthesize foursquareConnectButton, introButton, gasStationButton, dealButton, barButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, campFireButton, buttonContainer, blackPanel;
+@synthesize foursquareConnectButton, buttonContainer, blackPanel;
 
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -181,6 +172,7 @@
     
     
 } 
+#pragma mark -
 #pragma mark scrollView handlers
 
 - (void)scrollViewDidScroll:(UIScrollView *)sView
@@ -227,6 +219,7 @@
     }
 }
 
+#pragma mark -
 #pragma mark animation controls
 
 -(void)pauseLayer:(CALayer*)layer
@@ -246,8 +239,27 @@
     layer.beginTime = timeSincePause;
 }
 
+#pragma mark - 
 #pragma mark button handlers
 
+- (void) scenePressed:(UIButton *)sender
+{
+    if (![[scenes objectAtIndex:sender.tag] sceneVC]) {
+        [[scenes objectAtIndex:sender.tag] setSceneVC:[[SceneController alloc] initWithScene:[scenes objectAtIndex:sender.tag]]];
+        NSLog(@"pressed %@", [[scenes objectAtIndex:sender.tag] name ]);
+    }
+    [self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
+    /*
+    [UIView transitionWithView:self.view
+                      duration:1.0f
+                       options:UIViewAnimationOptionTransitionCurlDown
+                    animations:^{
+                        [self.navigationController pushViewController:dealScene.navigationController animated:NO];
+                        //[self presentModalViewController:dealScene animated:NO];
+                    }
+                    completion:NULL];
+    */
+}
 
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
@@ -257,67 +269,7 @@
     [self presentViewController:fsq animated:YES completion:NULL];  
 
 }
-- (IBAction)introPressed:(UIButton *)sender
-{
-    [[Tumbleweed weed] registerUser];
-    if (!introScene) introScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].intro];
-    [self presentModalViewController:introScene animated:YES];
-}
-- (IBAction)dealPressed:(UIButton *)sender
-{
-    if (!dealScene) dealScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].deal];
-    
-    [UIView transitionWithView:self.view
-                      duration:1.0f
-                       options:UIViewAnimationOptionTransitionCurlDown
-                    animations:^{
-                        [self.navigationController pushViewController:dealScene.navigationController animated:NO];
-                        //[self presentModalViewController:dealScene animated:NO];
-                    }
-                    completion:NULL];
-     
-}
-- (IBAction) barPressed:(UIButton *)sender
-{
-    if (!barScene) barScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].bar];
-    [self presentModalViewController:barScene animated:YES];
 
-}
-- (IBAction)gasStationPressed:(UIButton *)sender
-{    
-    NSLog(@"gasstation checkin response %@", [Tumbleweed weed].gasStation.checkInResponse);
-    NSLog(@"is the scene unlocked? %@", [Tumbleweed weed].gasStation.unlocked ? @"YES": @"NO");
-    if (!gasStationScene) gasStationScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].gasStation];
-    [self presentModalViewController:gasStationScene animated:YES];    
-}
-- (IBAction)riverbed1Pressed:(UIButton *)sender
-{
-    if(!riverbed1Scene) riverbed1Scene = [[SceneController alloc] initWithScene:[Tumbleweed weed].riverBed1];
-    [self presentModalViewController:riverbed1Scene animated:YES];
-}
-- (IBAction) riverbed2Pressed:(UIButton *)sender
-{
-    if (!riverbed2Scene) riverbed2Scene = [[SceneController alloc] initWithScene:[Tumbleweed weed].riverBed2];
-    [self presentModalViewController:riverbed2Scene animated:YES];
-
-}
-- (IBAction) desertChasePressed:(UIButton *)sender
-{
-    if (!desertChaseScene)desertChaseScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].desertChase];
-    [self presentModalViewController:desertChaseScene animated:YES];
-}
-- (IBAction) desertLynchPressed:(UIButton *)sender
-{
-    if (!desertLynchScene) desertLynchScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].desertLynch];
-    [self presentModalViewController:desertLynchScene animated:YES];
-    
-}
-- (IBAction) campFirePressed:(UIButton *)sender
-{
-    if (!campFireScene) campFireScene = [[SceneController alloc] initWithScene:[Tumbleweed weed].campFire];
-    [self presentModalViewController:campFireScene animated:YES];
-
-}
 - (void) gameState
 {
     /*
@@ -395,6 +347,7 @@
     //NSLog(@"tumb level %d", [Tumbleweed weed].tumbleweedLevel);
     //if level all 3 first scenes have unlocked
     //after every checkin there should be a pull from the server - lots of pings though
+    /*
     [[Tumbleweed weed] getUserWithBlock:^(NSDictionary *userCred, NSError *error) {
         if (error) {
             //
@@ -410,10 +363,14 @@
                     riverBed1Button.enabled = YES;
                     break;
                 case 1:
+                    // initializing everything per state
+                    // when server returns, just update my local hash
+                    // separate data piece from presentation piece
                     dealButton.selected = YES;
                     barButton.selected = YES;
                     gasStationButton.selected = YES;
                     riverBed1Button.enabled = YES;
+                    // set level in here
                     break;
                 case 2:
                     dealButton.selected = YES;
@@ -474,8 +431,8 @@
             }
         }
     }];
-    
-    
+    //NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
+    */
 }
 
 -(IBAction)toggleBlackPanel:(id)sender
@@ -498,11 +455,23 @@
     [map1CA addSublayer:campefireSprite];
 }
 
--(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer : (NSMutableArray*) topLayerButtons
+-(CGPoint) coordinatePListReader:(NSString *)positionString
 {
+    positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
+    positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
+    positionString = [positionString stringByReplacingOccurrencesOfString:@"}" withString:@""];
+    NSArray *strings = [positionString componentsSeparatedByString:@","];
+    
+    float originX = [[strings objectAtIndex:0] floatValue];
+    float originY = [[strings objectAtIndex:1] floatValue];
+    return CGPointMake(originX, originY);
+}
+-(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer
+{
+    //should be able to have most of viewdidload CALayers in plist and have it read and place everything withtin thefirst pass
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    int i = 0;
+    //int i = 0;
     for (NSString *key in plist) 
     {
         NSDictionary *sceneDict = [plist objectForKey:key];
@@ -513,61 +482,18 @@
                                   imageWithCGImage:[image1 CGImage] 
                                   scale:1.0 
                                   orientation:UIImageOrientationRight].CGImage;
-        NSString *positionString = [sceneDict objectForKey:@"position"];
-        positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
-        positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
-        positionString = [positionString stringByReplacingOccurrencesOfString:@"}" withString:@""];
-        NSArray *strings = [positionString componentsSeparatedByString:@","];
-        
-        float originX = [[strings objectAtIndex:0] floatValue];
-        float originY = [[strings objectAtIndex:1] floatValue];
-        
+        CGPoint pos = [self coordinatePListReader:[sceneDict objectForKey:@"position"]];
         subLayer1.bounds = CGRectMake(0, 0, image1.size.width/2, image1.size.height/2);
-        if (topLayerButtons)
+        
+        if ([sceneDict objectForKey:@"sceneButtonNumber"])
         {
-            subLayer1.position = CGPointMake(originX, map1CA.bounds.size.height-subLayer1.bounds.size.height/2);
+            subLayer1.position = CGPointMake(pos.x, map1CA.bounds.size.height-subLayer1.bounds.size.height/2);
+            int scenePosition = [[sceneDict objectForKey:@"sceneButtonNumber"] integerValue];
+            [[[scenes objectAtIndex:scenePosition] button] setCenter:[self coordinatePListReader:[sceneDict objectForKey:@"buttonPosition"]]];
         }
-        else {
-            subLayer1.position = CGPointMake(originX, originY);
-        }
+        else subLayer1.position = pos;
         
-        [parentLayer addSublayer:subLayer1]; 
-        
-        
-        if ([sceneDict objectForKey:@"buttonPosition"]) 
-        {
-            if ([key isEqualToString:@"introSign"]) i=0; 
-            if ([key isEqualToString:@"town"]) i=1;   
-            if ([key isEqualToString:@"bar"]) i=2; 
-            if ([key isEqualToString:@"gas"]) i=3; 
-            if ([key isEqualToString:@"riverbed1"]) i=4; 
-            if ([key isEqualToString:@"riverbed2"]) i=5; 
-            if ([key isEqualToString:@"chase-cactus"]) i=6;
-            if ([key isEqualToString:@"lynch-noose"]) i=7; 
-            
-            NSString *positionString = [sceneDict objectForKey:@"buttonPosition"];
-            positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
-            positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
-            positionString = [positionString stringByReplacingOccurrencesOfString:@"}" withString:@""];
-            NSArray *strings = [positionString componentsSeparatedByString:@","];
-            
-            float originX = [[strings objectAtIndex:0] floatValue];
-            float originY = [[strings objectAtIndex:1] floatValue];
-            [[topLayerButtons objectAtIndex:i] setCenter:CGPointMake(originX, originY)];
-            
-            NSString *imgName1 =[sceneDict objectForKey:@"buttonAccessible"];
-            UIImage *buttonImg = [UIImage imageNamed:imgName1];
-            [[topLayerButtons objectAtIndex:i] setImage:buttonImg forState:UIControlStateNormal];
-            if ([sceneDict objectForKey:@"buttonLocked"]) {
-                NSString *imgName2 =[sceneDict objectForKey:@"buttonLocked"];
-                NSString *imgName3 =[sceneDict objectForKey:@"buttonUnlocked"];
-                UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
-                UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
-                [[topLayerButtons objectAtIndex:i] setImage:buttonImg2 forState:UIControlStateDisabled];
-                [[topLayerButtons objectAtIndex:i] setImage:buttonImg3 forState:UIControlStateSelected];
-                //[[topLayerButtons objectAtIndex:i] setEnabled:NO];
-            }
-        }
+        [parentLayer addSublayer:subLayer1];
     }
     [CATransaction commit];
 }
@@ -652,14 +578,14 @@
     [map1BCA setZPosition:-2];
     [mapCAView.layer addSublayer:map1BCA];
     NSMutableDictionary *mapLayer1BPList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer1B"]];
-    [self mapLayerPListPlacer:mapLayer1BPList :map1BCA : nil];
+    [self mapLayerPListPlacer:mapLayer1BPList :map1BCA];
     
     [map1CCA setBounds:mapFrame];
     [map1CCA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
     [map1CCA setZPosition:-3];
     [mapCAView.layer addSublayer:map1CCA];
     NSMutableDictionary *mapLayer1CPList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer1C"]];
-    [self mapLayerPListPlacer:mapLayer1CPList :map1CCA : nil];
+    [self mapLayerPListPlacer:mapLayer1CPList :map1CCA];
     
     CALayer *rock = [CALayer layer];
     UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
@@ -679,7 +605,7 @@
     [mapCAView.layer addSublayer:map2CA];
     
     NSMutableDictionary *mapLayer3PList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer3"]];
-    [self mapLayerPListPlacer:mapLayer3PList :map2CA : nil];
+    [self mapLayerPListPlacer:mapLayer3PList :map2CA];
     
     //--> layer4
     CGRect map4Frame = CGRectMake(0, 0, screenSize.width*2.7, screenSize.height);
@@ -692,65 +618,21 @@
     buttonContainer.center = CGPointMake(map4CA.position.x, 0);
     [scrollView addSubview:buttonContainer];   
     
-    NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:introButton, dealButton, barButton,gasStationButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, nil];
+    //NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:introButton, dealButton, barButton,gasStationButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, nil];
     NSMutableDictionary *mapLayer4PList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer4"]];
-    [self mapLayerPListPlacer:mapLayer4PList :map4CA :buttonArray];
-    /*
-    int i = 0;
-    for (NSString *key in topLayerDict) 
-    {
-        NSDictionary *sceneDict = [topLayerDict objectForKey:key];
-        CALayer *subLayer1 = [CALayer layer];
-        NSString *imageName1 = [sceneDict objectForKey:@"img"];
-        UIImage *image1 = [UIImage imageNamed:imageName1];
-        subLayer1.contents = (id)[UIImage 
-                                  imageWithCGImage:[image1 CGImage] 
-                                  scale:1.0 
-                                  orientation:UIImageOrientationRight].CGImage;
-        NSString *positionString = [sceneDict objectForKey:@"position"];
-        positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
-        positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
-        positionString = [positionString stringByReplacingOccurrencesOfString:@"}" withString:@""];
-        NSArray *strings = [positionString componentsSeparatedByString:@","];
-        
-        float originX = [[strings objectAtIndex:0] floatValue];
-        //float originY = [[strings objectAtIndex:1] intValue];
-        
-        subLayer1.bounds = CGRectMake(0, 0, image1.size.width/2, image1.size.height/2);
-        //subLayer1.position = CGPointMake((map4Frame.size.width/12 *(i+1)), screenSize.height-subLayer1.bounds.size.height/2);
-        subLayer1.position = CGPointMake(originX, screenSize.height-subLayer1.bounds.size.height/2);
-        [map4CA addSublayer:subLayer1]; 
-        
-                
-        if ([sceneDict objectForKey:@"buttonPosition"]) 
-        {
-            if ([key isEqualToString:@"introSign"]) i=0; 
-            if ([key isEqualToString:@"town"]) i=1;   
-            if ([key isEqualToString:@"bar"]) i=2; 
-            if ([key isEqualToString:@"gas"]) i=3; 
-            if ([key isEqualToString:@"riverbed1"]) i=4; 
-            if ([key isEqualToString:@"riverbed2"]) i=5; 
-            if ([key isEqualToString:@"chase-cactus"]) i=6;
-            if ([key isEqualToString:@"lynch-noose"]) i=7; 
-            
-            NSString *positionString = [sceneDict objectForKey:@"buttonPosition"];
-            positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
-            positionString = [positionString stringByReplacingOccurrencesOfString:@" " withString:@""];
-            positionString = [positionString stringByReplacingOccurrencesOfString:@"}" withString:@""];
-            NSArray *strings = [positionString componentsSeparatedByString:@","];
-            
-            float originX = [[strings objectAtIndex:0] floatValue];
-            float originY = [[strings objectAtIndex:1] floatValue];
-            [[buttonArray objectAtIndex:i] setCenter:CGPointMake(originX, originY)];
-            //i--;
-            NSString *imgName1 =[sceneDict objectForKey:@"buttonAccessible"];
-            UIImage *buttonImg = [UIImage imageNamed:imgName1];
-            [[buttonArray objectAtIndex:i] setImage:buttonImg forState:UIControlStateNormal];
-        }
-        
+    NSString *sceneplistPath = [[NSBundle mainBundle] pathForResource:@"scenes" ofType:@"plist"];
+    NSDictionary *scenemainDict = [NSDictionary dictionaryWithContentsOfFile:sceneplistPath];
+    NSMutableArray *scenePList = [NSMutableArray arrayWithArray:[scenemainDict objectForKey:@"Scenes"]];
+    scenes = [NSMutableArray arrayWithCapacity:scenePList.count];
+    
+    for (int i=0; i < scenePList.count; i++) {
+        [scenes addObject:[[Scene alloc] initWithDictionary:[scenePList objectAtIndex:i]]];
+        [buttonContainer addSubview:[[scenes objectAtIndex:i] button]];
+        [[[scenes objectAtIndex:i] button] addTarget:self action:@selector(scenePressed:) forControlEvents:UIControlEventTouchDown];
+        [[scenes objectAtIndex:i] button].tag = i;
     }
-    */
-     
+    [self mapLayerPListPlacer:mapLayer4PList :map4CA];
+    
     
     //-->noose animation test
     {
@@ -882,7 +764,6 @@
     
     //[mapCAView addSubview:foursquareConnectButton];
     [scrollView addSubview:foursquareConnectButton];
-    [scrollView addSubview:campFireButton];
     //UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
     //[buttonContainer addGestureRecognizer:tapHandler];
     

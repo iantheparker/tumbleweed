@@ -16,8 +16,6 @@
 //this tracks the path and progress of the user
 @interface Tumbleweed : NSObject <CLLocationManagerDelegate>{
     
-
-    
     Scene *intro;
     Scene *gasStation;
     Scene *deal;
@@ -27,7 +25,6 @@
     Scene *desertChase;
     Scene *desertLynch;
     Scene *campFire;
-    @private NSMutableDictionary *allScenes;
     CLLocationManager *locationManager;
 
 }
@@ -43,11 +40,10 @@
 @property (nonatomic, retain) Scene *campFire;
 
 @property int tumbleweedLevel;
-
 @property (nonatomic, retain) CLLocationManager *locationManager;
 
 + (Tumbleweed *) weed;
-- (BOOL)saveChanges;
+
 - (void) registerUser;
 - (void) getUser;
 - (void) getUserWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block;

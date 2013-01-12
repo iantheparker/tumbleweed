@@ -11,6 +11,7 @@
 @implementation Scene
 
 @synthesize name, categoryId, movieName, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date, hintCopy, checkInCopy, checkedVenue;
+@synthesize button, sceneVC;
 
 
 - (id) init
@@ -34,38 +35,26 @@
     posterArt = [plistDict objectForKey:@"posterArt"];
     hintCopy = [plistDict objectForKey:@"hintCopy"];
     checkInCopy = [plistDict objectForKey:@"checkInCopy"];
-    //NSLog(@"%@", plistDict);
-    return self;
-}
-                           
-
-- (id) initWithCoder:(NSCoder *)aDecoder
-{
-    self = [super init];
-    if (self) {
-        [self setUnlocked:[aDecoder decodeBoolForKey:@"unlocked"]];
-        [self setAccessible:[aDecoder decodeBoolForKey:@"accessible"]];
-        [self setCheckInResponse:[aDecoder decodeObjectForKey:@"checkInResponse"]];
-        [self setRecentSearchVenueResults:[aDecoder decodeObjectForKey:@"recentSearchVenueResults"]];
-        date = [aDecoder decodeObjectForKey:@"dateCreated"];
+    
+    button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = CGRectMake(64, 40, 80, 80);
+    NSString *imgName1 =[plistDict objectForKey:@"buttonAccessible"];
+    UIImage *buttonImg = [UIImage imageNamed:imgName1];
+    [button setImage:buttonImg forState:UIControlStateNormal];
+    if ([plistDict objectForKey:@"buttonLocked"]) {
+        NSString *imgName2 =[plistDict objectForKey:@"buttonLocked"];
+        NSString *imgName3 =[plistDict objectForKey:@"buttonUnlocked"];
+        UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
+        UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
+        [button setImage:buttonImg2 forState:UIControlStateDisabled];
+        [button setImage:buttonImg3 forState:UIControlStateSelected];    
     }
+    
+    
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)encoder
-{
-    [encoder encodeBool:unlocked forKey:@"unlocked"];
-    [encoder encodeBool:accessible forKey:@"watched"];
-    [encoder encodeObject:checkInResponse forKey:@"checkInResponse"];
-    [encoder encodeObject:recentSearchVenueResults forKey:@"recentSearchVenueResults"];
-    [encoder encodeObject:date forKey:@"dateCreated"];
 
-}
-
-- (NSString*) getCheckedVenue
-{
-    return [[[self.checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"name"];
-}
 
 
 @end

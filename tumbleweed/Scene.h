@@ -7,16 +7,24 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "SceneController.h"
 
 
-@interface Scene : NSObject <NSCoding>{
+@interface Scene : NSObject {
     
+    
+    
+    UIButton *button;
+    int level;
+    BOOL unlocked;
+    SceneController *sceneVC;
+    //SceneVC details
     NSString *name;
     NSString *categoryId;
-    NSString *movieName;        
+    NSString *movieName;
     NSString *movieThumbnail;
-    NSString *posterArt;         
-    BOOL unlocked;  
+    NSString *posterArt;
     BOOL accessible;
     NSDictionary *checkInResponse;
     NSDictionary *recentSearchVenueResults;
@@ -24,10 +32,12 @@
     NSString *checkedVenue;  //location of unlock
     NSString *hintCopy;
     NSString *checkInCopy;
-    //shared bool
 
 }
 
+@property (nonatomic, retain) UIButton *button;
+@property (nonatomic, retain) SceneController *sceneVC;
+//SceneVC details
 @property (nonatomic, retain) NSString *name; 
 @property (nonatomic, retain) NSString *categoryId; 
 @property (nonatomic, retain) NSString *movieName;  

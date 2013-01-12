@@ -15,9 +15,6 @@ static Tumbleweed *weed = nil;
 @property (nonatomic, readonly) NSString *fsqId;
 @property (nonatomic, readonly) NSString *fsqFirstName;
 @property (nonatomic, readonly) NSString *fsqLastName;
-- (NSString *)sceneArchivePath;
-- (void) loadScenes;
-- (void) createScenes;
 @end
 
 
@@ -47,79 +44,9 @@ static Tumbleweed *weed = nil;
         return weed;
     }
     self = [super init];
-    [self loadScenes];
     return self;
 }
 
-
-- (void)loadScenes
-{
-    // If we don't currently have an allScenes dict, try to read one from disk
-    NSLog(@"loading scenes");
-    if (!allScenes) {
-        //allScenes = [NSKeyedUnarchiver unarchiveObjectWithFile:[self sceneArchivePath]];
-        NSLog(@"loading older allscenes, %@", allScenes);
-    }
-    // If we do have an archive, then set our class Scenes to the old archive
-    if (allScenes)
-    {
-        gasStation = [allScenes objectForKey:@"gasStation"];
-        deal = [allScenes objectForKey:@"deal"];
-        bar = [allScenes objectForKey:@"bar"];
-        riverBed1 = [allScenes objectForKey:@"riverBed1"];
-        riverBed2 = [allScenes objectForKey:@"riverBed2"];
-        desertChase = [allScenes objectForKey:@"desertChase"];
-        desertLynch = [allScenes objectForKey:@"desertLynch"];
-        campFire = [allScenes objectForKey:@"campFire"];
-        NSLog(@"allScenes just unarchived%@", allScenes);
-
-        
-    }
-    // If we tried to read one from disk but does not exist, then create a new one
-    else 
-    {
-        [self createScenes];
-        allScenes = [[NSMutableDictionary alloc] init];
-        NSLog(@"creating scenes");
-    }
-}
-
-- (void) createScenes
-{
-    //read all default values from plist, which is ordered by array index
-    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"scenes" ofType:@"plist"];
-    NSDictionary *mainDict = [NSDictionary dictionaryWithContentsOfFile:plistPath];
-    NSArray *array = [NSArray arrayWithArray:[mainDict objectForKey:@"Scenes"]];
-    
-    intro = [[Scene alloc] initWithDictionary:[array objectAtIndex:0]];
-    deal  = [[Scene alloc] initWithDictionary:[array objectAtIndex:1]];
-    bar = [[Scene alloc] initWithDictionary:[array objectAtIndex:2]];
-    gasStation = [[Scene alloc] initWithDictionary:[array objectAtIndex:3]];
-    riverBed1 = [[Scene alloc] initWithDictionary:[array objectAtIndex:4]];
-    riverBed2 = [[Scene alloc] initWithDictionary:[array objectAtIndex:5]];
-    desertChase = [[Scene alloc] initWithDictionary:[array objectAtIndex:6]];
-    desertLynch = [[Scene alloc] initWithDictionary:[array objectAtIndex:7]];
-    campFire = [[Scene alloc] initWithDictionary:[array objectAtIndex:8]];
-
-}
-
-- (BOOL)saveChanges
-{
-    //pack Scenes into allScenes for archive
-    [allScenes removeAllObjects];
-    [allScenes setObject:gasStation forKey:gasStation.name];
-    [allScenes setObject:deal forKey:deal.name];
-    [allScenes setObject:bar forKey:bar.name];
-    [allScenes setObject:riverBed1 forKey:riverBed1.name];
-    [allScenes setObject:riverBed2 forKey:riverBed2.name];
-    [allScenes setObject:desertChase forKey:desertChase.name];
-    [allScenes setObject:desertLynch forKey:desertLynch.name];
-    [allScenes setObject:campFire forKey:campFire.name];
-    NSLog(@"allScenes before saving campFire and name %@, %@", campFire, campFire.name);
-    // returns success or failure
-    return [NSKeyedArchiver archiveRootObject:allScenes
-                                       toFile:[self sceneArchivePath]];
-}
 
 - (void) registerUser
 {

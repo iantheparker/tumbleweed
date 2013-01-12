@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import <MediaPlayer/MediaPlayer.h>
-#import "Scene.h"
+@class Scene;
 #import "FoursquareAnnotation.h"
 #import <MapKit/MapKit.h>
 #import <QuartzCore/QuartzCore.h>

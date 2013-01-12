@@ -21,6 +21,8 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_2_ICON-on.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -41,6 +43,12 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_3_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_3_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_3_ICON-press.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -61,6 +69,12 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_4_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_4_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_4_ICON-press.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -81,6 +95,12 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_5_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_5_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_5_ICON-press.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -101,6 +121,12 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_6_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_6_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_6_ICON-press.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -119,6 +145,12 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_7_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_7_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_7_ICON-press.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -137,6 +169,12 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_8_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_8_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_8_ICON-press.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -155,6 +193,12 @@
 			<string></string>
 			<key>bonus2</key>
 			<string></string>
+			<key>buttonAccessible</key>
+			<string>top_lvl4_objs_9_ICON-on.png</string>
+			<key>buttonLocked</key>
+			<string>top_lvl4_objs_9_ICON-off.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_9_ICON-press.png</string>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -172,6 +216,8 @@
 			<key>bonus1</key>
 			<string></string>
 			<key>bonus2</key>
+			<string></string>
+			<key>buttonAccessible</key>
 			<string></string>
 		</dict>
 	</array>

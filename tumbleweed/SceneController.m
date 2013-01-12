@@ -305,6 +305,7 @@
          */
         //[request setDelegate:self];
         //[request startAsynchronous];
+        //re-search button
         MKCoordinateRegion region = { centerCoordinate, { 0.009f , 0.009f } };
         [mvFoursquare setRegion: region animated: YES];
     }
@@ -416,8 +417,10 @@
 	// set the mapView's region the same as the user's coordinate
 	CLLocationCoordinate2D userCoords = [userLocation coordinate];
 	// with a fixed zoom level with an animation
-	MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.003f , 0.003f } };
-	[mapView setRegion: region animated: YES];
+	//MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.009f , 0.009f } };
+    MKCoordinateRegion viewRegion = MKCoordinateRegionMakeWithDistance(userCoords, 320, 320);
+    MKCoordinateRegion adjustedRegion = [mapView regionThatFits:viewRegion];
+	[mapView setRegion: adjustedRegion animated: YES];
 }
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
     
@@ -492,8 +495,14 @@
 {
     //Here
     //sleep(3);
+    for (id<MKAnnotation> currentAnnotation in mapView.annotations) {
+        if ([currentAnnotation isEqual:[mapView.annotations objectAtIndex:0]]) {
+            [mapView selectAnnotation:currentAnnotation animated:YES];
+        }
+    }
     //[mapView selectAnnotation:[[mapView annotations] lastObject] animated:YES];
     //[[views lastObject] setHighlighted:YES];
+    NSLog(@"%@", views.lastObject);
 }
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
     MKCoordinateRegion region;
@@ -502,6 +511,7 @@
     
     NSLog(@"%f,%f",centerCoordinate.latitude, centerCoordinate.longitude);
 }
+
 
 #pragma mark -
 #pragma mark - View lifecycle

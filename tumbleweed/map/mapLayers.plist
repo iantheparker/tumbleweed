@@ -47,14 +47,14 @@
 	<dict>
 		<key>introSign</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>0</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_2.png</string>
 			<key>position</key>
 			<string>{1895.78, 165.75}</string>
 			<key>buttonPosition</key>
 			<string>{1895.78, 80}</string>
-			<key>buttonAccessible</key>
-			<string>top_lvl4_objs_2_ICON-on.png</string>
 		</dict>
 		<key>dude</key>
 		<dict>
@@ -65,51 +65,41 @@
 		</dict>
 		<key>town</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>1</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_4.png</string>
 			<key>position</key>
 			<string>{3887.33, 182.5}</string>
 			<key>buttonPosition</key>
 			<string>{3887.33, 105}</string>
-			<key>buttonAccessible</key>
-			<string>top_lvl4_objs_3_ICON-on.png</string>
-			<key>buttonLocked</key>
-			<string>top_lvl4_objs_3_ICON-off.png</string>
-			<key>buttonUnlocked</key>
-			<string>top_lvl4_objs_3_ICON-press.png</string>
 		</dict>
 		<key>bar</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>2</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_5.png</string>
 			<key>position</key>
 			<string>{5183.1, 182.5}</string>
 			<key>buttonPosition</key>
 			<string>{5170, 160}</string>
-			<key>buttonAccessible</key>
-			<string>top_lvl4_objs_4_ICON-on.png</string>
-			<key>buttonLocked</key>
-			<string>top_lvl4_objs_4_ICON-off.png</string>
-			<key>buttonUnlocked</key>
-			<string>top_lvl4_objs_4_ICON-press.png</string>
 		</dict>
 		<key>gas</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>3</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_6.png</string>
 			<key>position</key>
 			<string>{6478.88, 160}</string>
 			<key>buttonPosition</key>
 			<string>{6478.88, 123}</string>
-			<key>buttonAccessible</key>
-			<string>top_lvl4_objs_5_ICON-on.png</string>
-			<key>buttonLocked</key>
-			<string>top_lvl4_objs_5_ICON-off.png</string>
-			<key>buttonUnlocked</key>
-			<string>top_lvl4_objs_5_ICON-press.png</string>
 		</dict>
 		<key>riverbed1</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>4</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_7.png</string>
 			<key>position</key>
@@ -125,57 +115,48 @@
 		</dict>
 		<key>riverbed2</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>5</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_8.png</string>
 			<key>position</key>
 			<string>{9370.42, 160}</string>
 			<key>buttonPosition</key>
 			<string>{9420, 102}</string>
-			<key>buttonAccessible</key>
-			<string>top_lvl4_objs_7_ICON-on.png</string>
-			<key>buttonLocked</key>
-			<string>top_lvl4_objs_7_ICON-off.png</string>
-			<key>buttonUnlocked</key>
-			<string>top_lvl4_objs_7_ICON-press.png</string>
 		</dict>
 		<key>chase-cactus</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>6</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_9.png</string>
 			<key>position</key>
 			<string>{10366.2, 160}</string>
 			<key>buttonPosition</key>
 			<string>{10290, 120}</string>
-			<key>buttonAccessible</key>
-			<string>top_lvl4_objs_8_ICON-on.png</string>
-			<key>buttonLocked</key>
-			<string>top_lvl4_objs_8_ICON-off.png</string>
-			<key>buttonUnlocked</key>
-			<string>top_lvl4_objs_8_ICON-press.png</string>
 		</dict>
 		<key>lynch-noose</key>
 		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>7</integer>
 			<key>img</key>
 			<string>top_lvl4_objs_10A.png</string>
 			<key>position</key>
 			<string>{11662, 160}</string>
 			<key>buttonPosition</key>
 			<string>{11725, 105}</string>
-			<key>buttonAccessible</key>
-			<string>top_lvl4_objs_9_ICON-on.png</string>
-			<key>buttonLocked</key>
-			<string>top_lvl4_objs_9_ICON-off.png</string>
-			<key>buttonUnlocked</key>
-			<string>top_lvl4_objs_9_ICON-press.png</string>
 		</dict>
 		<key>campfire</key>
-		<dict/>
+		<dict>
+			<key>sceneButtonNumber</key>
+			<integer>8</integer>
+		</dict>
 		<key>fence</key>
 		<dict>
 			<key>img</key>
 			<string>top_lvl4_objs_1.png</string>
 			<key>position</key>
-			<string>{2150, 229.25}</string>
+			<string>{2150, 246.25}</string>
 		</dict>
 	</dict>
 	<key>mapLayer3</key>
