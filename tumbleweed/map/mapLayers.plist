@@ -45,6 +45,12 @@
 	</array>
 	<key>mapLayer4</key>
 	<dict>
+		<key>bottomAlignment</key>
+		<true/>
+		<key>boundsMultiplier</key>
+		<string>{2.7, 1}</string>
+		<key>zPosition</key>
+		<integer>5</integer>
 		<key>introSign</key>
 		<dict>
 			<key>sceneButtonNumber</key>
@@ -161,6 +167,10 @@
 	</dict>
 	<key>mapLayer3</key>
 	<dict>
+		<key>boundsMultiplier</key>
+		<string>{1, 1}</string>
+		<key>zPosition</key>
+		<integer>1</integer>
 		<key>bar</key>
 		<dict>
 			<key>img</key>
@@ -178,6 +188,10 @@
 	</dict>
 	<key>mapLayer1B</key>
 	<dict>
+		<key>boundsMultiplier</key>
+		<string>{1, 1}</string>
+		<key>zPosition</key>
+		<integer>-2</integer>
 		<key>town</key>
 		<dict>
 			<key>img</key>
@@ -188,6 +202,10 @@
 	</dict>
 	<key>mapLayer1C</key>
 	<dict>
+		<key>boundsMultiplier</key>
+		<string>{1, 1}</string>
+		<key>zPosition</key>
+		<integer>-3</integer>
 		<key>townMountains</key>
 		<dict>
 			<key>img</key>

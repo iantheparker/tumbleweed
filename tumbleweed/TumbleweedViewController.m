@@ -35,8 +35,9 @@
 -(CGRect) selectAvatarBounds:(float) position;
 -(IBAction)toggleBlackPanel:(id)sender;
 -(CGPoint) coordinatePListReader: (NSString*) positionString;
--(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer;
+-(NSMutableArray*) mapLayerPListPlacer: (NSDictionary*) plist : (CGSize) screenSize : (CALayer*) parentLayer : (NSMutableArray*) sceneArray;
 -(void) updateSceneButtonStates;
+-(CALayer*) layerInitializer: (id) plistObject :(CGSize) screenSize : (CALayer*) parentLayer : (NSString*) layerName;
 
 @end
 
@@ -190,7 +191,6 @@
     [self renderScreen:walkingForward:TRUE];
     
 }
-
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)sView
 {
     [self renderScreen:walkingForward:FALSE];
@@ -198,25 +198,6 @@
 - (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     [self renderScreen:walkingForward:FALSE];
-}
-
-- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender
-{
-    /* 
-    CALayer* layerThatWasTapped = [mapCAView.layer hitTest:[sender locationInView:mapCAView]];
-    if ([[mapCAView.layer hitTest:[sender locationInView:mapCAView]].name isEqualToString:janeAvatar.name]) {
-        NSLog(@"layer has a name ");
-    }
-   */
-    CGPoint loc = [sender locationInView:mapCAView];
-    NSLog(@"touched %f,%f ", loc.x, loc.y);
-    for (CALayer *layer in mapCAView.layer.sublayers) {
-        if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
-            if ([layer.name isEqualToString:[janeAvatar name]]) {
-                NSLog(@"jane hit");
-            }
-        }
-    }
 }
 
 #pragma mark -
@@ -238,7 +219,25 @@
     CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - pausedTime;
     layer.beginTime = timeSincePause;
 }
-
+-(IBAction)toggleBlackPanel:(id)sender
+{
+    [blackPanel removeFromSuperlayer];
+    
+    //should read from plist if i want to support non-retina
+    CGSize fixedSize = CGSizeMake(256, 289);
+    CGImageRef campfireImage = [[UIImage imageNamed:@"campfire"] CGImage];
+    MCSpriteLayer* campefireSprite = [MCSpriteLayer layerWithImage:campfireImage sampleSize:fixedSize];
+    campefireSprite.position = CGPointMake(scrollView.contentSize.width - (fixedSize.width - 14), scrollView.contentSize.height/2 + 26);
+    
+    CABasicAnimation *campfireAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
+    campfireAnimation.fromValue = [NSNumber numberWithInt:1];
+    campfireAnimation.toValue = [NSNumber numberWithInt:5];
+    campfireAnimation.duration = .40f;
+    campfireAnimation.repeatCount = HUGE_VALF;
+    
+    [campefireSprite addAnimation:campfireAnimation forKey:nil];
+    [map1CA addSublayer:campefireSprite];
+}
 #pragma mark - 
 #pragma mark button handlers
 
@@ -269,7 +268,27 @@
     [self presentViewController:fsq animated:YES completion:NULL];  
 
 }
+- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender
+{
+    /*
+     CALayer* layerThatWasTapped = [mapCAView.layer hitTest:[sender locationInView:mapCAView]];
+     if ([[mapCAView.layer hitTest:[sender locationInView:mapCAView]].name isEqualToString:janeAvatar.name]) {
+     NSLog(@"layer has a name ");
+     }
+     */
+    CGPoint loc = [sender locationInView:mapCAView];
+    NSLog(@"touched %f,%f ", loc.x, loc.y);
+    for (CALayer *layer in mapCAView.layer.sublayers) {
+        if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
+            if ([layer.name isEqualToString:[janeAvatar name]]) {
+                NSLog(@"jane hit");
+            }
+        }
+    }
+}
 
+#pragma mark -
+#pragma mark game state updates
 - (void) gameState
 {
     /*
@@ -337,7 +356,6 @@
      
      
 }
-
 -(void) updateSceneButtonStates
 {
     // switch statement.
@@ -435,26 +453,8 @@
     */
 }
 
--(IBAction)toggleBlackPanel:(id)sender
-{
-    [blackPanel removeFromSuperlayer];
-    
-    //should read from plist if i want to support non-retina
-    CGSize fixedSize = CGSizeMake(256, 289);
-    CGImageRef campfireImage = [[UIImage imageNamed:@"campfire"] CGImage];
-    MCSpriteLayer* campefireSprite = [MCSpriteLayer layerWithImage:campfireImage sampleSize:fixedSize];
-    campefireSprite.position = CGPointMake(scrollView.contentSize.width - (fixedSize.width - 14), scrollView.contentSize.height/2 + 26);
-    
-    CABasicAnimation *campfireAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
-    campfireAnimation.fromValue = [NSNumber numberWithInt:1];
-    campfireAnimation.toValue = [NSNumber numberWithInt:5];
-    campfireAnimation.duration = .40f;
-    campfireAnimation.repeatCount = HUGE_VALF;
-    
-    [campefireSprite addAnimation:campfireAnimation forKey:nil];
-    [map1CA addSublayer:campefireSprite];
-}
-
+#pragma mark -
+#pragma mark pList tools
 -(CGPoint) coordinatePListReader:(NSString *)positionString
 {
     positionString = [positionString stringByReplacingOccurrencesOfString:@"{" withString:@""];
@@ -466,37 +466,114 @@
     float originY = [[strings objectAtIndex:1] floatValue];
     return CGPointMake(originX, originY);
 }
--(void) mapLayerPListPlacer: (NSDictionary*) plist : (CALayer*) parentLayer
+-(CALayer*) layerInitializer: (id) plistObject : (CGSize) screenSize : (CALayer*) parentLayer : (NSString*) layerName
 {
-    //should be able to have most of viewdidload CALayers in plist and have it read and place everything withtin thefirst pass
+    // plistObject is a single element in a plist dict. 
+    int zPos = 0;
+    CGPoint boundsMultiplier = CGPointMake(1, 1);
+    if ([plistObject isKindOfClass:[NSDictionary class]]) {
+        if ([plistObject objectForKey:@"zPosition"]) zPos =  [[plistObject objectForKey:@"zPosition"] integerValue];
+        if ([plistObject objectForKey:@"boundsMultiplier"]) boundsMultiplier = [self coordinatePListReader:[plistObject objectForKey:@"boundsMultiplier"]];
+    }
+    CGRect mapFrame = CGRectMake(0, 0, screenSize.width * boundsMultiplier.x, screenSize.height * boundsMultiplier.y);
+    CALayer *mapLayer = [CALayer layer];
+    if (layerName) mapLayer.name = layerName;
+    [mapLayer setBounds:mapFrame];
+    [mapLayer setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
+    [mapLayer setZPosition:zPos];
+    [parentLayer addSublayer:mapLayer];
+    return mapLayer;
+}
+-(NSMutableArray*) mapLayerPListPlacer: (NSDictionary*) plist : (CGSize) screenSize : (CALayer*) parentLayer : (NSMutableArray*) sceneArray
+{
+    NSMutableArray *layerArray = [NSMutableArray array];
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    //int i = 0;
-    for (NSString *key in plist) 
+    for (NSString *key in plist)
     {
-        NSDictionary *sceneDict = [plist objectForKey:key];
-        CALayer *subLayer1 = [CALayer layer];
-        NSString *imageName1 = [sceneDict objectForKey:@"img"];
-        UIImage *image1 = [UIImage imageNamed:imageName1];
-        subLayer1.contents = (id)[UIImage 
-                                  imageWithCGImage:[image1 CGImage] 
-                                  scale:1.0 
-                                  orientation:UIImageOrientationRight].CGImage;
-        CGPoint pos = [self coordinatePListReader:[sceneDict objectForKey:@"position"]];
-        subLayer1.bounds = CGRectMake(0, 0, image1.size.width/2, image1.size.height/2);
-        
-        if ([sceneDict objectForKey:@"sceneButtonNumber"])
+        CALayer *mapCALayer = [self layerInitializer:[plist objectForKey:key]  :screenSize : parentLayer : key];
+        // This is for the double-placing an array, currently only maplayer1
+        if ([[plist objectForKey:key] isKindOfClass:[NSArray class]])
         {
-            subLayer1.position = CGPointMake(pos.x, map1CA.bounds.size.height-subLayer1.bounds.size.height/2);
-            int scenePosition = [[sceneDict objectForKey:@"sceneButtonNumber"] integerValue];
-            [[[scenes objectAtIndex:scenePosition] button] setCenter:[self coordinatePListReader:[sceneDict objectForKey:@"buttonPosition"]]];
+            NSArray *mapLayerArray = [plist objectForKey:key];
+            float subLayerOriginX = 0;
+            for (int i=0; i<mapLayerArray.count; i+=2)
+            {
+                CALayer *subLayer1 = [CALayer layer];
+                CALayer *subLayer2 = [CALayer layer];
+                NSString *imageName1 = [mapLayerArray objectAtIndex:i];
+                NSString *imageName2 = [mapLayerArray objectAtIndex:i+1];
+                UIImage *image1 = [UIImage imageNamed:imageName1];
+                UIImage *image2 = [UIImage imageNamed:imageName2];
+                subLayer1.contents = (id)[UIImage
+                                          imageWithCGImage:[image1 CGImage]
+                                          scale:1.0
+                                          orientation:UIImageOrientationRight].CGImage;
+                subLayer2.contents = (id)[UIImage
+                                          imageWithCGImage:[image2 CGImage]
+                                          scale:1.0
+                                          orientation:UIImageOrientationRight].CGImage;
+                subLayer1.frame = CGRectMake(subLayerOriginX, 0,image1.size.width/2,image1.size.height/2);
+                subLayer2.frame = CGRectMake(subLayerOriginX, image1.size.height/2,image2.size.width/2,image2.size.height/2);
+                subLayerOriginX += image1.size.width/2;
+                //NSLog(@"layer %d frame %@", i, NSStringFromCGRect(subLayer1.frame));
+                //NSLog(@"layer %d frame %@", i+array.count/2, NSStringFromCGRect(subLayer2.frame));
+                //subLayer1.opaque = YES;
+                subLayer2.opaque = YES;
+                
+                [mapCALayer addSublayer:subLayer1];
+                [mapCALayer addSublayer:subLayer2];
+            }
         }
-        else subLayer1.position = pos;
-        
-        [parentLayer addSublayer:subLayer1];
+        // for all dictionary-based base layers
+        else
+        {
+            NSDictionary *mapLayerDict = [plist objectForKey:key];
+            BOOL bottomAlignment = NO;
+            if ([mapLayerDict objectForKey:@"bottomAlignment"]) bottomAlignment = YES;
+            for (NSString *dictkey in mapLayerDict)
+            {
+                if (![[mapLayerDict objectForKey:dictkey] isKindOfClass:[NSDictionary class]]) continue;
+                NSDictionary *sceneDict = [mapLayerDict objectForKey:dictkey];
+                CALayer *subLayer1 = [CALayer layer];
+                NSString *imageName1 = [sceneDict objectForKey:@"img"];
+                UIImage *image1 = [UIImage imageNamed:imageName1];
+                subLayer1.contents = (id)[UIImage
+                                          imageWithCGImage:[image1 CGImage]
+                                          scale:1.0
+                                          orientation:UIImageOrientationRight].CGImage;
+                CGPoint pos = [self coordinatePListReader:[sceneDict objectForKey:@"position"]];
+                subLayer1.bounds = CGRectMake(0, 0, image1.size.width/2, image1.size.height/2);
+                
+                //for top layers that should be positioned at the bottom of the screen
+                if (bottomAlignment)
+                {
+                    subLayer1.position = CGPointMake(pos.x, mapCALayer.bounds.size.height-subLayer1.bounds.size.height/2);
+                }
+                else subLayer1.position = pos;
+                
+                // if it's an image that holds a sceneButton, then position that button
+                if ([sceneDict objectForKey:@"sceneButtonNumber"])
+                {
+                    int scenePosition = [[sceneDict objectForKey:@"sceneButtonNumber"] integerValue];
+                    [[[sceneArray objectAtIndex:scenePosition] button] setCenter:[self coordinatePListReader:[sceneDict objectForKey:@"buttonPosition"]]];
+                }
+                 
+                [mapCALayer addSublayer:subLayer1];
+            }
+        }
+        [layerArray addObject:mapCALayer];
     }
     [CATransaction commit];
+    // order by plist key name
+    [layerArray sortUsingComparator:^NSComparisonResult(id a, id b) {
+        NSString *first = [(CALayer*)a name];
+        NSString *second = [(CALayer*)b name];
+        return [first compare:second];
+    }];
+    return layerArray;
 }
+
 
 #pragma mark - View lifecycle
 
@@ -517,109 +594,6 @@
     mapCAView.frame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [scrollView addSubview:mapCAView];
     
-    //--> sky
-    UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
-    CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
-    [map0CA setBounds:skyFrame];
-    [map0CA setPosition:CGPointMake(screenSize.width/2, mapCAView.frame.size.height)];
-    CGImageRef map0Image = [skyImage CGImage];
-    [map0CA setContents:(__bridge id)map0Image];
-    [map0CA setZPosition:-5];
-    //map0CA.shouldRasterize = YES;
-    map0CA.opaque = YES;
-    [mapCAView.layer addSublayer:map0CA];
-
-    
-    //--> layer1 --main map
-    CGRect mapFrame = CGRectMake(0, 0, screenSize.width, screenSize.height);
-    [map1CA setBounds:mapFrame];
-    [map1CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    [map1CA setZPosition:0];
-    //map1CA.opaque = YES;
-    [mapCAView.layer addSublayer:map1CA];
-    
-    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"mapLayers" ofType:@"plist"];
-    NSDictionary *mainDict = [NSDictionary dictionaryWithContentsOfFile:plistPath];
-    NSArray *mapLayer1 = [NSArray arrayWithArray:[mainDict objectForKey:@"mapLayer1"]];
-    float subLayerOriginX = 0;
-    for (int i=0; i<mapLayer1.count; i+=2)
-    {
-        CALayer *subLayer1 = [CALayer layer];
-        CALayer *subLayer2 = [CALayer layer];
-        NSString *imageName1 = [mapLayer1 objectAtIndex:i];
-        NSString *imageName2 = [mapLayer1 objectAtIndex:i+1];
-        UIImage *image1 = [UIImage imageNamed:imageName1];
-        UIImage *image2 = [UIImage imageNamed:imageName2];
-        subLayer1.contents = (id)[UIImage 
-                                 imageWithCGImage:[image1 CGImage] 
-                                 scale:1.0 
-                                 orientation:UIImageOrientationRight].CGImage;
-        subLayer2.contents = (id)[UIImage 
-                                  imageWithCGImage:[image2 CGImage] 
-                                  scale:1.0 
-                                  orientation:UIImageOrientationRight].CGImage; 
-        subLayer1.frame = CGRectMake(subLayerOriginX, 0,image1.size.width/2,image1.size.height/2);
-        subLayer2.frame = CGRectMake(subLayerOriginX, image1.size.height/2,image2.size.width/2,image2.size.height/2);
-        subLayerOriginX += image1.size.width/2;
-        //NSLog(@"layer %d frame %@", i, NSStringFromCGRect(subLayer1.frame));
-        //NSLog(@"layer %d frame %@", i+array.count/2, NSStringFromCGRect(subLayer2.frame));
-        //subLayer1.opaque = YES;
-        subLayer2.opaque = YES;
-        
-        [map1CA addSublayer:subLayer1];
-        [map1CA addSublayer:subLayer2];
-
-    }
-    
-    
-    //--> layer1 extras
-    [map1BCA setBounds:mapFrame];
-    [map1BCA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    [map1BCA setZPosition:-2];
-    [mapCAView.layer addSublayer:map1BCA];
-    NSMutableDictionary *mapLayer1BPList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer1B"]];
-    [self mapLayerPListPlacer:mapLayer1BPList :map1BCA];
-    
-    [map1CCA setBounds:mapFrame];
-    [map1CCA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    [map1CCA setZPosition:-3];
-    [mapCAView.layer addSublayer:map1CCA];
-    NSMutableDictionary *mapLayer1CPList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer1C"]];
-    [self mapLayerPListPlacer:mapLayer1CPList :map1CCA];
-    
-    CALayer *rock = [CALayer layer];
-    UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
-    //rock.bounds = CGRectMake(0, 0, rockImg.size.width, rockImg.size.height);
-    //rock.position = CGPointMake(5275, screenSize.height - rock.bounds.size.height/2);
-    rock.frame = CGRectMake(5100, screenSize.height - rockImg.size.height/2, rockImg.size.width/2, rockImg.size.height/2);    
-    CGImageRef rockCGImage = [rockImg CGImage];
-    [rock setContents:(__bridge id)rockCGImage];
-    rock.zPosition = 3;
-    [mapCAView.layer addSublayer:rock];
-    
-    //--> layer2 --town, saloon, stuff
-    CGRect map2Frame = CGRectMake(0, 0, screenSize.width, screenSize.height);
-    [map2CA setBounds:map2Frame];
-    [map2CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    [map2CA setZPosition:2];
-    [mapCAView.layer addSublayer:map2CA];
-    
-    NSMutableDictionary *mapLayer3PList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer3"]];
-    [self mapLayerPListPlacer:mapLayer3PList :map2CA];
-    
-    //--> layer4
-    CGRect map4Frame = CGRectMake(0, 0, screenSize.width*2.7, screenSize.height);
-    [map4CA setBounds:map4Frame];
-    [map4CA setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
-    [map4CA setZPosition:5];
-    [mapCAView.layer addSublayer:map4CA];
-    
-    buttonContainer.bounds = map4Frame;   //CGRectMake(0, 0, map4Frame.size.width, 100);
-    buttonContainer.center = CGPointMake(map4CA.position.x, 0);
-    [scrollView addSubview:buttonContainer];   
-    
-    //NSMutableArray *buttonArray = [NSMutableArray arrayWithObjects:introButton, dealButton, barButton,gasStationButton, riverBed1Button, riverBed2Button, desertChaseButton, desertLynchButton, nil];
-    NSMutableDictionary *mapLayer4PList = [NSMutableDictionary dictionaryWithDictionary:[mainDict objectForKey:@"mapLayer4"]];
     NSString *sceneplistPath = [[NSBundle mainBundle] pathForResource:@"scenes" ofType:@"plist"];
     NSDictionary *scenemainDict = [NSDictionary dictionaryWithContentsOfFile:sceneplistPath];
     NSMutableArray *scenePList = [NSMutableArray arrayWithArray:[scenemainDict objectForKey:@"Scenes"]];
@@ -631,8 +605,49 @@
         [[[scenes objectAtIndex:i] button] addTarget:self action:@selector(scenePressed:) forControlEvents:UIControlEventTouchDown];
         [[scenes objectAtIndex:i] button].tag = i;
     }
-    [self mapLayerPListPlacer:mapLayer4PList :map4CA];
     
+    NSString *mapLayerPListPath = [[NSBundle mainBundle] pathForResource:@"mapLayers" ofType:@"plist"];
+    NSDictionary *mapLayerPListMainDict = [NSDictionary dictionaryWithContentsOfFile:mapLayerPListPath];
+    parallaxLayers = [self mapLayerPListPlacer:mapLayerPListMainDict :screenSize :mapCAView.layer : scenes];
+    
+    //[parallaxLayers sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    //NSMutableArray *tempParallaxLayers = [NSMutableArray arrayWithObjects: map1CA, map1BCA, map1CCA, map2CA, map4CA, nil];
+    for (int i=0; i<parallaxLayers.count; i++) {
+        NSLog(@"parallaxlayers %@", [[parallaxLayers objectAtIndex:i] name] );
+        //[tempParallaxLayers objectAtIndex:i] = [parallaxLayers objectAtIndex:i];
+    }
+    map1CA = [parallaxLayers objectAtIndex:0];
+    map1BCA = [parallaxLayers objectAtIndex:1];
+    map1CCA = [parallaxLayers objectAtIndex:2];
+    map2CA = [parallaxLayers objectAtIndex:3];
+    map4CA = [parallaxLayers objectAtIndex:4];
+    
+
+    //--> sky
+    UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
+    CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
+    [map0CA setBounds:skyFrame];
+    [map0CA setPosition:CGPointMake(screenSize.width/2, mapCAView.frame.size.height)];
+    CGImageRef map0Image = [skyImage CGImage];
+    [map0CA setContents:(__bridge id)map0Image];
+    [map0CA setZPosition:-5];
+    map0CA.opaque = YES;
+    [mapCAView.layer addSublayer:map0CA];
+    
+    //--> rock
+    CALayer *rock = [CALayer layer];
+    UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
+    //rock.bounds = CGRectMake(0, 0, rockImg.size.width, rockImg.size.height);
+    //rock.position = CGPointMake(5275, screenSize.height - rock.bounds.size.height/2);
+    rock.frame = CGRectMake(5100, screenSize.height - rockImg.size.height/2, rockImg.size.width/2, rockImg.size.height/2);
+    CGImageRef rockCGImage = [rockImg CGImage];
+    [rock setContents:(__bridge id)rockCGImage];
+    rock.zPosition = 3;
+    [mapCAView.layer addSublayer:rock];
+    
+    buttonContainer.bounds = [(CALayer*)parallaxLayers.lastObject bounds];   //set bounds to toplayer
+    buttonContainer.center = CGPointMake([(CALayer*)parallaxLayers.lastObject position ].x, 0);
+    [scrollView addSubview:buttonContainer];
     
     //-->noose animation test
     {
@@ -643,7 +658,7 @@
         hangnoose2.anchorPoint = CGPointMake(.5, 0);
         CGImageRef hangnoose2Image = [hangnoose2img CGImage];
         [hangnoose2 setContents:(__bridge id)hangnoose2Image];
-        [map4CA addSublayer:hangnoose2];
+        [(CALayer*)parallaxLayers.lastObject addSublayer:hangnoose2];
         
         CABasicAnimation* nooseAnimation;
         nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];

@@ -27,6 +27,7 @@
     CALayer *map4CA;
     CALayer *janeAvatar;
      */
+    NSMutableArray *parallaxLayers;
     UIView *mapCAView;
     IBOutlet UIScrollView *scrollView;
     int lastContentOffset;
