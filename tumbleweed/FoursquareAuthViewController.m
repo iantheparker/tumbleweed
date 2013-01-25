@@ -76,8 +76,8 @@
         [defaults synchronize];
        // if we want a web splash "succes page" 
         NSLog(@"got access token, closing modal %@", accessToken);
-       
         [self dismissModalViewControllerAnimated:YES];
+        [[Tumbleweed weed] performSelectorInBackground:@selector(registerUser) withObject:nil];
     } 
     else NSLog(@"no access token, ignoring");
 }

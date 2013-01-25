@@ -44,8 +44,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     
-    weed = [Tumbleweed weed];
-    [weed getUser];
+    [[Tumbleweed weed] getUserUpdates];
     
     //if remote notification received at launch
     NSDictionary *pushNotificationPayload = [launchOptions valueForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
@@ -107,7 +106,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 //You can alternately implement the pushNotification API
 +(void)pushNotification:(UIApplication*)application notifyData:(NSDictionary *)userInfo
 {
-    
+    // upgrade tumbleweed level?
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
@@ -143,8 +142,7 @@ void uncaughtExceptionHandler(NSException *exception) {
      */
 
     [viewController saveAvatarPosition];
-    //[[Tumbleweed weed] saveChanges];
-    [[Tumbleweed weed] updateUser];
+    [[Tumbleweed weed] saveTumbleweed];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -159,7 +157,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    
+    [[Tumbleweed weed] getUserUpdates];
     [UIApplication sharedApplication].applicationIconBadgeNumber=0;
 
 }

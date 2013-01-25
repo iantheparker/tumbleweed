@@ -139,7 +139,7 @@
 			<key>position</key>
 			<string>{10366.2, 160}</string>
 			<key>buttonPosition</key>
-			<string>{10290, 120}</string>
+			<string>{10297, 120}</string>
 		</dict>
 		<key>lynch-noose</key>
 		<dict>
@@ -153,10 +153,7 @@
 			<string>{11725, 105}</string>
 		</dict>
 		<key>campfire</key>
-		<dict>
-			<key>sceneButtonNumber</key>
-			<integer>8</integer>
-		</dict>
+		<dict/>
 		<key>fence</key>
 		<dict>
 			<key>img</key>

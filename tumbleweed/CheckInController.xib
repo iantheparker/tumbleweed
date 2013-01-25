@@ -82,6 +82,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{63, 18}, {94, 27}}</string>
 								<reference key="NSSuperview" ref="6289769"/>
+								<reference key="NSNextKeyView" ref="153703268"/>
 								<string key="NSReuseIdentifierKey">_NS:606</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -93,6 +94,7 @@
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{9, 18}, {67, 25}}</string>
 								<reference key="NSSuperview" ref="6289769"/>
+								<reference key="NSNextKeyView" ref="250935320"/>
 								<string key="NSReuseIdentifierKey">_NS:328</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -124,7 +126,7 @@
 						</array>
 						<string key="NSFrame">{{0, 165}, {480, 163}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
-						<reference key="NSNextKeyView" ref="153703268"/>
+						<reference key="NSNextKeyView" ref="841023237"/>
 						<string key="NSReuseIdentifierKey">_NS:196</string>
 						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">3</int>
@@ -252,7 +254,7 @@
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-						<string key="IBUIText">Woah! I'm unlocking a scene in A Goddamn Western from this check in. Thanks tumbleweed!</string>
+						<string key="IBUIText">Woah! I just unlocked a scene from the movie No Man's Land with this check in. Thanks tumbleweed!</string>
 						<object class="IBUITextInputTraits" key="IBUITextInputTraits">
 							<int key="IBUIAutocapitalizationType">2</int>
 							<int key="IBUIReturnKeyType">9</int>

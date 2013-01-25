@@ -16,7 +16,7 @@
 			<key>hintCopy</key>
 			<string>Where the hell am I?</string>
 			<key>checkInCopy</key>
-			<string>temp copy</string>
+			<string>Sign in to foursquare!!</string>
 			<key>bonus1</key>
 			<string></string>
 			<key>bonus2</key>
@@ -27,12 +27,14 @@
 		<dict>
 			<key>name</key>
 			<string>The Deal</string>
-			<key>categoryId</key>
-			<string>4d4b7105d754a06378d81259</string>
+			<key>level</key>
+			<integer>0</integer>
 			<key>movieName</key>
 			<string>deal</string>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S2-col.jpg</string>
+			<key>categoryId</key>
+			<string>4d4b7105d754a06378d81259</string>
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
@@ -53,10 +55,12 @@
 		<dict>
 			<key>name</key>
 			<string>The Saloon</string>
-			<key>categoryId</key>
-			<string>4d4b7105d754a06376d81259</string>
+			<key>level</key>
+			<integer>1</integer>
 			<key>movieName</key>
 			<string>bar</string>
+			<key>categoryId</key>
+			<string>4d4b7105d754a06376d81259</string>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S3-col.jpg</string>
 			<key>posterArt</key>
@@ -79,10 +83,12 @@
 		<dict>
 			<key>name</key>
 			<string>The Gas Station</string>
-			<key>categoryId</key>
-			<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
+			<key>level</key>
+			<integer>2</integer>
 			<key>movieName</key>
 			<string>gasStation</string>
+			<key>categoryId</key>
+			<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S4-col.jpg</string>
 			<key>posterArt</key>
@@ -107,6 +113,8 @@
 			<string>The Riverbed</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06377d81259</string>
+			<key>level</key>
+			<integer>3</integer>
 			<key>movieName</key>
 			<string>riverbed1</string>
 			<key>movieThumbnail</key>
@@ -133,6 +141,8 @@
 			<string>The Body</string>
 			<key>movieName</key>
 			<string>riverbed2</string>
+			<key>level</key>
+			<integer>4</integer>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S6-col.jpg</string>
 			<key>posterArt</key>
@@ -140,7 +150,7 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>someone&apos;s bound to find out soon:</string>
+			<string>wait 2 hours for push notif</string>
 			<key>bonus1</key>
 			<string></string>
 			<key>bonus2</key>
@@ -157,10 +167,14 @@
 			<string>The Chase</string>
 			<key>movieName</key>
 			<string>chase</string>
+			<key>level</key>
+			<integer>5</integer>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S7-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
+			<key>categoryId</key>
+			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
@@ -181,10 +195,14 @@
 			<string>Play Dead</string>
 			<key>movieName</key>
 			<string>lynch</string>
+			<key>level</key>
+			<integer>6</integer>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S8-col.jpg</string>
 			<key>posterArt</key>
 			<string></string>
+			<key>categoryId</key>
+			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
@@ -205,6 +223,8 @@
 			<string>The End</string>
 			<key>movieName</key>
 			<string>campfire</string>
+			<key>level</key>
+			<integer>7</integer>
 			<key>movieThumbnail</key>
 			<string>video_thumbnail_S9-col.jpg</string>
 			<key>posterArt</key>
@@ -218,7 +238,9 @@
 			<key>bonus2</key>
 			<string></string>
 			<key>buttonAccessible</key>
-			<string></string>
+			<string>top_lvl4_objs_10_ICON-on.png</string>
+			<key>buttonUnlocked</key>
+			<string>top_lvl4_objs_10_ICON-press.png</string>
 		</dict>
 	</array>
 </dict>

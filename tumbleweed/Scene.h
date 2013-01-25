@@ -45,6 +45,7 @@
 @property (nonatomic, retain) NSString *posterArt;         
 @property (nonatomic) BOOL unlocked;
 @property (nonatomic) BOOL accessible;
+@property (nonatomic) int level;
 @property (nonatomic, retain) NSDictionary *checkInResponse;
 @property (nonatomic, retain) NSDictionary *recentSearchVenueResults;
 @property (nonatomic, retain) NSDate *date;

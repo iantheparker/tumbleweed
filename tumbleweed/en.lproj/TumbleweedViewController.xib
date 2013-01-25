@@ -208,7 +208,6 @@
 				<string key="23.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="47.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<real value="0.0" key="47.IBUIButtonInspectorSelectedStateConfigurationMetadataKey"/>
-				<string key="95.CustomClassName">MapButtonView</string>
 				<string key="95.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
@@ -220,20 +219,11 @@
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<object class="IBPartialClassDescription">
-					<string key="className">MapButtonView</string>
-					<string key="superclassName">UIView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/MapButtonView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
 					<string key="className">TumbleweedViewController</string>
 					<string key="superclassName">UIViewController</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="foursquareConnect:">UIButton</string>
 						<string key="handleSingleTap:">UIGestureRecognizer</string>
-						<string key="toggleBlackPanel:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="foursquareConnect:">
@@ -244,20 +234,16 @@
 							<string key="name">handleSingleTap:</string>
 							<string key="candidateClassName">UIGestureRecognizer</string>
 						</object>
-						<object class="IBActionInfo" key="toggleBlackPanel:">
-							<string key="name">toggleBlackPanel:</string>
-							<string key="candidateClassName">id</string>
-						</object>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="buttonContainer">MapButtonView</string>
+						<string key="buttonContainer">UIButton</string>
 						<string key="foursquareConnectButton">UIButton</string>
 						<string key="scrollView">UIScrollView</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
 						<object class="IBToOneOutletInfo" key="buttonContainer">
 							<string key="name">buttonContainer</string>
-							<string key="candidateClassName">MapButtonView</string>
+							<string key="candidateClassName">UIButton</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="foursquareConnectButton">
 							<string key="name">foursquareConnectButton</string>

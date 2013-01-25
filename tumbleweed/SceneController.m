@@ -10,12 +10,12 @@
 #import "CheckInController.h"
 
 #import "AFFoursquareAPIClient.h"
-#import "AFNetworking.h"
+//#import "AFNetworking.h"
 
 @interface SceneController()
 
-//@property (nonatomic) CLLocationCoordinate2D centerCoordinate;
-//@property int pos;
+
+@property NSString *categoryId;
 
 @end
 
@@ -24,6 +24,8 @@
 @private
     CLLocationCoordinate2D centerCoordinate;
     int pos;
+    
+    
 }
 @synthesize checkinScrollView, venueScrollView, venueDetailNib, venueView, movieThumbnailImageView, locationManager, allVenues, scene, mvFoursquare, pinsLoaded, userCurrentLocation, checkinView, sceneTitle, checkInIntructions, refreshButton, activityIndicator, leftScroll, rightScroll, playButton;
 @synthesize moviePlayer;
@@ -35,7 +37,16 @@
     self = [super init];
     // Did the superclass's designated initializer succeed?
     if (self) {
-        scene = scn;      
+        scene = scn;
+        //name = scene.name;
+        /*
+        categoryId = [plistDict objectForKey:@"categoryId"];
+        movieName = [plistDict objectForKey:@"movieName"];
+        movieThumbnail = [plistDict objectForKey:@"movieThumbnail"];
+        posterArt = [plistDict objectForKey:@"posterArt"];
+        hintCopy = [plistDict objectForKey:@"hintCopy"];
+        checkInCopy = [plistDict objectForKey:@"checkInCopy"];
+         */
     }
     return self;
 }
@@ -258,9 +269,23 @@
 }
 - (void) animateRewards
 {
-    [movieThumbnailImageView setImage:[UIImage imageNamed:scene.movieThumbnail]];
-    playButton.enabled = YES;
-    [searchView removeFromSuperview];
+    
+    [UIView animateWithDuration:1 animations:^{
+        CGSize screenSize = CGSizeMake(480, 320);
+        checkinScrollView.contentSize = screenSize;
+        checkInIntructions.text = @"check out the extras!";
+        mvFoursquare.layer.opacity = 0.0;
+        searchView.layer.opacity = 0.0;
+    } completion:^(BOOL finished) {
+        [searchView removeFromSuperview];
+        [UIView transitionWithView:movieThumbnailImageView
+                          duration:0.2f
+                           options:UIViewAnimationOptionTransitionCrossDissolve
+                        animations:^{
+                            movieThumbnailImageView.image = [UIImage imageNamed:scene.movieThumbnail];
+                            playButton.enabled = YES;
+                        } completion:NULL];
+    }];
 
 }
 - (void) searchSetup
@@ -351,27 +376,13 @@
 #pragma mark -
 #pragma mark - Required CoreLocation delegate methods
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-    [locationManager stopUpdatingLocation];
+    [manager stopUpdatingLocation];
     
-    // How many seconds ago was this new location created?
-    NSTimeInterval t = [[newLocation timestamp] timeIntervalSinceNow];
-    // CLLocationManagers will return the last found location of the
-    // device first, you don't want that data in this case.
-    // If this location was made more than 2 minutes ago, ignore it.
-    
-    NSLog(@"nstimeinterval %f", t);
-    CLLocationDistance meters = [newLocation distanceFromLocation:oldLocation];
-    if (meters < 10 && scene.recentSearchVenueResults) {
-        [self processVenues:[[[[scene.recentSearchVenueResults objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"]];
-        return; 
-    }
-    
-    scene.date = [newLocation timestamp];
-    
-    NSString *lat = [NSString stringWithFormat:@"%f", newLocation.coordinate.latitude];
-    NSString *lon = [NSString stringWithFormat:@"%f", newLocation.coordinate.longitude];
+    NSString *lat = [NSString stringWithFormat:@"%f", [locations.lastObject coordinate].latitude];
+    NSString *lon = [NSString stringWithFormat:@"%f", [locations.lastObject coordinate].longitude];
+    NSLog(@" lat %@ long %@", lat, lon);
     
     
     [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:scene.categoryId WithBlock:^(NSArray *venues, NSError *error) {
@@ -381,10 +392,19 @@
             [self processVenues:venues];
         }
     }];
-    
-    
-    
 }
+
+
+
+    
+    
+    
+    
+   
+    
+    
+    
+
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
     NSLog(@"location error is called - %@", error);
@@ -403,6 +423,11 @@
 #pragma mark - 
 #pragma mark - Map View Delegate methods
 
+- (void)mapViewWillStartLocatingUser:(MKMapView *)mapView
+{
+    
+}
+
 - (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
 	// didUpdateUserLocation tend to repeat at times
@@ -416,6 +441,9 @@
     userCurrentLocation = userLocation;
 	// set the mapView's region the same as the user's coordinate
 	CLLocationCoordinate2D userCoords = [userLocation coordinate];
+    //NSString *lat = [NSString stringWithFormat:@"%f", userCoords.latitude];
+    //NSString *lon = [NSString stringWithFormat:@"%f", userCoords.longitude];
+    
 	// with a fixed zoom level with an animation
 	//MKCoordinateRegion region = { { userCoords.latitude , userCoords.longitude }, { 0.009f , 0.009f } };
     MKCoordinateRegion viewRegion = MKCoordinateRegionMakeWithDistance(userCoords, 320, 320);
@@ -509,7 +537,7 @@
     centerCoordinate = mapView.region.center;
     region.center= centerCoordinate;
     
-    NSLog(@"%f,%f",centerCoordinate.latitude, centerCoordinate.longitude);
+    NSLog(@"mapView regionDidChangeAnimated %f,%f",centerCoordinate.latitude, centerCoordinate.longitude);
 }
 
 
@@ -520,7 +548,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    if (scene.categoryId && !scene.unlocked) 
+    if (scene.categoryId && (scene.level == [Tumbleweed weed].tumbleweedLevel))
     {
         [self searchSetup];
         //sepia image if locked
@@ -532,9 +560,13 @@
             [adjustmentFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputIntensity"];
             CIImage *outputImage = [adjustmentFilter valueForKey:@"outputImage"];
             CIContext* context = [CIContext contextWithOptions:nil];
-            CGImageRef imgRef = [context createCGImage:outputImage fromRect:outputImage.extent] ;
-            UIImage* img = [[UIImage alloc] initWithCGImage:imgRef scale:1.0 orientation:UIImageOrientationUp];
+            //CGImageRef imgRef = [context createCGImage:outputImage fromRect:outputImage.extent] ;
+            UIImage* img = [UIImage imageWithCGImage:
+                            [context createCGImage:outputImage fromRect:outputImage.extent]
+                                                      scale:1.0 orientation:UIImageOrientationUp];
+            //UIImage *img1 = [UIImage ima]
             [movieThumbnailImageView setImage:img];
+           
         }
         playButton.enabled = NO;
     }

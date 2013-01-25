@@ -33,7 +33,7 @@
     int lastContentOffset;
     BOOL walkingForward;
     //-- buttons
-    IBOutlet MapButtonView *buttonContainer;
+    IBOutlet UIButton *buttonContainer;
     NSMutableArray *scenes;
     IBOutlet UIButton *foursquareConnectButton;
  

@@ -76,13 +76,15 @@ static int vDate = 20120927;
           shout:(NSString *) shoutText
       WithBlock:(void (^)(NSDictionary *checkInResponse, NSError *error))block
 {
+    /*
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  venueId, @"venueId",
                                  shoutText, @"shout",
                                  @"private", @"broadcast",
                                  [NSNumber numberWithInt:vDate], @"v", nil];
-    NSString *url = [NSString stringWithFormat:@"checkins/add?oauth_token=%@&venueId=%@&broadcast=private&shout=%@&v=%i", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], venueId, shoutText, vDate];
+     */
+    NSString *url = [NSString stringWithFormat:@"checkins/add?oauth_token=%@&venueId=%@&broadcast=private&shout=%@&v=%i", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], venueId, @"tumbleweed!", vDate];
     [[AFFoursquareAPIClient sharedClient] postPath:url parameters:nil
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
                                               if (block) {

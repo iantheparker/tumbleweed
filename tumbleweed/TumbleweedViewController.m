@@ -23,20 +23,19 @@
 @property (nonatomic, retain) CALayer *map4CA;
 @property (nonatomic, retain) CALayer *janeAvatar;
 @property (nonatomic, retain) UIView *mapCAView;
-@property (nonatomic, retain) MapButtonView *buttonContainer;
-//@property (nonatomic, retain) Tumbleweed *weed;
+@property (nonatomic, retain) UIButton *buttonContainer;
 @property (nonatomic, retain) CALayer *blackPanel;
 
-
+-(void) gameSavetNotif: (NSNotification *) notif;
 -(void) scenePressed:(UIButton*)sender;
 -(void)pauseLayer:(CALayer*)layer;
 -(void)resumeLayer:(CALayer*)layer;
 -(void) renderScreen: (BOOL) direction : (BOOL) moving;
 -(CGRect) selectAvatarBounds:(float) position;
--(IBAction)toggleBlackPanel:(id)sender;
+-(void)startCampfire;
+-(void) updateSceneButtonStates;
 -(CGPoint) coordinatePListReader: (NSString*) positionString;
 -(NSMutableArray*) mapLayerPListPlacer: (NSDictionary*) plist : (CGSize) screenSize : (CALayer*) parentLayer : (NSMutableArray*) sceneArray;
--(void) updateSceneButtonStates;
 -(CALayer*) layerInitializer: (id) plistObject :(CGSize) screenSize : (CALayer*) parentLayer : (NSString*) layerName;
 
 @end
@@ -67,7 +66,8 @@
     }
     return self;
 }
-
+#pragma mark -
+#pragma mark screen renders
 - (CGRect) selectAvatarBounds:(float) position
 {
     static const CGRect sampleRects[7] = {
@@ -219,7 +219,7 @@
     CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - pausedTime;
     layer.beginTime = timeSincePause;
 }
--(IBAction)toggleBlackPanel:(id)sender
+-(void) startCampfire
 {
     [blackPanel removeFromSuperlayer];
     
@@ -237,6 +237,10 @@
     
     [campefireSprite addAnimation:campfireAnimation forKey:nil];
     [map1CA addSublayer:campefireSprite];
+    //add button
+    
+    [[scenes.lastObject button] setCenter:CGPointMake(campefireSprite.position.x-3, campefireSprite.position.y + 40)];
+    [scrollView addSubview:[scenes.lastObject button]];
 }
 #pragma mark - 
 #pragma mark button handlers
@@ -259,7 +263,6 @@
                     completion:NULL];
     */
 }
-
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
     NSLog(@"pressed");
@@ -289,168 +292,62 @@
 
 #pragma mark -
 #pragma mark game state updates
+-(void) gameSavetNotif: (NSNotification *) notif
+{
+    NSLog(@"in gameSaveNotif with %@", [notif name]);
+    [self gameState];
+}
+
 - (void) gameState
 {
-    /*
-     visible <=> accessible
-     what about tips and push notifications? the relationship between them.
-     "force tip" for the campfire scene
-     button states
-     server notifications
-     enum game state?
-     //allOtherScenes.visible = false;
-     //allOtherScenes.hint = @"You should probably check somewhere else...1, 2, or 3";
-     
-     
-     
-     
-    //start state - 
-    gasStationButton.enabled = weed.gasStation.accessible; 
-    //dealButton.enabled = true; 
-    //barButton.enabled = true;
-    //riverBed1Button.enabled = false; 
-
-     
-    //state 2 -
-    if ( weed.gasStation.unlocked && weed.deal.unlocked && weed.bar.unlocked ) { 
-        weed.riverBed1.accessible = true; 
-    }
-     
-    //state 3 - 
-    if (weed.riverBed1.unlocked) {
-        weed.riverBed2.accessible = true;
-        // turn on region monitoring - ([weed.riverBed1.date timeIntervalSinceNow] < -3600))
-        if (!weed.riverBed2.unlocked && ![[UIApplication sharedApplication] scheduledLocalNotifications])
-        {
-            [self scheduleNotificationWithDate:weed.riverBed1.date intervalTime:10];
-        }
-        if ([[NSUserDefaults standardUserDefaults] stringForKey:@"notification"] && ([weed.riverBed1.date timeIntervalSinceNow] < -10))
-        {
-            weed.riverBed2.unlocked = true;
-        }
-    }
-    if (weed.riverBed2.unlocked)  {
-        weed.desertChase.accessible = true;
-        //turn on region monitoring - ( [newLocation distanceFromLocation:riverbed2.location] > 2000) - then set weed.desertChase.unlocked = true;
-        if  (weed.desertChase.unlocked){ 
-            weed.desertLynch.accessible = true;
-        }
-        else { //state 4 - 
-            [self startSignificantChangeUpdates];
-            //when finishes must unlock desertChase then launch a notification
-        }
-    }
-
-    //state 5 -
-    if (weed.desertLynch.unlocked){
-        weed.campFire.accessible = true;
-        weed.campFire.unlocked = true;
-    }
     
-    //state 6 -
-    if ( weed.campFire.watched ) {
-        //end--reset game option, dviz printout or end credits?
+    switch ([Tumbleweed weed].tumbleweedLevel) {
+        
+        case 4:
+            //wait for notification from server when timer is up
+            //if seems like it's been a long wait, double-check on foursquare's push and post an update
+            break;
+            
+        case 5:
+            //turn on region monitoring - ( [newLocation distanceFromLocation:riverbed2.location] > 2000)
+            //[self startSignificantChangeUpdates];
+            //when finishes must unlock desertChase then launch a notification
+            break;
+            
+        case 6:
+            break;
+            
+        case 7:
+            [self performSelector:@selector(startCampfire)];
+            break;
+        default:
+            //not logged in
+            break;
+            
     }
-    */ 
-     
-     
-     
+    [self updateSceneButtonStates];
+
 }
 -(void) updateSceneButtonStates
 {
-    // switch statement.
-    // array or explicit?
-    
-    
-    //NSLog(@"tumb level %d", [Tumbleweed weed].tumbleweedLevel);
-    //if level all 3 first scenes have unlocked
-    //after every checkin there should be a pull from the server - lots of pings though
-    /*
-    [[Tumbleweed weed] getUserWithBlock:^(NSDictionary *userCred, NSError *error) {
-        if (error) {
-            //
-
+    NSLog(@"update scene with level %d", [Tumbleweed weed].tumbleweedLevel);
+    //start this loop at 1 because scene 0 is the intro and that should always be accessible
+    for (int i = 1; i < scenes.count; i++)
+    {
+        if (![[Tumbleweed weed] tumbleweedId]) {
+            [[scenes objectAtIndex:i] button].enabled = NO;
         }
-        else {
-            NSLog(@"userlevel %@ tumbleweedDefault %d", [userCred objectForKey:@"level"], [[NSUserDefaults standardUserDefaults] integerForKey:@"tumbleweedID"]);
-            switch ([Tumbleweed weed].tumbleweedLevel) {
-                case 0:
-                    if([Tumbleweed weed].deal.unlocked) dealButton.selected = YES;
-                    if([Tumbleweed weed].bar.unlocked) barButton.selected = YES;
-                    if([Tumbleweed weed].gasStation.unlocked) gasStationButton.selected = YES;
-                    riverBed1Button.enabled = YES;
-                    break;
-                case 1:
-                    // initializing everything per state
-                    // when server returns, just update my local hash
-                    // separate data piece from presentation piece
-                    dealButton.selected = YES;
-                    barButton.selected = YES;
-                    gasStationButton.selected = YES;
-                    riverBed1Button.enabled = YES;
-                    // set level in here
-                    break;
-                case 2:
-                    dealButton.selected = YES;
-                    barButton.selected = YES;
-                    gasStationButton.selected = YES;
-                    riverBed1Button.selected = YES;
-                    riverBed2Button.enabled = YES;
-                    break;
-                case 3:
-                    dealButton.selected = YES;
-                    barButton.selected = YES;
-                    gasStationButton.selected = YES;
-                    riverBed1Button.selected = YES;
-                    riverBed2Button.selected = YES;
-                    desertChaseButton.enabled = YES;
-                    break;
-                case 4:
-                    dealButton.selected = YES;
-                    barButton.selected = YES;
-                    gasStationButton.selected = YES;
-                    riverBed1Button.selected = YES;
-                    riverBed2Button.selected = YES;
-                    desertChaseButton.selected = YES;
-                    desertLynchButton.enabled = YES;
-                    break;
-                case 5:
-                    dealButton.selected = YES;
-                    barButton.selected = YES;
-                    gasStationButton.selected = YES;
-                    riverBed1Button.selected = YES;
-                    riverBed2Button.selected = YES;
-                    desertChaseButton.selected = YES;
-                    desertLynchButton.selected = YES;
-                    campFireButton.enabled = YES;
-                    break;
-                case 6:
-                    dealButton.selected = YES;
-                    barButton.selected = YES;
-                    gasStationButton.selected = YES;
-                    riverBed1Button.selected = YES;
-                    riverBed2Button.selected = YES;
-                    desertChaseButton.selected = YES;
-                    desertLynchButton.selected = YES;
-                    campFireButton.selected = YES;
-                    break;
-                    
-                default:
-                    dealButton.enabled = YES;
-                    barButton.enabled = YES;
-                    gasStationButton.enabled = YES;
-                    riverBed1Button.enabled = NO;
-                    riverBed2Button.enabled = NO;
-                    desertChaseButton.enabled = NO;
-                    desertLynchButton.enabled = NO;
-                    campFireButton.enabled = NO;
-                    
-                    break;
-            }
+        else if (([[scenes objectAtIndex:i] level] > [Tumbleweed weed].tumbleweedLevel)) {
+            [[scenes objectAtIndex:i] button].enabled = NO;
         }
-    }];
-    //NSLog(@"%@", [[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
-    */
+        else if ([[scenes objectAtIndex:i] level] == [Tumbleweed weed].tumbleweedLevel) {
+            //using scene unlock bool 
+            [[scenes objectAtIndex:i] button].enabled = YES;
+        }
+        else if ([[scenes objectAtIndex:i] level] < [Tumbleweed weed].tumbleweedLevel){
+            [[scenes objectAtIndex:i] button].selected = YES;
+        }
+    }
 }
 
 #pragma mark -
@@ -601,19 +498,19 @@
     
     for (int i=0; i < scenePList.count; i++) {
         [scenes addObject:[[Scene alloc] initWithDictionary:[scenePList objectAtIndex:i]]];
-        [buttonContainer addSubview:[[scenes objectAtIndex:i] button]];
         [[[scenes objectAtIndex:i] button] addTarget:self action:@selector(scenePressed:) forControlEvents:UIControlEventTouchDown];
         [[scenes objectAtIndex:i] button].tag = i;
+        
+        //stopping at count-1  to not add the campfire button to the toplayer container - need a better way
+        if (i < scenePList.count - 1) [buttonContainer addSubview:[[scenes objectAtIndex:i] button]];
     }
     
     NSString *mapLayerPListPath = [[NSBundle mainBundle] pathForResource:@"mapLayers" ofType:@"plist"];
     NSDictionary *mapLayerPListMainDict = [NSDictionary dictionaryWithContentsOfFile:mapLayerPListPath];
     parallaxLayers = [self mapLayerPListPlacer:mapLayerPListMainDict :screenSize :mapCAView.layer : scenes];
     
-    //[parallaxLayers sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    //NSMutableArray *tempParallaxLayers = [NSMutableArray arrayWithObjects: map1CA, map1BCA, map1CCA, map2CA, map4CA, nil];
     for (int i=0; i<parallaxLayers.count; i++) {
-        NSLog(@"parallaxlayers %@", [[parallaxLayers objectAtIndex:i] name] );
+        //NSLog(@"parallaxlayers %@", [[parallaxLayers objectAtIndex:i] name] );
         //[tempParallaxLayers objectAtIndex:i] = [parallaxLayers objectAtIndex:i];
     }
     map1CA = [parallaxLayers objectAtIndex:0];
@@ -622,34 +519,35 @@
     map2CA = [parallaxLayers objectAtIndex:3];
     map4CA = [parallaxLayers objectAtIndex:4];
     
-
-    //--> sky
-    UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
-    CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
-    [map0CA setBounds:skyFrame];
-    [map0CA setPosition:CGPointMake(screenSize.width/2, mapCAView.frame.size.height)];
-    CGImageRef map0Image = [skyImage CGImage];
-    [map0CA setContents:(__bridge id)map0Image];
-    [map0CA setZPosition:-5];
-    map0CA.opaque = YES;
-    [mapCAView.layer addSublayer:map0CA];
-    
-    //--> rock
-    CALayer *rock = [CALayer layer];
-    UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
-    //rock.bounds = CGRectMake(0, 0, rockImg.size.width, rockImg.size.height);
-    //rock.position = CGPointMake(5275, screenSize.height - rock.bounds.size.height/2);
-    rock.frame = CGRectMake(5100, screenSize.height - rockImg.size.height/2, rockImg.size.width/2, rockImg.size.height/2);
-    CGImageRef rockCGImage = [rockImg CGImage];
-    [rock setContents:(__bridge id)rockCGImage];
-    rock.zPosition = 3;
-    [mapCAView.layer addSublayer:rock];
-    
     buttonContainer.bounds = [(CALayer*)parallaxLayers.lastObject bounds];   //set bounds to toplayer
     buttonContainer.center = CGPointMake([(CALayer*)parallaxLayers.lastObject position ].x, 0);
     [scrollView addSubview:buttonContainer];
-    
-    //-->noose animation test
+
+    //--> sky
+    {
+        UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
+        CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
+        [map0CA setBounds:skyFrame];
+        [map0CA setPosition:CGPointMake(screenSize.width/2, mapCAView.frame.size.height)];
+        CGImageRef map0Image = [skyImage CGImage];
+        [map0CA setContents:(__bridge id)map0Image];
+        [map0CA setZPosition:-5];
+        map0CA.opaque = YES;
+        [mapCAView.layer addSublayer:map0CA];
+    }
+    //--> rock
+    {
+        CALayer *rock = [CALayer layer];
+        UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
+        //rock.bounds = CGRectMake(0, 0, rockImg.size.width, rockImg.size.height);
+        //rock.position = CGPointMake(5275, screenSize.height - rock.bounds.size.height/2);
+        rock.frame = CGRectMake(5100, screenSize.height - rockImg.size.height/2, rockImg.size.width/2, rockImg.size.height/2);
+        CGImageRef rockCGImage = [rockImg CGImage];
+        [rock setContents:(__bridge id)rockCGImage];
+        rock.zPosition = 3;
+        [mapCAView.layer addSublayer:rock];
+    }
+    //-->noose animation
     {
         CALayer *hangnoose2 = [CALayer layer];
         UIImage *hangnoose2img = [UIImage imageNamed:@"top_lvl4_objs_10B.png"];
@@ -663,7 +561,7 @@
         CABasicAnimation* nooseAnimation;
         nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
         nooseAnimation.fromValue = [NSNumber numberWithFloat:2.0 * M_PI];
-        nooseAnimation.toValue = [NSNumber numberWithFloat:2.01 * M_PI];
+        nooseAnimation.toValue = [NSNumber numberWithFloat:2.02 * M_PI];
         nooseAnimation.duration = 1.5;
         //animation.cumulative = YES;
         nooseAnimation.autoreverses = YES;
@@ -673,6 +571,44 @@
         nooseAnimation.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
         [hangnoose2 addAnimation:nooseAnimation forKey:@"transform.rotation.z"];
     }
+    //-->cactus bird animation
+    {
+        CGSize fixedSize = CGSizeMake(264, 253);
+        CGImageRef cactusbirdimg = [[UIImage imageNamed:@"cactusbird"] CGImage];
+        MCSpriteLayer* cactusbird = [MCSpriteLayer layerWithImage:cactusbirdimg sampleSize:fixedSize];
+        cactusbird.position = CGPointMake(10440, 90);
+        
+        CAKeyframeAnimation *cactusbirdAnimation = [CAKeyframeAnimation animationWithKeyPath:@"sampleIndex"];
+        cactusbirdAnimation.duration = 5.0f;
+        //cactusbirdAnimation.autoreverses = YES;
+        cactusbirdAnimation.repeatCount = HUGE_VALF;
+        cactusbirdAnimation.calculationMode = kCAAnimationDiscrete;
+        cactusbirdAnimation.removedOnCompletion = NO;
+        cactusbirdAnimation.fillMode = kCAFillModeForwards;
+        
+        cactusbirdAnimation.values = [NSArray arrayWithObjects:
+                                [NSNumber numberWithInt:1],
+                                [NSNumber numberWithInt:2],
+                                [NSNumber numberWithInt:3],
+                                [NSNumber numberWithInt:2],
+                                [NSNumber numberWithInt:3],
+                                [NSNumber numberWithInt:4],
+                                [NSNumber numberWithInt:1],
+                                [NSNumber numberWithInt:1],nil]; //not called
+        
+        cactusbirdAnimation.keyTimes = [NSArray arrayWithObjects:
+                                  [NSNumber numberWithFloat:0.0],
+                                  [NSNumber numberWithFloat:0.1],
+                                  [NSNumber numberWithFloat:0.12],
+                                  [NSNumber numberWithFloat:0.14],
+                                  [NSNumber numberWithFloat:0.16],
+                                  [NSNumber numberWithFloat:0.2],
+                                  [NSNumber numberWithFloat:0.35],
+                                  [NSNumber numberWithFloat:0], nil]; //not called
+        
+        [cactusbird addAnimation:cactusbirdAnimation forKey:@"cactusbird"];
+        [(CALayer*)parallaxLayers.lastObject addSublayer:cactusbird];
+        }
     //-->campFire eyes animation
     {
         blackPanel = [CALayer layer];
@@ -764,23 +700,28 @@
         [riverSprite addAnimation:riverAnimation forKey:nil];
         [map1CA addSublayer:riverSprite];
     }
-    //--> avatar
-    CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed.png"] CGImage];
-    [janeAvatar setContents:(__bridge id)avatarImage];
-    [janeAvatar setZPosition:2];
-    janeAvatar.name = @"janeAvatar";
-    [mapCAView.layer addSublayer:janeAvatar];
-    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
-    NSLog(@"jane text %@ %@ %@", janeAvatar.name, janeAvatar.description, mapCAView.description);
+    //-->jane avatar
+    {
+        CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed.png"] CGImage];
+        [janeAvatar setContents:(__bridge id)avatarImage];
+        [janeAvatar setZPosition:2];
+        janeAvatar.name = @"janeAvatar";
+        [mapCAView.layer addSublayer:janeAvatar];
+        [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
+        NSLog(@"jane text %@ %@ %@", janeAvatar.name, janeAvatar.description, mapCAView.description);
 
-    [buttonContainer layerListener:janeAvatar.name :mapCAView];
-    buttonContainer.janeLayer = janeAvatar;
+        //[buttonContainer layerListener:janeAvatar.name :mapCAView];
+        //buttonContainer.janeLayer = janeAvatar;
+    }
 
     
     //[mapCAView addSubview:foursquareConnectButton];
     [scrollView addSubview:foursquareConnectButton];
     //UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
     //[buttonContainer addGestureRecognizer:tapHandler];
+    
+
+    
     
     
     [CATransaction commit];
@@ -801,24 +742,33 @@
     CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
     NSLog(@"saved center %f", center.x);
     scrollView.contentOffset = center;
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] && [[Tumbleweed weed] tumbleweedId]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
-        [[Tumbleweed weed] registerUser];
     }
-    [self updateSceneButtonStates];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(gameSavetNotif:)
+                                                 name:@"gameSave" object:nil];
+    [self gameState];
 
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    //[self resumeLayer:map1CA];
+    //[self resumeLayer:map1BCA];
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[super viewWillDisappear:animated];
     [self saveAvatarPosition];
+    [self gameState];
+    //[self pauseLayer:mapCAView.layer];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
 }
 
 - (void)viewDidDisappear:(BOOL)animated
