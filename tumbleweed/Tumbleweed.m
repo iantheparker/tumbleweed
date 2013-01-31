@@ -20,7 +20,9 @@ static Tumbleweed *weed = nil;
 @implementation Tumbleweed
 
 @synthesize locationManager, fsqFirstName, fsqId, fsqLastName, tumbleweedId;
-@synthesize tumbleweedLevel, sceneState;
+@synthesize sceneState;
+@synthesize tumbleweedLevel;
+
 
 #pragma mark - Lifecycle Methods
 
@@ -83,6 +85,14 @@ static Tumbleweed *weed = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"gameSave" object:self];
     
 }
+/*
+- (void) setTumbleweedLevel:( int)level
+{
+    tumbleweedLevel = level;
+    NSLog(@"setting tumbleweedLevel");
+    [self saveTumbleweed];
+}
+ */
 #pragma mark - 
 #pragma mark - API Methods
 

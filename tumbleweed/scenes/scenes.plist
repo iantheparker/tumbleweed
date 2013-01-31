@@ -151,9 +151,7 @@
 			<string></string>
 			<key>checkInCopy</key>
 			<string>wait 2 hours for push notif</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_7_ICON-on.png</string>

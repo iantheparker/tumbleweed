@@ -11,7 +11,9 @@
 #import "FoursquareAuthViewController.h"
 #import "MCSpriteLayer.h"
 
-@interface TumbleweedViewController() 
+@interface TumbleweedViewController()
+
+
 
 @property BOOL walkingForward;
 @property (nonatomic, retain) UIScrollView *scrollView;
@@ -28,8 +30,8 @@
 
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) scenePressed:(UIButton*)sender;
--(void)pauseLayer:(CALayer*)layer;
--(void)resumeLayer:(CALayer*)layer;
+//-(void)pauseLayer:(CALayer*)layer;
+//-(void)resumeLayer:(CALayer*)layer;
 -(void) renderScreen: (BOOL) direction : (BOOL) moving;
 -(CGRect) selectAvatarBounds:(float) position;
 -(void)startCampfire;
@@ -40,7 +42,12 @@
 
 @end
 
-@implementation TumbleweedViewController
+@implementation TumbleweedViewController{
+@private
+    int lastContentOffset;
+    BOOL walkingForward;
+
+}
 
 @synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward;
 
@@ -68,6 +75,7 @@
 }
 #pragma mark -
 #pragma mark screen renders
+
 - (CGRect) selectAvatarBounds:(float) position
 {
     static const CGRect sampleRects[7] = {
@@ -205,13 +213,14 @@
 
 -(void)pauseLayer:(CALayer*)layer
 {
+    if (!layer) layer = map1CA;
     CFTimeInterval pausedTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil];
     layer.speed = 0.0;
     layer.timeOffset = pausedTime;
 }
-
 -(void)resumeLayer:(CALayer*)layer
 {
+    if (!layer) layer = map1CA;
     CFTimeInterval pausedTime = [layer timeOffset];
     layer.speed = 1.0;
     layer.timeOffset = 0.0;
@@ -273,14 +282,8 @@
 }
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender
 {
-    /*
-     CALayer* layerThatWasTapped = [mapCAView.layer hitTest:[sender locationInView:mapCAView]];
-     if ([[mapCAView.layer hitTest:[sender locationInView:mapCAView]].name isEqualToString:janeAvatar.name]) {
-     NSLog(@"layer has a name ");
-     }
-     */
     CGPoint loc = [sender locationInView:mapCAView];
-    NSLog(@"touched %f,%f ", loc.x, loc.y);
+    //NSLog(@"touched %f,%f ", loc.x, loc.y);
     for (CALayer *layer in mapCAView.layer.sublayers) {
         if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
             if ([layer.name isEqualToString:[janeAvatar name]]) {
@@ -297,10 +300,8 @@
     NSLog(@"in gameSaveNotif with %@", [notif name]);
     [self gameState];
 }
-
 - (void) gameState
 {
-    
     switch ([Tumbleweed weed].tumbleweedLevel) {
         
         case 4:
@@ -490,6 +491,9 @@
     
     mapCAView.frame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [scrollView addSubview:mapCAView];
+    UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
+    [scrollView addGestureRecognizer:tapHandler];
+    
     
     NSString *sceneplistPath = [[NSBundle mainBundle] pathForResource:@"scenes" ofType:@"plist"];
     NSDictionary *scenemainDict = [NSDictionary dictionaryWithContentsOfFile:sceneplistPath];
@@ -509,10 +513,6 @@
     NSDictionary *mapLayerPListMainDict = [NSDictionary dictionaryWithContentsOfFile:mapLayerPListPath];
     parallaxLayers = [self mapLayerPListPlacer:mapLayerPListMainDict :screenSize :mapCAView.layer : scenes];
     
-    for (int i=0; i<parallaxLayers.count; i++) {
-        //NSLog(@"parallaxlayers %@", [[parallaxLayers objectAtIndex:i] name] );
-        //[tempParallaxLayers objectAtIndex:i] = [parallaxLayers objectAtIndex:i];
-    }
     map1CA = [parallaxLayers objectAtIndex:0];
     map1BCA = [parallaxLayers objectAtIndex:1];
     map1CCA = [parallaxLayers objectAtIndex:2];
@@ -520,8 +520,9 @@
     map4CA = [parallaxLayers objectAtIndex:4];
     
     buttonContainer.bounds = [(CALayer*)parallaxLayers.lastObject bounds];   //set bounds to toplayer
-    buttonContainer.center = CGPointMake([(CALayer*)parallaxLayers.lastObject position ].x, 0);
+    buttonContainer.center = CGPointMake([(CALayer*)parallaxLayers.lastObject position].x, 0);
     [scrollView addSubview:buttonContainer];
+    [scrollView addSubview:foursquareConnectButton];
 
     //--> sky
     {
@@ -681,8 +682,9 @@
         birdAnimation.duration = 2.0f;
         birdAnimation.repeatCount = HUGE_VALF;
         
-        [birdSprite addAnimation:birdAnimation forKey:nil];
-        [map1BCA addSublayer:birdSprite];
+        [birdSprite addAnimation:birdAnimation forKey:@"birdCircle"];
+        [mapCAView.layer addSublayer:birdSprite];
+        //[(CALayer*)[parallaxLayers objectAtIndex:1] addSublayer:birdSprite];
     }
     //-->riverWaves animation
     {
@@ -697,44 +699,25 @@
         riverAnimation.duration = 1.4f;
         riverAnimation.repeatCount = HUGE_VALF;
         
-        [riverSprite addAnimation:riverAnimation forKey:nil];
-        [map1CA addSublayer:riverSprite];
+        [riverSprite addAnimation:riverAnimation forKey:@"riverWaves"];
+        [mapCAView.layer addSublayer:riverSprite];
+        //[(CALayer*)[parallaxLayers objectAtIndex:1] addSublayer:riverSprite];
     }
     //-->jane avatar
     {
-        CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed.png"] CGImage];
+        CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed"] CGImage];
         [janeAvatar setContents:(__bridge id)avatarImage];
         [janeAvatar setZPosition:2];
         janeAvatar.name = @"janeAvatar";
         [mapCAView.layer addSublayer:janeAvatar];
         [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
-        NSLog(@"jane text %@ %@ %@", janeAvatar.name, janeAvatar.description, mapCAView.description);
 
-        //[buttonContainer layerListener:janeAvatar.name :mapCAView];
-        //buttonContainer.janeLayer = janeAvatar;
     }
-
-    
-    //[mapCAView addSubview:foursquareConnectButton];
-    [scrollView addSubview:foursquareConnectButton];
-    //UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-    //[buttonContainer addGestureRecognizer:tapHandler];
-    
-
-    
-    
     
     [CATransaction commit];
 
 }
 
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-    
-}
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -750,14 +733,16 @@
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"gameSave" object:nil];
     [self gameState];
+    //[self resumeLayer:mapCAView.layer];
+    //[self resumeLayer:map1CA];
+    //[self resumeLayer:map1BCA];
 
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    //[self resumeLayer:map1CA];
-    //[self resumeLayer:map1BCA];
+    
     
 }
 
@@ -765,8 +750,10 @@
 {
 	[super viewWillDisappear:animated];
     [self saveAvatarPosition];
-    [self gameState];
-    //[self pauseLayer:mapCAView.layer];
+    //[self pauseLayer:[mapCAView.layer presentationLayer]];
+    //[self gameState];
+    //[self pauseLayer:map1BCA];
+    //[self pauseLayer:map1CA];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
 }
@@ -775,6 +762,7 @@
 {
 	[super viewDidDisappear:animated];
 }
+
 
 - (void)didReceiveMemoryWarning
 {

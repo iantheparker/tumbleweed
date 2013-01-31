@@ -30,9 +30,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check in. Thanks tumbleweed!";
-        shoutTextView.text = shoutText;
-        NSLog(@"shoutText is %@", shoutText);
+        
     }
     return self;
 }
@@ -59,10 +57,8 @@
         }
         else {
             [self dismissViewControllerAnimated:YES completion:^{
-                sceneControllerId.scene.checkInResponse = checkInResponse;
-                sceneControllerId.scene.unlocked = YES;
-                //this guarantees that the scene states get saved in case someone closes app before going back to tweedVC
-                [[[self parentViewController] parentViewController] performSelectorInBackground:@selector(gameState) withObject:nil];
+                //sceneControllerId.scene.checkInResponse = checkInResponse;
+                //sceneControllerId.scene.unlocked = YES;
                 //idempotence - set the gamestate level to the level of this scene
                 [Tumbleweed weed].tumbleweedLevel = sceneControllerId.scene.level + 1;
                 [sceneControllerId animateRewards];
@@ -112,7 +108,10 @@
     // Do any additional setup after loading the view from its nib.
     NSString *venueName = [venueDetails objectForKey:@"name"];
     [venueNameLabel setText:venueName];
-    //characterCounter.text = [NSString stringWithFormat:@"%d", (140 - shoutTextView.text.length)]; 
+    shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check in. Thanks tumbleweed!";
+    shoutTextView.text = shoutText;
+    NSLog(@"shoutText is %@", shoutText);
+    //characterCounter.text = [NSString stringWithFormat:@"%d", (140 - shoutTextView.text.length)];
     
 }
 

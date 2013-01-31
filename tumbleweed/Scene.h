@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SceneController.h"
 
+@class SceneController;
 
 @interface Scene : NSObject {
     
@@ -32,6 +32,7 @@
     NSString *checkedVenue;  //location of unlock
     NSString *hintCopy;
     NSString *checkInCopy;
+    NSString *bonus;
 
 }
 
@@ -52,6 +53,7 @@
 @property (nonatomic, retain) NSString *checkedVenue;
 @property (nonatomic, retain) NSString *hintCopy;
 @property (nonatomic, retain) NSString *checkInCopy;
+@property (nonatomic, retain) NSString *bonus;
 
 - (id) initWithDictionary:(NSMutableDictionary *) plistDict;
 

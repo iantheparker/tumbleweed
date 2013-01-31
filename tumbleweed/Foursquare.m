@@ -42,7 +42,7 @@ static int vDate = 20120927;
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
                                  @"5", @"limit",
-                                 @"250", @"radius",
+                                 @"200", @"radius",
                                  category, @"categoryId",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];

@@ -8,6 +8,22 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BonusWebViewController : UIViewController
+@interface BonusWebViewController : UIViewController<UIWebViewDelegate>{
+    
+    IBOutlet UIWebView *webView;
+    NSString *urlSuffix;
+    IBOutlet UIActivityIndicatorView *activityIndicator;
+    IBOutlet UILabel *loadingLabel;
+}
+
+@property (nonatomic, retain) UIWebView *webView;
+@property (nonatomic, retain) UIView *loadingView;
+@property (nonatomic, retain) UIView *containerView;
+@property (nonatomic, retain) NSString *urlSuffix;
+
+
+- (id) initWithUrl: (NSString*) url;
+- (IBAction) dismissModal:(id)sender;
+
 
 @end

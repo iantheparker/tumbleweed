@@ -8,31 +8,82 @@
 
 #import "BonusWebViewController.h"
 
-@interface BonusWebViewController ()
-
-@end
+static NSString * const kBonusBaseURLString = @"http://western.goddamncobras.com/page/";
 
 @implementation BonusWebViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+@synthesize webView, loadingView, containerView, urlSuffix;
+
+- (id)init
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    self = [super initWithNibName:nil bundle:nil];
     if (self) {
         // Custom initialization
     }
     return self;
 }
 
-- (void)viewDidLoad
+- (id) initWithUrl: (NSString*) url
 {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    urlSuffix = url;
+    return [self init];
+}
+
+- (void)dealloc
+{
+    // removed for ARC [super dealloc];
 }
 
 - (void)didReceiveMemoryWarning
 {
+    // Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
+    // Release any cached data, images, etc that aren't in use.
+}
+
+#pragma mark - View lifecycle
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    NSString *authenticateURLString = [NSString stringWithFormat:@"%@%@", kBonusBaseURLString, urlSuffix ];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:authenticateURLString]];
+    [webView loadRequest:request];
+    
+}
+
+- (void)viewDidUnload
+{
+    [super viewDidUnload];
+    self.webView = nil;
+}
+
+#pragma mark - Web view delegate
+- (void) webViewDidStartLoad:(UIWebView *)webView
+{
+    [activityIndicator stopAnimating];
+    [loadingLabel removeFromSuperview];
+    NSLog(@"in webview didstartload");
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    [activityIndicator stopAnimating];
+    [loadingLabel removeFromSuperview];
+}
+
+- (IBAction) dismissModal:(id)sender
+{
+    NSLog(@"cancelling bonus web view");
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    // Return YES for supported orientations
+    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft
+            || interfaceOrientation == UIInterfaceOrientationLandscapeRight);
 }
 
 @end

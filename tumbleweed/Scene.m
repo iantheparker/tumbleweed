@@ -10,7 +10,7 @@
 
 @implementation Scene
 
-@synthesize name, categoryId, movieName, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date, hintCopy, checkInCopy, checkedVenue, level;
+@synthesize name, categoryId, movieName, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date, hintCopy, checkInCopy, checkedVenue, level, bonus;
 @synthesize button, sceneVC;
 
 
@@ -36,6 +36,8 @@
     hintCopy = [plistDict objectForKey:@"hintCopy"];
     checkInCopy = [plistDict objectForKey:@"checkInCopy"];
     level = [[plistDict objectForKey:@"level"] integerValue];
+    //bonus = [plistDict objectForKey:@"bonus"];
+    bonus = [NSString stringWithFormat:@"%d", level];
     
     button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.frame = CGRectMake(64, 40, 80, 80);

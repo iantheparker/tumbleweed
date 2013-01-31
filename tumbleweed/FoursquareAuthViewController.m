@@ -51,7 +51,8 @@
     NSString *authenticateURLString = [NSString stringWithFormat:@"https://foursquare.com/oauth2/authenticate?display=touch&client_id=%@&response_type=token&redirect_uri=%@", [[Environment sharedInstance] foursquare_client_id], [[Environment sharedInstance] callback_url] ];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:authenticateURLString]];
     [webView loadRequest:request];
-    
+    activityIndicator.hidesWhenStopped = YES;
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]) return;
 }
 
 - (void)viewDidUnload
@@ -65,8 +66,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     [activityIndicator stopAnimating];
-    activityIndicator.hidden = TRUE;
-    [loadingLabel setText:@""];
+    [loadingLabel removeFromSuperview];
     NSString *URLString = [[self.webView.request URL] absoluteString];
     NSLog(@"--> %@", URLString);
     if ([URLString rangeOfString:@"access_token="].location != NSNotFound) {

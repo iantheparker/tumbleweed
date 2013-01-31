@@ -31,6 +31,7 @@
     [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
     [self setDefaultHeader:@"Accept" value:@"application/json"];
     self.parameterEncoding = AFFormURLParameterEncoding;
+    //[self setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {}];
     return self;
 }
 

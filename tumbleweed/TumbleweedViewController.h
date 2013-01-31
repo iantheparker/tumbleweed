@@ -9,29 +9,16 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import "Scene.h"
-//#import "Tumbleweed.h"
 #import <QuartzCore/QuartzCore.h>
-#import "MapButtonView.h"
 
 
 
 @interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, CLLocationManagerDelegate>
 {
-    //Tumbleweed *weed;
-    /*
-    CALayer *map0CA;
-    CALayer *map1CA;
-    CALayer *map1BCA;
-    CALayer *map1CCA;
-    CALayer *map2CA;
-    CALayer *map4CA;
-    CALayer *janeAvatar;
-     */
     NSMutableArray *parallaxLayers;
     UIView *mapCAView;
     IBOutlet UIScrollView *scrollView;
-    int lastContentOffset;
-    BOOL walkingForward;
+    
     //-- buttons
     IBOutlet UIButton *buttonContainer;
     NSMutableArray *scenes;
@@ -46,6 +33,9 @@
 //-- instance methods
 - (void) gameState;
 - (void) saveAvatarPosition;
+
+-(void)pauseLayer:(CALayer*)layer;
+-(void)resumeLayer:(CALayer*)layer;
 
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;

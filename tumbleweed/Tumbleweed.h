@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "Scene.h"
 #import <CoreLocation/CoreLocation.h>
 
 

@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "SceneController.h"
 
-@class Scene;
+//@class Scene;
 
 @interface CheckInController : UIViewController <UITextViewDelegate>{
     IBOutlet UIButton *backButton;

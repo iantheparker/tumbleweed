@@ -14,13 +14,14 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CoreImage/CoreImage.h>
 #import <AVFoundation/AVFoundation.h>
-@class Scene;
+#import "Scene.h"
+
 
 
 @interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate>
 {
-    IBOutlet UIScrollView *checkinScrollView;
-    IBOutlet UIView *checkinView;
+    IBOutlet UIScrollView *sceneScrollView;
+    IBOutlet UIView *sceneSVView;
     IBOutlet UILabel *sceneTitle;
     IBOutlet UILabel *checkInIntructions;
     IBOutlet UIScrollView *venueScrollView;
@@ -36,32 +37,30 @@
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
-    Scene *scene;
     //MKMapView *mvFoursquare;
-    UIView *venueView;
+    IBOutlet UIView *venueView;
     
 }
 
-@property (nonatomic, retain) UIScrollView *checkinScrollView;
+@property (nonatomic, retain) UIScrollView *sceneScrollView;
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UILabel *sceneTitle;
 @property (nonatomic, retain) UILabel *checkInIntructions;
-@property (nonatomic, retain) UIView *checkinView;
+@property (nonatomic, retain) UIView *sceneSVView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
 @property (nonatomic, retain) CLLocationManager *locationManager; 
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
-@property (nonatomic, retain) Scene *scene;
 @property (nonatomic, retain) MKMapView *mvFoursquare;
 @property (nonatomic, getter = isPinsLoaded) BOOL pinsLoaded;
-@property (nonatomic, retain) MKUserLocation *userCurrentLocation;
 @property (nonatomic, retain) UIButton *refreshButton;
 @property (nonatomic, retain) UIActivityIndicatorView *activityIndicator;
 @property (nonatomic, retain) UIButton *leftScroll;
 @property (nonatomic, retain) UIButton *rightScroll;
 @property (nonatomic, retain) UIButton *playButton;
+@property (nonatomic, readonly) Scene *scene;
 
 //initializers
 - (id) initWithScene: (Scene *) scn;
@@ -74,8 +73,7 @@
 - (IBAction)leftScroll :(id)sender;
 - (IBAction)rightScroll :(id)sender;
 
-- (void) processVenues: (NSArray *) items;
-- (void) processRewards;
+- (void) processVenues: (NSArray *) items : (NSError*) err;
 - (void) animateRewards;
 - (void) searchSetup;
 
