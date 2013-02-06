@@ -21,6 +21,7 @@ WithBlock:(void (^)(NSArray *venues, NSError *error))block;
 
 + (void)checkIn:(NSString*)venueId
           shout:(NSString *) shoutText
+      broadcast:(NSString*) broadcastType
     WithBlock:(void (^)(NSDictionary *checkInResponse, NSError *error))block;
 
 @end

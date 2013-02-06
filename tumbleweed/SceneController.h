@@ -34,11 +34,12 @@
     IBOutlet MKMapView *mvFoursquare;
     IBOutlet UIView *searchView;
     IBOutlet UIButton *playButton;
+    IBOutlet UIView *extrasView;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;
     //MKMapView *mvFoursquare;
-    IBOutlet UIView *venueView;
+    UIView *venueView;
     
 }
 
@@ -50,7 +51,7 @@
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, retain) UIImageView *movieThumbnailImageView;
-@property (nonatomic, retain) CLLocationManager *locationManager; 
+@property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
 @property (nonatomic, retain) MKMapView *mvFoursquare;
@@ -60,6 +61,7 @@
 @property (nonatomic, retain) UIButton *leftScroll;
 @property (nonatomic, retain) UIButton *rightScroll;
 @property (nonatomic, retain) UIButton *playButton;
+@property (nonatomic, retain) UIView *extrasView;
 @property (nonatomic, readonly) Scene *scene;
 
 //initializers

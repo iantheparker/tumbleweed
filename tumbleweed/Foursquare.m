@@ -14,10 +14,10 @@ static int vDate = 20120927;
 
 + (void)getUserIdWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block
 {
-    
-    [[AFFoursquareAPIClient sharedClient] getPath:@"users/self" parameters:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                                            [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                                                            [NSNumber numberWithInt:vDate], @"v", nil]
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 [NSNumber numberWithInt:vDate], @"v", nil];
+    [[AFFoursquareAPIClient sharedClient] getPath:@"users/self" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id response) {
                                               NSDictionary *results = [[response objectForKey:@"response"] objectForKey:@"user"];
                                               //NSLog(@"user = %@", results);
@@ -74,18 +74,17 @@ static int vDate = 20120927;
 
 + (void)checkIn:(NSString*)venueId
           shout:(NSString *) shoutText
+      broadcast:(NSString*) broadcastType
       WithBlock:(void (^)(NSDictionary *checkInResponse, NSError *error))block
 {
-    /*
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  venueId, @"venueId",
                                  shoutText, @"shout",
-                                 @"private", @"broadcast",
+                                 broadcastType, @"broadcast",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];
-     */
-    NSString *url = [NSString stringWithFormat:@"checkins/add?oauth_token=%@&venueId=%@&broadcast=private&shout=%@&v=%i", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], venueId, @"tumbleweed!", vDate];
-    [[AFFoursquareAPIClient sharedClient] postPath:url parameters:nil
+    [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
+    [[AFFoursquareAPIClient sharedClient] postPath:@"checkins/add" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
                                               if (block) {
                                                   block(JSON, nil);

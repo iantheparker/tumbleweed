@@ -266,7 +266,7 @@
                       duration:1.0f
                        options:UIViewAnimationOptionTransitionCurlDown
                     animations:^{
-                        [self.navigationController pushViewController:dealScene.navigationController animated:NO];
+                        [self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
                         //[self presentModalViewController:dealScene animated:NO];
                     }
                     completion:NULL];

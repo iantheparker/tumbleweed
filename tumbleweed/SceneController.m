@@ -15,6 +15,7 @@
 
 #define MINIMUM_ZOOM_ARC 0.008 //approximately 1 miles (1 degree of arc ~= 69 miles)
 #define ANNOTATION_REGION_PAD_FACTOR 1.0
+#define MAP_LATITUDE_OFFSET .0014
 #define MAX_DEGREES_ARC 360
 
 @interface SceneController()
@@ -27,16 +28,13 @@
 @property (nonatomic, retain) NSString *checkInCopy;
 @property (nonatomic, retain) NSString *bonusUrl;
 @property (nonatomic) unsigned int venueSVPos;
-@property (strong, nonatomic) NSTimer *locationTimer;
 
 -(void)zoomMapViewToFitAnnotations:(MKMapView *)mapView animated:(BOOL)animated;
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) refreshView;
 -(void) launchCheckinVC: (NSDictionary*) dict;
--(void) launchBonusWebView;
+-(IBAction) launchBonusWebView;
 - (void) willPresentError:(NSError *)error;
-- (void)stopUpdatingLocations;
-
 
 @end
 
@@ -52,9 +50,9 @@
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
-@synthesize venueScrollView, venueDetailNib, venueView, allVenues, sceneSVView, leftScroll, rightScroll, venueSVPos, locationTimer, refreshButton, activityIndicator;
+@synthesize venueScrollView, venueDetailNib, venueView, allVenues, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
 //generic properties
-@synthesize sceneScrollView, movieThumbnailImageView, sceneTitle, checkInIntructions, playButton, moviePlayer;
+@synthesize sceneScrollView, movieThumbnailImageView, sceneTitle, checkInIntructions, playButton, moviePlayer, extrasView;
 
 
 - (id) initWithScene:(Scene *) scn
@@ -108,7 +106,7 @@
     NSLog(@"venue name %@ : id %@", [dict objectForKey:@"name"], [dict objectForKey:@"id"]);
     CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     [checkIn setVenueDetails:dict];
-    [checkIn setModalTransitionStyle:UIModalTransitionStylePartialCurl];
+    //[checkIn setModalTransitionStyle:UIModalTransitionStylePartialCurl];
     [self presentViewController:checkIn animated:YES completion:NULL];
 }
 - (void) launchBonusWebView
@@ -147,28 +145,23 @@
 - (IBAction)rightScroll:(id)sender
 {
     self.venueSVPos += 1;
-    if ([mvFoursquare annotations]){
-        [mvFoursquare selectAnnotation:[[mvFoursquare annotations] objectAtIndex:venueSVPos] animated:YES];
-    }
-
-
 }
 - (IBAction)leftScroll:(id)sender
 {
     self.venueSVPos -= 1;
-    if ([mvFoursquare annotations]){
-        [mvFoursquare selectAnnotation:[[mvFoursquare annotations] objectAtIndex:venueSVPos] animated:YES];
-    }
-
 }
 - (void) setVenueSVPos:(unsigned int)position
 {
-    NSLog(@"venuesvpos = %i", position);
     // use this line if trying to determin position from scrollview
     //pos = venueScrollView.contentOffset.x / venueScrollView.frame.size.width;
     if (position == venueSVPos) return;
     
-    if ( position == 0) leftScroll.enabled = NO;
+    if ( position == 0) {
+        leftScroll.enabled = NO;
+        if ([allVenues count] > 1) {
+            rightScroll.enabled = YES;
+        }
+    }
     if (position > 0 && position < [allVenues count] -1){
         leftScroll.enabled = YES;
         rightScroll.enabled = YES;
@@ -176,13 +169,26 @@
     else if (position >= [allVenues count] -1) {
         position = [allVenues count]-1;
         rightScroll.enabled = NO;
+        if ([allVenues count] > 1){
+            leftScroll.enabled = YES;
+        }
     }
-    
-    [venueScrollView setContentOffset:CGPointMake(position*venueScrollView.frame.size.width, 0) animated:TRUE];
-    
     venueSVPos = position;
+    
+    [venueScrollView setContentOffset:CGPointMake(venueSVPos*venueScrollView.frame.size.width, 0) animated:TRUE];
+    
+    for (id<MKAnnotation> currentAnnotation in mvFoursquare.annotations) {
+        if ([currentAnnotation isKindOfClass:[FoursquareAnnotation class]]){
+            if (((FoursquareAnnotation*)currentAnnotation).arrayPos == venueSVPos) {
+                [mvFoursquare selectAnnotation:(FoursquareAnnotation*)currentAnnotation animated:YES];
+                //NSLog(@"mv selected %@", [[mvFoursquare selectedAnnotations] objectAtIndex:0]);
+            }
+        }
+    }
+    NSLog(@"venuesvpos = %i", venueSVPos);
 }
-- (void) willPresentError:(NSError *)error {
+- (void) willPresentError:(NSError *)error
+{
     
     NSString *errorTitle;
     NSString *errorMessage;
@@ -191,10 +197,9 @@
         switch([error code]) {
             case kCLAuthorizationStatusAuthorized:
             case kCLErrorDenied:
-            { // Private method of custom subclass.
                 errorTitle = @"Location Services Disabled";
                 errorMessage = @"To re-enable, please go to Settings and turn on Location Service for this app.";
-            }
+                break;
             default:
                 errorTitle = @"Get Some Internet";
                 errorMessage = @"You need some reception for this to work. Hit the re-search button on the map when you're ready.";
@@ -227,12 +232,10 @@
     float scrollWidth = (nibwidth + padding) * itemsArrayLength;
     CGSize contentSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
     venueScrollView.contentSize = contentSize;
-
     
     //if re-search was hit, reset all the views and values
     venueView = nil;
     venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, venueScrollView.frame.size.height)];
-    
     [venueScrollView addSubview:venueView];
     
     // If there are no search results, throw up "Nothing found."
@@ -252,7 +255,7 @@
         [nameLabel setClearsContextBeforeDrawing:YES];
         [venueDetailNib setCenter:CGPointMake(nibwidth/2, nibheight/2)];
         [venueView addSubview:venueDetailNib];
-        rightScroll.enabled = NO;
+        //rightScroll.enabled = NO;
     }
     else{
         if (items.count > 1) rightScroll.enabled = YES;
@@ -320,6 +323,8 @@
             
             // add it to the content view
             [venueView addSubview:venueDetailNib];
+            [venueView setUserInteractionEnabled:YES];
+            [venueDetailNib setUserInteractionEnabled:YES];
             
             // create and initialise the annotation
             FoursquareAnnotation *foursquareAnnotation = [[FoursquareAnnotation alloc] init];
@@ -342,34 +347,28 @@
         [mvFoursquare addAnnotations: annotations];
     }
     [venueScrollView.subviews makeObjectsPerformSelector:@selector(setNeedsDisplay)];
+    self.venueSVPos = 0;
 }
-
 - (void) animateRewards
 {
-    
-    UIButton *bonusButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    bonusButton.alpha = 0.0;
-    [bonusButton setTitle:@"Bonus!" forState:UIControlStateNormal];
-    bonusButton.frame = CGRectMake(220.0, 260.0, 160.0, 40.0);;
-    [bonusButton addTarget:self action:@selector(launchBonusWebView) forControlEvents:UIControlEventTouchDown];
-    [sceneScrollView addSubview:bonusButton];
-    
+    extrasView.hidden = NO;
     [UIView animateWithDuration:1 animations:^{
         //screenSize.height = 320; //CGSize screenSize = CGSizeMake(480, 320);
         CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, 320);
         sceneScrollView.contentSize = screenSize;
-        checkInIntructions.text = @"check out the extras!";
+        checkInIntructions.alpha = 0.0;
         mvFoursquare.layer.opacity = 0.0;
         searchView.layer.opacity = 0.0;
     } completion:^(BOOL finished) {
         [searchView removeFromSuperview];
+        [checkInIntructions removeFromSuperview];
         [UIView transitionWithView:movieThumbnailImageView
                           duration:0.2f
                            options:UIViewAnimationOptionTransitionCrossDissolve
                         animations:^{
                             movieThumbnailImageView.image = [UIImage imageNamed:movieThumbnail];
                             playButton.enabled = YES;
-                            bonusButton.alpha = 1.0;
+                            extrasView.alpha = 1.0;
                             
                         } completion:NULL];
     }];
@@ -428,7 +427,6 @@
     NSLog(@"search setup");
     
     //clear all previous results
-    self.venueSVPos = 0;
     [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];    
     [mvFoursquare removeAnnotations:mvFoursquare.annotations];
     [activityIndicator startAnimating];
@@ -437,8 +435,12 @@
     mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
     [self setPinsLoaded:NO];
     mvFoursquare.showsUserLocation = YES;
-    self.locationTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(stopUpdatingLocations) userInfo:nil repeats:NO];
+    if (!locationManager){
+        locationManager = [[CLLocationManager alloc] init];
+        [locationManager setDelegate:self];
+    }
     [locationManager startUpdatingLocation];
+
 
 }
 -(void) gameSavetNotif: (NSNotification *) notif
@@ -471,8 +473,7 @@
     if ([self isPinsLoaded] || !(accuracy > 0)) return;
 	
 	[self setPinsLoaded: YES];
-    [manager stopUpdatingLocation];
-    [locationTimer invalidate];
+    [locationManager stopUpdatingLocation];
     userCoordinate = [locations.lastObject coordinate];
     
     NSString *lat = [NSString stringWithFormat:@"%f", [locations.lastObject coordinate].latitude];
@@ -490,17 +491,10 @@
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
     NSLog(@"location error is called - %@", error);
+    [locationManager stopUpdatingLocation];
     [self processVenues:nil :error];
     
 }
-- (void)stopUpdatingLocations
-{
-    [locationManager stopUpdatingLocation];
-    [locationTimer invalidate];
-    NSError *err = [NSError errorWithDomain:NSURLErrorDomain code:kCFErrorHTTPConnectionLost userInfo:nil];
-    [self processVenues:nil :err];
-}
-
 
 #pragma mark - 
 #pragma mark - Map View Delegate methods
@@ -538,9 +532,11 @@
     
 }
  */
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
+{
     
     static NSString *identifier = @"MyLocation";
+    if ([annotation isKindOfClass:MKUserLocation.class]) return nil;
     if ([annotation isKindOfClass:[FoursquareAnnotation class]]) {
         
         //change all these back to MKAnnotationView when I'm sick of pins
@@ -560,9 +556,17 @@
         //annotationView.image = ((FoursquareAnnotation *)annotation).icon;
         
         // Create a UIButton object to add on the 
-        UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        //UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        //[rightButton setTitle:annotation.title forState:UIControlStateNormal];
+        //[annotationView setRightCalloutAccessoryView:rightButton];
+        
+        UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        rightButton.frame = CGRectMake(0, 0, 32, 32);
+        rightButton.imageView.layer.cornerRadius = 10.0;
+        [rightButton setImage:[UIImage imageNamed:@"4sq_map_button_checkin"] forState:UIControlStateNormal];
         [rightButton setTitle:annotation.title forState:UIControlStateNormal];
         [annotationView setRightCalloutAccessoryView:rightButton];
+        
         
         //UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
         UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -579,18 +583,21 @@
 - (void) mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view
 {
     //this should animate the venuescrollview to the selected pin
-    if ([[[mapView selectedAnnotations] objectAtIndex:0] isKindOfClass:[FoursquareAnnotation class]]) {
-        NSLog(@"foursquare annotationvew number %u", ((FoursquareAnnotation*)[view annotation]).arrayPos);
-        //needs to detect between a touch and a programmatic select
-        //self.venueSVPos = ((FoursquareAnnotation*)[view annotation]).arrayPos;
+    //the second if helps detect between a touch and a programmatic select
+    if ([view.annotation isKindOfClass:MKUserLocation.class]) return;
+    if ([[view annotation] isKindOfClass:[FoursquareAnnotation class]]){
+        if (((FoursquareAnnotation*)[view annotation]).arrayPos != venueSVPos){
+            //NSLog(@"foursquare annotationvew number %u", ((FoursquareAnnotation*)[view annotation]).arrayPos);
+            self.venueSVPos = ((FoursquareAnnotation*)[view annotation]).arrayPos;
+        }
     }
-    NSLog(@"mapview annotation selected");
 }
 - (void)mapView:(MKMapView *)mapView
- annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
+ annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control
+{
     
     //this won't get called as long as the left annotation button is custom instead of infoDark
-    if ([(UIButton*)control buttonType] == UIButtonTypeCustom){
+    if ([(UIButton*)control buttonType] == UIButtonTypeInfoDark){
         // Do your thing when the detailDisclosureButton is touched - open another mapviewcontroller or whatever
         
         NSString* foursquareURL = [NSString stringWithFormat: @"foursquare://venues/%@",((FoursquareAnnotation*)[view annotation]).venueId];
@@ -604,7 +611,7 @@
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:routeString]];
         }
         
-    } else if([(UIButton*)control buttonType] ==  UIButtonTypeDetailDisclosure) {
+    } else if([(UIButton*)control buttonType] ==  UIButtonTypeCustom) {
         // Do your thing when the infoDarkButton is touched
         NSLog(@"infoDarkButton for longitude: %f and latitude: %f and address is %@", 
               [(FoursquareAnnotation*)[view annotation] coordinate].longitude, 
@@ -616,31 +623,19 @@
         
     }
 }
-
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-    //Here
-    //sleep(3);
-    for (id<MKAnnotation> currentAnnotation in mapView.annotations) {
-        if ([currentAnnotation isKindOfClass:[FoursquareAnnotation class]] && ((FoursquareAnnotation*)currentAnnotation).arrayPos == 0) {
-            
-            [mapView selectAnnotation:(FoursquareAnnotation*)currentAnnotation animated:YES];
-        }
-        //NSLog(@"annotations array %u", ((FoursquareAnnotation*)currentAnnotation).arrayPos);
-        NSLog(@"annotations array %@", [currentAnnotation description]);
-    }
     [self zoomMapViewToFitAnnotations:mapView animated:YES];
-    for (int i = 0; i < views.count; i++)
-    {
-        if ([[[views objectAtIndex:i] annotation] isKindOfClass:[FoursquareAnnotation class]]) {
-            //NSLog(@"view # %d matches foursquareannotation %d", i, ((FoursquareAnnotation*)[[views objectAtIndex:i] annotation]).arrayPos);
-            NSLog(@"view # %d matches foursquareannotation %@", i, [[[views objectAtIndex:i] annotation] description]);
 
-
+    for (id<MKAnnotation> currentAnnotation in mapView.annotations) {
+        if ([currentAnnotation isKindOfClass:[FoursquareAnnotation class]]){
+            if (((FoursquareAnnotation*)currentAnnotation).arrayPos == 0) {
+                [mapView selectAnnotation:(FoursquareAnnotation*)currentAnnotation animated:YES];
+                //NSLog(@"mv selected %@", [[mapView selectedAnnotations] objectAtIndex:0]);
+            }
         }
     }
 }
-
 - (void)zoomMapViewToFitAnnotations:(MKMapView *)mapView animated:(BOOL)animated
 {
     NSArray *annotations = mapView.annotations;
@@ -676,6 +671,7 @@
         region.span.latitudeDelta = MINIMUM_ZOOM_ARC;
         region.span.longitudeDelta = MINIMUM_ZOOM_ARC;
     }
+    region.center.latitude += MAP_LATITUDE_OFFSET;
     [mapView setRegion:region animated:animated];
 }
 

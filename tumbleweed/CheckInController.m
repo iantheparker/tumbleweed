@@ -10,7 +10,7 @@
 
 @implementation CheckInController
 
-@synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView, sceneControllerId, publicCheckinSwitch;
+@synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView, sceneControllerId, photoButton, facebookButton, twitterButton;
 
 
 #pragma mark Initializers
@@ -43,15 +43,24 @@
     //NSLog(@"dismissing modal");
     [self dismissModalViewControllerAnimated:YES];
 }
+- (IBAction)toggleFacebookShare:(id)sender
+{
+    facebookButton.selected = !facebookButton.selected;
+}
+
+- (IBAction)toggleTwitterShare:(id)sender
+{
+    twitterButton.selected = !twitterButton.selected;
+}
 
 - (IBAction)checkIn:(id)sender
 {
     [activityIndicator setHidden:NO];
     [activityIndicator startAnimating];
-    // add publicSwitch.on to checkin method
-
+    NSString *broadcastType = [NSString stringWithFormat:@"public,%@,%@", facebookButton.selected ? @"facebook" : @"", twitterButton.selected ? @"twitter" : @""];
+    NSLog(@"broadcast type %@", broadcastType);
     
-    [Foursquare checkIn:[venueDetails objectForKey:@"id"] shout:shoutText WithBlock:^(NSDictionary *checkInResponse, NSError *error) {
+    [Foursquare checkIn:[venueDetails objectForKey:@"id"] shout:shoutText broadcast:broadcastType WithBlock:^(NSDictionary *checkInResponse, NSError *error) {
         if (error) {
             NSLog(@"error checking in %@", error);
         }
@@ -89,7 +98,13 @@
 
 - (void)textViewDidChange:(UITextView *)textView
 {
-    characterCounter.text = [NSString stringWithFormat:@"%d", (140 - shoutTextView.text.length)];    
+    characterCounter.text = [NSString stringWithFormat:@"%d/140", (140 - shoutTextView.text.length)];
+    UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+    UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
+    [shoutTextView setTextColor:brownText];
+
+    [shoutTextView.layer setBorderColor:[redText CGColor]];
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -108,10 +123,27 @@
     // Do any additional setup after loading the view from its nib.
     NSString *venueName = [venueDetails objectForKey:@"name"];
     [venueNameLabel setText:venueName];
+    [venueNameLabel setFont:[UIFont fontWithName:@"rockwell-bold" size:30]];
+    UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
+    [venueNameLabel setTextColor:brownText];
+    
     shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check in. Thanks tumbleweed!";
     shoutTextView.text = shoutText;
     NSLog(@"shoutText is %@", shoutText);
-    //characterCounter.text = [NSString stringWithFormat:@"%d", (140 - shoutTextView.text.length)];
+    shoutTextView.layer.cornerRadius = 10.0;
+    shoutTextView.clipsToBounds = YES;
+    UIColor *beigeBorder = [UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:1.0];
+    [shoutTextView.layer setBorderColor:[beigeBorder CGColor]];
+    [shoutTextView.layer setBorderWidth:3.0];
+    [shoutTextView setFont:[UIFont fontWithName:@"Rockwell" size:15]];
+    [shoutTextView setTextColor:beigeBorder];
+    [characterCounter setTextColor:[UIColor grayColor]];
+    
+    photoButton.layer.cornerRadius = 10.0;
+    photoButton.clipsToBounds = YES;
+    [photoButton.layer setBorderColor:[beigeBorder CGColor]];
+    [photoButton.layer setBorderWidth:3.0];
+
     
 }
 
