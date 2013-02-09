@@ -18,7 +18,7 @@
 
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate>
 {
     IBOutlet UIScrollView *sceneScrollView;
     IBOutlet UIView *sceneSVView;
@@ -35,6 +35,7 @@
     IBOutlet UIView *searchView;
     IBOutlet UIButton *playButton;
     IBOutlet UIView *extrasView;
+    IBOutlet UILabel *timerLabel;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     NSMutableDictionary *allVenues;

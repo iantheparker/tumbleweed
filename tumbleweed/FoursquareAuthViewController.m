@@ -36,23 +36,16 @@
 
 #pragma mark - View lifecycle
 
-// Implement loadView to create a view hierarchy programmatically, without using a nib
 
-/*.
-- (void)loadView {
-	self.view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 460)];
-}
- */
-
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad
 {
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]) [self dismissModalViewControllerAnimated:NO];
     [super viewDidLoad];
-    NSString *authenticateURLString = [NSString stringWithFormat:@"https://foursquare.com/oauth2/authenticate?display=touch&client_id=%@&response_type=token&redirect_uri=%@", [[Environment sharedInstance] foursquare_client_id], [[Environment sharedInstance] callback_url] ];
+    
+    NSString *authenticateURLString = [NSString stringWithFormat:@"https://foursquare.com/oauth2/authenticate?client_id=%@&response_type=token&redirect_uri=%@", [[Environment sharedInstance] foursquare_client_id], [[Environment sharedInstance] callback_url] ];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:authenticateURLString]];
     [webView loadRequest:request];
-    activityIndicator.hidesWhenStopped = YES;
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]) return;
+    NSLog(@"web auth url %@", authenticateURLString);
 }
 
 - (void)viewDidUnload
@@ -62,7 +55,14 @@
 }
 
 #pragma mark - Web view delegate
-//- (void)webViewDidStartLoad:
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    if ([request.URL.scheme isEqualToString:@"itms-apps"]) {
+        [[UIApplication sharedApplication] openURL:request.URL];
+        return NO;
+    }
+    return YES;
+}
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     [activityIndicator stopAnimating];
@@ -92,8 +92,7 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft
-            || interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 @end

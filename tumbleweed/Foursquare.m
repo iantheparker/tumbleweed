@@ -77,6 +77,7 @@ static int vDate = 20120927;
       broadcast:(NSString*) broadcastType
       WithBlock:(void (^)(NSDictionary *checkInResponse, NSError *error))block
 {
+    if ([[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Configuration"] isEqualToString:@"Debug"]) broadcastType = @"private";
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  venueId, @"venueId",
                                  shoutText, @"shout",
@@ -95,6 +96,36 @@ static int vDate = 20120927;
                                                   NSLog(@"error from checkin %@", error);
                                               }
                                           }];
+}
+
++ (void)addPhoto:(UIImage*) image
+         checkin:(NSString*) checkInId
+       broadcast:(NSString*) broadcastType
+{
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 checkInId, @"checkinId",
+                                 broadcastType, @"broadcast",
+                                 [NSNumber numberWithInt:1], @"public",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 [NSNumber numberWithInt:vDate], @"v", nil];
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.5);
+    NSMutableURLRequest *request = [[AFFoursquareAPIClient sharedClient] multipartFormRequestWithMethod:@"POST"
+                                                                                                   path:@"photos/add"
+                                                                                             parameters:queryParams
+                                                                              constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        [formData appendPartWithFileData:imageData name:@"file" fileName:@"photo.jpg" mimeType:@"image/jpeg"];
+    }];
+    
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    [operation setUploadProgressBlock:^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        NSLog(@"Sent %lld of %lld bytes", totalBytesWritten, totalBytesExpectedToWrite);
+    }];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"foursquare photo added!");
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"foursquare photo error %@", error);
+    }];
+    [[AFFoursquareAPIClient sharedClient] enqueueHTTPRequestOperation:operation];
 }
 
 

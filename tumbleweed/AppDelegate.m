@@ -44,7 +44,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     
-    [[Tumbleweed weed] getUserUpdates];
+    //[[Tumbleweed weed] getUserUpdates];
     
     //if remote notification received at launch
     NSDictionary *pushNotificationPayload = [launchOptions valueForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
@@ -150,6 +150,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     [[Tumbleweed weed] saveTumbleweed];
     [viewController pauseLayer:nil];
     NSLog(@"did enter background");
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"enteredBackground" object:self];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -164,7 +165,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    //[[Tumbleweed weed] getUserUpdates];
+    [[Tumbleweed weed] getUserUpdates];
     [UIApplication sharedApplication].applicationIconBadgeNumber=0;
     //[viewController resumeLayer:nil];
     NSLog(@"appwill become active");

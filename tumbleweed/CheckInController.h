@@ -11,7 +11,7 @@
 
 //@class Scene;
 
-@interface CheckInController : UIViewController <UITextViewDelegate>{
+@interface CheckInController : UIViewController <UITextViewDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate>{
     IBOutlet UIButton *backButton;
     IBOutlet UIButton *photoButton;
     IBOutlet UILabel *characterCounter;
@@ -38,9 +38,10 @@
 - (IBAction)checkIn:(id)sender;
 - (IBAction)toggleFacebookShare:(id)sender;
 - (IBAction)toggleTwitterShare:(id)sender;
+- (IBAction)photoActionTapped:(id)sender;
 - (IBAction)dismissModal:(id)sender;
 - (id) initWithSenderId: (SceneController *)sender;
-
+-(void)takePhoto: (NSInteger)sourceType;
 
 
 

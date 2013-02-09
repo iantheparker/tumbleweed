@@ -10,6 +10,8 @@
 #import "CheckInController.h"
 #import "AFFoursquareAPIClient.h"
 #import "BonusWebViewController.h"
+#import <UIImageView+AFNetworking.h>
+
 
 
 
@@ -34,7 +36,8 @@
 -(void) refreshView;
 -(void) launchCheckinVC: (NSDictionary*) dict;
 -(IBAction) launchBonusWebView;
-- (void) willPresentError:(NSError *)error;
+-(void) willPresentError:(NSError *)error;
+-(void)updateTimer:(NSTimer *)timer;
 
 @end
 
@@ -42,6 +45,8 @@
 @implementation SceneController {
 @private
     CLLocationCoordinate2D userCoordinate;
+    NSTimer *countDownTimer;
+    int currentTime;
     
     
 }
@@ -234,6 +239,7 @@
     venueScrollView.contentSize = contentSize;
     
     //if re-search was hit, reset all the views and values
+    allVenues = nil;
     venueView = nil;
     venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, venueScrollView.frame.size.height)];
     [venueScrollView addSubview:venueView];
@@ -255,11 +261,10 @@
         [nameLabel setClearsContextBeforeDrawing:YES];
         [venueDetailNib setCenter:CGPointMake(nibwidth/2, nibheight/2)];
         [venueView addSubview:venueDetailNib];
-        //rightScroll.enabled = NO;
+        rightScroll.enabled = NO;
     }
     else{
         if (items.count > 1) rightScroll.enabled = YES;
-        allVenues = nil;
         allVenues = [[NSMutableDictionary alloc] init];
 
         int offset = 0;
@@ -275,28 +280,6 @@
             CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
             NSString *iconURL = [[[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"] objectForKey:@"prefix"];
             iconURL = [iconURL stringByAppendingString:@"64.png"];
-            //use afnetworking call for this
-            
-            UIImage *icon = [[UIImage alloc] initWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:iconURL]]];
-            //UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 100.0f, 100.0f)];
-            //[imageView setImageWithURL:[NSURL URLWithString:iconURL] placeholderImage:[UIImage imageNamed:@"appicon_114"]];
-            /* load local images
-             
-             iconURL = [iconURL stringByReplacingOccurrencesOfString:@"https://foursquare.com/img/categories_v2/" withString:@""];
-             iconURL = [iconURL stringByReplacingOccurrencesOfString: @"/" withString: @"_"];
-             if ( [iconURL length] > 0) iconURL = [iconURL substringToIndex:[iconURL length] - 1];
-             UIImage *icon = [UIImage imageNamed:iconURL];
-             
-             if (!icon) {
-             NSLog(@"no icon for %@ at %@", vName, iconURL);
-             iconURL = [NSString stringWithFormat:@"%@_default", [[iconURL componentsSeparatedByString:@"_"] objectAtIndex:0]];
-             //iconURL = [iconURL stringByReplacingOccurrencesOfString:[[iconURL componentsSeparatedByString:@"_"] lastObject] withString:@"_default"];
-             NSLog(@"iconurl now %@", iconURL);
-             icon = [UIImage imageNamed:iconURL];
-             }
-             */
-            
-            //NSLog(@"lat%f, long%f", latitude, longitude);
             
             [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
             
@@ -336,7 +319,6 @@
             [foursquareAnnotation setTitle: vName];
             [foursquareAnnotation setSubtitle: address];
             [foursquareAnnotation setVenueId: vID];
-            [foursquareAnnotation setIcon:icon];
             [foursquareAnnotation setIconUrl:iconURL];
             [foursquareAnnotation setArrayPos:((unsigned int) i)];
             
@@ -353,7 +335,6 @@
 {
     extrasView.hidden = NO;
     [UIView animateWithDuration:1 animations:^{
-        //screenSize.height = 320; //CGSize screenSize = CGSizeMake(480, 320);
         CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, 320);
         sceneScrollView.contentSize = screenSize;
         checkInIntructions.alpha = 0.0;
@@ -384,20 +365,25 @@
         //playButton.enabled = NO;
         
         if (categoryId) {
-            //load map, locate user, start foursquare search
-            //screenSize = [UIScreen mainScreen].bounds.size;
-            //NSLog(@"screensize %f %f, window = %@", screenSize.width, screenSize.height, NSStringFromCGRect(sceneSVView.bounds)  );
-            //screenSize = CGSizeMake(480, 540);
             [self searchSetup];
             
         }
         else{
             //load alternate view
-            //screenSize = CGSizeMake([UIScreen mainScreen].bounds.size.width, 320);
-            //[searchView removeFromSuperview];
+            
             if ([name isEqualToString:@"No Man's Land"] ||
                 [name isEqualToString:@"The End"]) {
                 [self animateRewards];
+            }
+            else{
+                [searchView removeFromSuperview];
+                currentTime = 3600;
+                countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
+                [timerLabel setFont:[UIFont fontWithName:@"Rockwell" size:26]];
+                UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+                [timerLabel setTextColor:redText];
+                timerLabel.hidden = NO;
+                sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
             }
         }
         //sepia image if locked
@@ -411,6 +397,7 @@
             CIContext* context = [CIContext contextWithOptions:nil];
             CGImageRef imgRef = [context createCGImage:outputImage fromRect:outputImage.extent] ;
             movieThumb = [UIImage imageWithCGImage:imgRef scale:1.0 orientation:UIImageOrientationUp];
+            CGImageRelease(imgRef);
             
         }
     }
@@ -434,7 +421,6 @@
     //guarantees the the mapView didUpdateUserLocation is called
     mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
     [self setPinsLoaded:NO];
-    mvFoursquare.showsUserLocation = YES;
     if (!locationManager){
         locationManager = [[CLLocationManager alloc] init];
         [locationManager setDelegate:self];
@@ -442,6 +428,27 @@
     [locationManager startUpdatingLocation];
 
 
+}
+-(void)updateTimer:(NSTimer *)timer {
+    currentTime -= 1 ;
+    [self populateLabelwithTime:currentTime];
+    if(currentTime <=0)
+        [countDownTimer invalidate];
+    //NSLog(@"updatetimer");
+}
+
+
+- (void)populateLabelwithTime:(int)seconds {
+    //int seconds = milliseconds/1000;
+    int minutes = seconds / 60;
+    int hours = minutes / 60;
+    
+    seconds -= minutes * 60;
+    minutes -= hours * 60;
+    
+    NSString * result1 = [NSString stringWithFormat:@"%02d:%02d:%02d", hours, minutes, seconds];
+    timerLabel.text = result1;
+    
 }
 -(void) gameSavetNotif: (NSNotification *) notif
 {
@@ -498,40 +505,7 @@
 
 #pragma mark - 
 #pragma mark - Map View Delegate methods
-/*
-- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
-{
-	// didUpdateUserLocation tend to repeat at times
-	// so to not get a duplicated pin(s)
-    CLLocationAccuracy accuracy = userLocation.location.horizontalAccuracy;
-	if ([self isPinsLoaded] || !(accuracy > 0)) return;
-    
-    [self setPinsLoaded: YES];
-    
-    //figure out how to keep showing location without frequent updates
-    mvFoursquare.showsUserLocation = NO;
-    
-    NSLog(@"mapdidupdate location accuracy %f", accuracy);
-    userCoordinate = [userLocation coordinate];
-    
-    NSString *lat = [NSString stringWithFormat:@"%f", userLocation.coordinate.latitude];
-    NSString *lon = [NSString stringWithFormat:@"%f", userLocation.coordinate.longitude];
-    [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:categoryId WithBlock:^(NSArray *venues, NSError *error) {
-        if (error) {
-            NSLog(@"error %@", error);
-        }
-        [self processVenues:venues : error];
-        
-    }];
 
-}
-- (void) mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error
-{
-    NSLog(@"map location error is called - %@", error);
-    [self processVenues:nil :error];
-    
-}
- */
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
     
@@ -556,10 +530,6 @@
         //annotationView.image = ((FoursquareAnnotation *)annotation).icon;
         
         // Create a UIButton object to add on the 
-        //UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
-        //[rightButton setTitle:annotation.title forState:UIControlStateNormal];
-        //[annotationView setRightCalloutAccessoryView:rightButton];
-        
         UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
         rightButton.frame = CGRectMake(0, 0, 32, 32);
         rightButton.imageView.layer.cornerRadius = 10.0;
@@ -568,12 +538,9 @@
         [annotationView setRightCalloutAccessoryView:rightButton];
         
         
-        //UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
-        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        leftButton.frame = CGRectMake(0, 0, 32, 32);
-        [leftButton setImage:((FoursquareAnnotation *)annotation).icon forState:UIControlStateNormal];
-        [leftButton setTitle:annotation.title forState:UIControlStateNormal];
-        [annotationView setLeftCalloutAccessoryView:leftButton];
+        UIImageView *leftIcon = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 32, 32)];
+        [leftIcon setImageWithURL:[NSURL URLWithString:((FoursquareAnnotation *)annotation).iconUrl] placeholderImage:[UIImage imageNamed:@"appicon_114"]];
+        [annotationView setLeftCalloutAccessoryView:leftIcon];
         
         return annotationView;
     }
@@ -700,7 +667,6 @@
     
     CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, sceneSVView.bounds.size.height);
     sceneScrollView.contentSize = screenSize;
-    [sceneScrollView setDelegate:self];
     [sceneScrollView addSubview:sceneSVView];
     mvFoursquare.layer.cornerRadius = 10.0;
     
@@ -726,6 +692,9 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"gameSave" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(gameSavetNotif:)
+                                                 name:@"enteredBackground" object:nil];
      
 }
 - (void)viewDidDisappear:(BOOL)animated

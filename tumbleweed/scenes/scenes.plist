@@ -17,9 +17,7 @@
 			<string>Where the hell am I?</string>
 			<key>checkInCopy</key>
 			<string>Sign in to foursquare!!</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_2_ICON-on.png</string>
@@ -40,10 +38,8 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>unlock by checking in at:</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<string>a shady deal is going down at:</string>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_3_ICON-on.png</string>
@@ -68,10 +64,8 @@
 			<key>hintCopy</key>
 			<string>I need a drink...</string>
 			<key>checkInCopy</key>
-			<string>unlock by checking in at:</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<string>take a seat and grab a drink at:</string>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_4_ICON-on.png</string>
@@ -94,12 +88,10 @@
 			<key>posterArt</key>
 			<string></string>
 			<key>hintCopy</key>
-			<string>Fill up your tank, bitch!</string>
+			<string>Fill up your tank!</string>
 			<key>checkInCopy</key>
-			<string>unlock by checking in at:</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<string>He&apos;ll run into you sooner or later here:</string>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_5_ICON-on.png</string>
@@ -124,10 +116,8 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>unlock by checking in at:</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<string>Still here? Give him a scare.</string>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_6_ICON-on.png</string>
@@ -150,7 +140,7 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>wait 2 hours for push notif</string>
+			<string>yikes. they&apos;re gonna find out soon.</string>
 			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
@@ -176,10 +166,8 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>gotta keep moving!</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<string>keep moving and don&apos;t look back.</string>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_8_ICON-on.png</string>
@@ -204,10 +192,8 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>go somewhere new!</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<string>find somewhere new to hide</string>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_9_ICON-on.png</string>
@@ -230,10 +216,8 @@
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>game over, bitches.</string>
-			<key>bonus1</key>
-			<string></string>
-			<key>bonus2</key>
+			<string>game over</string>
+			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_10_ICON-on.png</string>

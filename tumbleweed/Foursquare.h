@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AFFoursquareAPIClient.h"
+#import <AFHTTPRequestOperation.h>
 
 @interface Foursquare : NSObject 
 
@@ -23,5 +24,10 @@ WithBlock:(void (^)(NSArray *venues, NSError *error))block;
           shout:(NSString *) shoutText
       broadcast:(NSString*) broadcastType
     WithBlock:(void (^)(NSDictionary *checkInResponse, NSError *error))block;
+
++ (void)addPhoto:(UIImage*) image
+         checkin:(NSString*) checkInId
+       broadcast:(NSString*) broadcastType;
+
 
 @end

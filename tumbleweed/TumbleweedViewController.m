@@ -261,23 +261,22 @@
         NSLog(@"pressed %@", [[scenes objectAtIndex:sender.tag] name ]);
     }
     [self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
+    //[self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
     /*
     [UIView transitionWithView:self.view
                       duration:1.0f
                        options:UIViewAnimationOptionTransitionCurlDown
                     animations:^{
                         [self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
-                        //[self presentModalViewController:dealScene animated:NO];
                     }
                     completion:NULL];
     */
 }
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
-    NSLog(@"pressed");
     FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
     [fsq setModalTransitionStyle:UIModalTransitionStylePartialCurl];
-    [self presentViewController:fsq animated:YES completion:NULL];  
+    [self presentViewController:fsq animated:YES completion:NULL];
 
 }
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender
@@ -773,8 +772,8 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft 
-            || interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft)
+            || (interfaceOrientation == UIInterfaceOrientationLandscapeRight);
 }
 
 @end
