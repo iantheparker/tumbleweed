@@ -76,7 +76,7 @@
 					<object class="IBUIWebView" id="61470334">
 						<reference key="NSNextResponder" ref="851052031"/>
 						<int key="NSvFlags">274</int>
-						<string key="NSFrameSize">{320, 480}</string>
+						<string key="NSFrameSize">{480, 320}</string>
 						<reference key="NSSuperview" ref="851052031"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="194856208"/>
@@ -136,7 +136,7 @@
 								<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 							</object>
 						</array>
-						<string key="NSFrame">{{244, 89}, {137, 52}}</string>
+						<string key="NSFrame">{{184, 197}, {137, 52}}</string>
 						<reference key="NSSuperview" ref="851052031"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="272589515"/>
@@ -145,16 +145,19 @@
 							<int key="NSColorSpace">3</int>
 							<bytes key="NSWhite">MCAwAA</bytes>
 						</object>
-						<bool key="IBUIClipsSubviews">YES</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 					</object>
 				</array>
-				<string key="NSFrameSize">{320, 480}</string>
+				<string key="NSFrameSize">{480, 320}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="218646659"/>
 				<string key="NSReuseIdentifierKey">_NS:196</string>
 				<reference key="IBUIBackgroundColor" ref="156336062"/>
+				<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
+					<int key="IBUIInterfaceOrientation">3</int>
+					<int key="interfaceOrientation">3</int>
+				</object>
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 			</object>
 		</array>

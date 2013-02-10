@@ -10,7 +10,11 @@
 #import "AFFoursquareAPIClient.h"
 #import <AFHTTPRequestOperation.h>
 
-@interface Foursquare : NSObject 
+@interface Foursquare : NSObject
+
++ (BOOL)startAuthorization;
+
++ (BOOL)handleOpenURL:(NSURL *)url;
 
 + (void)getUserIdWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block;
 
@@ -18,6 +22,7 @@
                          longitude:(NSString*)lon
                         categoryId:(NSString*)category
 WithBlock:(void (^)(NSArray *venues, NSError *error))block;
+
 + (void)cancelSearchVenues;
 
 + (void)checkIn:(NSString*)venueId

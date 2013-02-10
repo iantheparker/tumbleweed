@@ -117,12 +117,21 @@ void uncaughtExceptionHandler(NSException *exception) {
 
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
 {
-    if (!url) {  return NO; }
+    
     
     NSString *URLString = [url absoluteString];
     [[NSUserDefaults standardUserDefaults] setObject:URLString forKey:@"url"];
     [[NSUserDefaults standardUserDefaults] synchronize];
     return YES;
+}
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    if (!url) {  return NO; }
+    NSLog(@"url %@", url);
+    //handle each url separately
+    //nomansland://home#access_token=UT0L5SRHLHNCXFUNO3X4NKMIAFANLZBIWG13PA5F4N2L2F2M
+
+    return [Foursquare handleOpenURL:url];
 }
 
 #pragma mark - Application LifeCycle

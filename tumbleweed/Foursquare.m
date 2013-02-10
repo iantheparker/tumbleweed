@@ -8,9 +8,62 @@
 
 #import "Foursquare.h"
 
+#define kAuthorizeBaseURL       @"https://foursquare.com/oauth2/authorize"
 static int vDate = 20120927;
 
 @implementation Foursquare
+
++ (BOOL) startAuthorization
+{
+    NSMutableArray *pairs = [NSMutableArray array];
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:
+                                [[Environment sharedInstance] foursquare_client_id], @"client_id",
+                                @"token", @"response_type",
+                                [[Environment sharedInstance] callback_url], @"redirect_uri", nil];
+    for (NSString *key in parameters) {
+        NSString *value = [parameters objectForKey:key];
+        CFStringRef escapedValue = CFURLCreateStringByAddingPercentEscapes(NULL, (CFStringRef)value, NULL, CFSTR("%:/?#[]@!$&'()*+,;="), kCFStringEncodingUTF8);
+        NSMutableString *pair = [key mutableCopy];
+        [pair appendString:@"="];
+        [pair appendString:(__bridge NSString *)escapedValue];
+        [pairs addObject:pair];
+        CFRelease(escapedValue);
+    }
+    NSString *URLString = kAuthorizeBaseURL;
+    NSMutableString *mURLString = [URLString mutableCopy];
+    [mURLString appendString:@"?"];
+    [mURLString appendString:[pairs componentsJoinedByString:@"&"]];
+    NSURL *URL = [NSURL URLWithString:mURLString];
+    BOOL result = [[UIApplication sharedApplication] openURL:URL];
+    if (!result) {
+        NSLog(@"*** %s: cannot open url \"%@\"", __PRETTY_FUNCTION__, URL);
+    }
+    return result;
+}
+
++ (BOOL)handleOpenURL:(NSURL *)url
+{
+    if ([[url absoluteString] rangeOfString:[[Environment sharedInstance] callback_url] options:(NSCaseInsensitiveSearch | NSAnchoredSearch)].length == 0) {
+        return NO;
+    }
+    NSString *fragment = [url fragment];
+    NSArray *pairs = [fragment componentsSeparatedByString:@"&"];
+    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
+    for (NSString *pair in pairs) {
+        NSArray *kv = [pair componentsSeparatedByString:@"="];
+        NSString *key = [kv objectAtIndex:0];
+        NSString *val = [[kv objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        [parameters setObject:val forKey:key];
+    }
+    NSString *accessToken = [parameters objectForKey:@"access_token"];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:accessToken forKey:@"access_token"];
+    [defaults synchronize];
+    NSLog(@"access token from handleopenurl is %@", accessToken);
+    //should turn this into a protocol - 
+    [[Tumbleweed weed] performSelectorInBackground:@selector(registerUser) withObject:nil];
+    return YES;
+}
 
 + (void)getUserIdWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block
 {

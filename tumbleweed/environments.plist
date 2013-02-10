@@ -9,7 +9,7 @@
 		<key>foursquare_client_id</key>
 		<string>5D2AM5KIP0MOCIGLRAWLUDWYUVZALAYUXL0FHQ5LGSS2BXQ4</string>
 		<key>callback_url</key>
-		<string>http://tumbleweed.me/auth</string>
+		<string>nomansland://home</string>
 	</dict>
 	<key>Release</key>
 	<dict>
@@ -18,7 +18,7 @@
 		<key>foursquare_client_id</key>
 		<string>RXR0VFFRHB52WFH3B05ST0WX0414O0D5BPG0Y3NYXCTN1PTU</string>
 		<key>callback_url</key>
-		<string>http://tumbleweed.me/auth</string>
+		<string>nomansland://home</string>
 	</dict>
 </dict>
 </plist>

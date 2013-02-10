@@ -274,10 +274,10 @@
 }
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
-    FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
-    [fsq setModalTransitionStyle:UIModalTransitionStylePartialCurl];
-    [self presentViewController:fsq animated:YES completion:NULL];
-
+    //FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
+    //[fsq setModalTransitionStyle:UIModalTransitionStylePartialCurl];
+    //[self presentViewController:fsq animated:YES completion:NULL];
+    [Foursquare startAuthorization];
 }
 - (IBAction)handleSingleTap:(UIGestureRecognizer *)sender
 {
