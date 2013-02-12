@@ -139,7 +139,7 @@
 			<key>position</key>
 			<string>{10366.2, 160}</string>
 			<key>buttonPosition</key>
-			<string>{10297, 120}</string>
+			<string>{10300, 115}</string>
 		</dict>
 		<key>lynch-noose</key>
 		<dict>
@@ -150,7 +150,7 @@
 			<key>position</key>
 			<string>{11662, 160}</string>
 			<key>buttonPosition</key>
-			<string>{11725, 105}</string>
+			<string>{11720, 105}</string>
 		</dict>
 		<key>campfire</key>
 		<dict/>

@@ -34,12 +34,9 @@
 - (void) gameState;
 - (void) saveAvatarPosition;
 
--(void)pauseLayer:(CALayer*)layer;
--(void)resumeLayer:(CALayer*)layer;
-
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;
-- (IBAction) handleSingleTap:(UIGestureRecognizer *)sender;
+- (void) handleSingleTap:(UIGestureRecognizer *)sender;
 
 
 

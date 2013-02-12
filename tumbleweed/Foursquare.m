@@ -38,10 +38,12 @@ static int vDate = 20120927;
     if (!result) {
         NSLog(@"*** %s: cannot open url \"%@\"", __PRETTY_FUNCTION__, URL);
     }
+    NSLog(@"auth url = %@", mURLString);
     return result;
 }
 
 + (BOOL)handleOpenURL:(NSURL *)url
+            WithBlock:(void (^)(NSString *access_token))block
 {
     if ([[url absoluteString] rangeOfString:[[Environment sharedInstance] callback_url] options:(NSCaseInsensitiveSearch | NSAnchoredSearch)].length == 0) {
         return NO;
@@ -60,8 +62,9 @@ static int vDate = 20120927;
     [defaults setObject:accessToken forKey:@"access_token"];
     [defaults synchronize];
     NSLog(@"access token from handleopenurl is %@", accessToken);
-    //should turn this into a protocol - 
-    [[Tumbleweed weed] performSelectorInBackground:@selector(registerUser) withObject:nil];
+    //should turn this into a block - 
+    block(accessToken);
+
     return YES;
 }
 

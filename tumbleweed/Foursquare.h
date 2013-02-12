@@ -10,11 +10,13 @@
 #import "AFFoursquareAPIClient.h"
 #import <AFHTTPRequestOperation.h>
 
+
 @interface Foursquare : NSObject
 
 + (BOOL)startAuthorization;
 
-+ (BOOL)handleOpenURL:(NSURL *)url;
++ (BOOL)handleOpenURL:(NSURL *)url
+WithBlock:(void (^)(NSString *access_token))block;
 
 + (void)getUserIdWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block;
 

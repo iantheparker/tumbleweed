@@ -8,7 +8,13 @@
 
 #import "CheckInController.h"
 
-@implementation CheckInController
+
+@implementation CheckInController{
+@private
+    UIColor *beigeC;
+    UIColor *redC;
+    UIColor *brownC;
+}
 
 @synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView, sceneControllerId, photoButton, facebookButton, twitterButton;
 
@@ -103,15 +109,14 @@
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     switch (sourceType) {
         case UIImagePickerControllerSourceTypeCamera:
-            imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+            if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
+                imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
             break;
         case UIImagePickerControllerSourceTypePhotoLibrary:
-            imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+            if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary])
+                imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
             break;
     }
-#if TARGET_IPHONE_SIMULATOR
-    imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-#endif
     imagePickerController.editing = YES;
     imagePickerController.delegate = (id)self;
     
@@ -131,8 +136,7 @@
     [photoButton setImage:image forState:UIControlStateSelected];
     photoButton.selected = YES;
     [picker dismissModalViewControllerAnimated:NO];
-    UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
-    [photoButton.layer setBorderColor:[redText CGColor]];
+    [photoButton.layer setBorderColor:[redC CGColor]];
 }
 
 -(void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -149,12 +153,10 @@
         case 1:
             [self takePhoto:UIImagePickerControllerSourceTypePhotoLibrary];
 			break;
-        case 2:{
+        case 2:
             //clear old photo
-            UIColor *beigeBorder = [UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:1.0];
-            [photoButton.layer setBorderColor:[beigeBorder CGColor]];
+            [photoButton.layer setBorderColor:[beigeC CGColor]];
             photoButton.selected = NO;
-        }
             break;
 
     }
@@ -179,10 +181,8 @@
 - (void)textViewDidChange:(UITextView *)textView
 {
     characterCounter.text = [NSString stringWithFormat:@"%d/140", (140 - shoutTextView.text.length)];
-    UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
-    [shoutTextView setTextColor:brownText];
-    UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
-    [shoutTextView.layer setBorderColor:[redText CGColor]];
+    [shoutTextView setTextColor:brownC];
+    [shoutTextView.layer setBorderColor:[redC CGColor]];
 
 }
 
@@ -200,27 +200,30 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    //Set UIColors
+    brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
+    beigeC = [UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:1.0];
+    redC = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+    
     NSString *venueName = [venueDetails objectForKey:@"name"];
     [venueNameLabel setText:venueName];
     [venueNameLabel setFont:[UIFont fontWithName:@"rockwell-bold" size:30]];
-    UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
-    [venueNameLabel setTextColor:brownText];
+    [venueNameLabel setTextColor:brownC];
     
     shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check-in. Thanks tumbleweed!";
     shoutTextView.text = shoutText;
     NSLog(@"shoutText is %@", shoutText);
     shoutTextView.layer.cornerRadius = 10.0;
     shoutTextView.clipsToBounds = YES;
-    UIColor *beigeBorder = [UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:1.0];
-    [shoutTextView.layer setBorderColor:[beigeBorder CGColor]];
+    [shoutTextView.layer setBorderColor:[beigeC CGColor]];
     [shoutTextView.layer setBorderWidth:3.0];
     [shoutTextView setFont:[UIFont fontWithName:@"Rockwell" size:15]];
-    [shoutTextView setTextColor:beigeBorder];
+    [shoutTextView setTextColor:beigeC];
     [characterCounter setTextColor:[UIColor grayColor]];
     
     photoButton.layer.cornerRadius = 10.0;
     photoButton.clipsToBounds = YES;
-    [photoButton.layer setBorderColor:[beigeBorder CGColor]];
+    [photoButton.layer setBorderColor:[beigeC CGColor]];
     [photoButton.layer setBorderWidth:3.0];
 
     

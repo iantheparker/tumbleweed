@@ -110,28 +110,22 @@ void uncaughtExceptionHandler(NSException *exception) {
     // upgrade tumbleweed level?
 }
 
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    NSLog(@"local notification was fired off");
-    //trigger animation of unlocking from here?
-}
 
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
-{
-    
-    
-    NSString *URLString = [url absoluteString];
-    [[NSUserDefaults standardUserDefaults] setObject:URLString forKey:@"url"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    return YES;
-}
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
     if (!url) {  return NO; }
     NSLog(@"url %@", url);
     //handle each url separately
-    //nomansland://home#access_token=UT0L5SRHLHNCXFUNO3X4NKMIAFANLZBIWG13PA5F4N2L2F2M
+    if ([[url absoluteString] rangeOfString:@"home"].location != NSNotFound){
+        //nomansland://home#access_token=UT0L5SRHLHNCXFUNO3X4NKMIAFANLZBIWG13PA5F4N2L2F2M
+        [Foursquare handleOpenURL:url WithBlock:^(NSString *access_token) {
+            if (access_token) {
+                [[Tumbleweed weed] registerUser];
+            }
+        }];
+    }
 
-    return [Foursquare handleOpenURL:url];
+    return YES;
 }
 
 #pragma mark - Application LifeCycle
@@ -142,8 +136,7 @@ void uncaughtExceptionHandler(NSException *exception) {
      Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
      Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      */
-    [viewController pauseLayer:nil];
-    NSLog(@"appwill resign active");
+    //NSLog(@"appwill resign active");
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -157,7 +150,6 @@ void uncaughtExceptionHandler(NSException *exception) {
     [viewController dismissViewControllerAnimated:NO completion:^{}];
     [viewController dismissModalViewControllerAnimated:NO];
     [[Tumbleweed weed] saveTumbleweed];
-    [viewController pauseLayer:nil];
     NSLog(@"did enter background");
     [[NSNotificationCenter defaultCenter] postNotificationName:@"enteredBackground" object:self];
 }
@@ -176,7 +168,6 @@ void uncaughtExceptionHandler(NSException *exception) {
      */
     [[Tumbleweed weed] getUserUpdates];
     [UIApplication sharedApplication].applicationIconBadgeNumber=0;
-    //[viewController resumeLayer:nil];
     NSLog(@"appwill become active");
 
 }

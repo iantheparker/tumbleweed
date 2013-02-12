@@ -30,9 +30,8 @@
 
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) scenePressed:(UIButton*)sender;
-//-(void)pauseLayer:(CALayer*)layer;
-//-(void)resumeLayer:(CALayer*)layer;
 -(void) renderScreen: (BOOL) direction : (BOOL) moving;
+-(void) loadAvatarPosition;
 -(CGRect) selectAvatarBounds:(float) position;
 -(void)startCampfire;
 -(void) updateSceneButtonStates;
@@ -105,6 +104,12 @@
     [defaults setFloat:scrollView.contentOffset.x forKey:@"scroll_view_position"];
     [defaults setBool:walkingForward forKey:@"walkingForward"];
     NSLog(@"saving Jane's position");
+}
+- (void) loadAvatarPosition
+{
+    CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
+    NSLog(@"loading saved center %f", center.x);
+    scrollView.contentOffset = center;
 }
 - (void) renderScreen: (BOOL) direction :(BOOL) moving
 {
@@ -211,23 +216,6 @@
 #pragma mark -
 #pragma mark animation controls
 
--(void)pauseLayer:(CALayer*)layer
-{
-    if (!layer) layer = map1CA;
-    CFTimeInterval pausedTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil];
-    layer.speed = 0.0;
-    layer.timeOffset = pausedTime;
-}
--(void)resumeLayer:(CALayer*)layer
-{
-    if (!layer) layer = map1CA;
-    CFTimeInterval pausedTime = [layer timeOffset];
-    layer.speed = 1.0;
-    layer.timeOffset = 0.0;
-    layer.beginTime = 0.0;
-    CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - pausedTime;
-    layer.beginTime = timeSincePause;
-}
 -(void) startCampfire
 {
     [blackPanel removeFromSuperlayer];
@@ -235,20 +223,21 @@
     //should read from plist if i want to support non-retina
     CGSize fixedSize = CGSizeMake(256, 289);
     CGImageRef campfireImage = [[UIImage imageNamed:@"campfire"] CGImage];
-    MCSpriteLayer* campefireSprite = [MCSpriteLayer layerWithImage:campfireImage sampleSize:fixedSize];
-    campefireSprite.position = CGPointMake(scrollView.contentSize.width - (fixedSize.width - 14), scrollView.contentSize.height/2 + 26);
+    MCSpriteLayer* campfireSprite = [MCSpriteLayer layerWithImage:campfireImage sampleSize:fixedSize];
+    campfireSprite.position = CGPointMake(scrollView.contentSize.width - (fixedSize.width - 14), scrollView.contentSize.height/2 + 26);
     
     CABasicAnimation *campfireAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
     campfireAnimation.fromValue = [NSNumber numberWithInt:1];
     campfireAnimation.toValue = [NSNumber numberWithInt:5];
     campfireAnimation.duration = .40f;
     campfireAnimation.repeatCount = HUGE_VALF;
+    campfireAnimation.removedOnCompletion = NO;
     
-    [campefireSprite addAnimation:campfireAnimation forKey:nil];
-    [map1CA addSublayer:campefireSprite];
+    [campfireSprite addAnimation:campfireAnimation forKey:nil];
+    [map1CA addSublayer:campfireSprite];
     //add button
     
-    [[scenes.lastObject button] setCenter:CGPointMake(campefireSprite.position.x-3, campefireSprite.position.y + 40)];
+    [[scenes.lastObject button] setCenter:CGPointMake(campfireSprite.position.x-3, campfireSprite.position.y + 40)];
     [scrollView addSubview:[scenes.lastObject button]];
 }
 #pragma mark - 
@@ -256,10 +245,12 @@
 
 - (void) scenePressed:(UIButton *)sender
 {
+    /*
     if (![[scenes objectAtIndex:sender.tag] sceneVC]) {
         [[scenes objectAtIndex:sender.tag] setSceneVC:[[SceneController alloc] initWithScene:[scenes objectAtIndex:sender.tag]]];
         NSLog(@"pressed %@", [[scenes objectAtIndex:sender.tag] name ]);
     }
+     */
     [self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
     //[self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
     /*
@@ -274,12 +265,10 @@
 }
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
-    //FoursquareAuthViewController *fsq = [[FoursquareAuthViewController alloc] init];
-    //[fsq setModalTransitionStyle:UIModalTransitionStylePartialCurl];
-    //[self presentViewController:fsq animated:YES completion:NULL];
     [Foursquare startAuthorization];
+    NSLog(@"hi");
 }
-- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender
+- (void) handleSingleTap:(UIGestureRecognizer *)sender
 {
     CGPoint loc = [sender locationInView:mapCAView];
     //NSLog(@"touched %f,%f ", loc.x, loc.y);
@@ -318,7 +307,7 @@
             break;
             
         case 7:
-            [self performSelector:@selector(startCampfire)];
+            [self startCampfire];
             break;
         default:
             //not logged in
@@ -331,6 +320,13 @@
 -(void) updateSceneButtonStates
 {
     NSLog(@"update scene with level %d", [Tumbleweed weed].tumbleweedLevel);
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
+        NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
+        foursquareConnectButton.enabled = NO;
+        UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
+        [scrollView addGestureRecognizer:tapHandler];
+    }
+    
     //start this loop at 1 because scene 0 is the intro and that should always be accessible
     for (int i = 1; i < scenes.count; i++)
     {
@@ -341,7 +337,6 @@
             [[scenes objectAtIndex:i] button].enabled = NO;
         }
         else if ([[scenes objectAtIndex:i] level] == [Tumbleweed weed].tumbleweedLevel) {
-            //using scene unlock bool 
             [[scenes objectAtIndex:i] button].enabled = YES;
         }
         else if ([[scenes objectAtIndex:i] level] < [Tumbleweed weed].tumbleweedLevel){
@@ -490,9 +485,6 @@
     
     mapCAView.frame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [scrollView addSubview:mapCAView];
-    UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-    [scrollView addGestureRecognizer:tapHandler];
-    
     
     NSString *sceneplistPath = [[NSBundle mainBundle] pathForResource:@"scenes" ofType:@"plist"];
     NSDictionary *scenemainDict = [NSDictionary dictionaryWithContentsOfFile:sceneplistPath];
@@ -576,7 +568,7 @@
         CGSize fixedSize = CGSizeMake(264, 253);
         CGImageRef cactusbirdimg = [[UIImage imageNamed:@"cactusbird"] CGImage];
         MCSpriteLayer* cactusbird = [MCSpriteLayer layerWithImage:cactusbirdimg sampleSize:fixedSize];
-        cactusbird.position = CGPointMake(10440, 90);
+        cactusbird.position = CGPointMake(10444, 86);
         
         CAKeyframeAnimation *cactusbirdAnimation = [CAKeyframeAnimation animationWithKeyPath:@"sampleIndex"];
         cactusbirdAnimation.duration = 5.0f;
@@ -667,6 +659,15 @@
         
         [eyesSprite addAnimation:eyesAnimation forKey:@"eyeBlink"];
         [blackPanel addSublayer:eyesSprite];
+        
+        CALayer *progressBar = [CALayer layer];
+        UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all.jpg"];
+        progressBar.bounds = CGRectMake(0, 0, progBarimg.size.width, progBarimg.size.height);
+        [progressBar setPosition:CGPointMake(eyesSprite.position.x, eyesSprite.position.y + (screenSize.height-(eyesSprite.position.y + eyesSprite.bounds.size.height/2))/2)];
+        CGImageRef progCGImage = [progBarimg CGImage];
+        [progressBar setContents:(__bridge id)progCGImage];
+        [blackPanel addSublayer:progressBar];
+        
     }
     //-->bird animation
     {
@@ -680,6 +681,7 @@
         birdAnimation.toValue = [NSNumber numberWithInt:15];
         birdAnimation.duration = 2.0f;
         birdAnimation.repeatCount = HUGE_VALF;
+        birdAnimation.removedOnCompletion = NO;
         
         [birdSprite addAnimation:birdAnimation forKey:@"birdCircle"];
         [mapCAView.layer addSublayer:birdSprite];
@@ -697,6 +699,7 @@
         riverAnimation.toValue = [NSNumber numberWithInt:3];
         riverAnimation.duration = 1.4f;
         riverAnimation.repeatCount = HUGE_VALF;
+        riverAnimation.removedOnCompletion = NO;
         
         [riverSprite addAnimation:riverAnimation forKey:@"riverWaves"];
         [mapCAView.layer addSublayer:riverSprite];
@@ -721,53 +724,23 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    CGPoint center = CGPointMake([[NSUserDefaults standardUserDefaults] floatForKey:@"scroll_view_position"], 0);
-    NSLog(@"saved center %f", center.x);
-    scrollView.contentOffset = center;
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] && [[Tumbleweed weed] tumbleweedId]){
-        NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
-        foursquareConnectButton.enabled = NO;
-    }
+    [self loadAvatarPosition];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"gameSave" object:nil];
     [self gameState];
-    //[self resumeLayer:mapCAView.layer];
-    //[self resumeLayer:map1CA];
-    //[self resumeLayer:map1BCA];
 
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    
-    
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[super viewWillDisappear:animated];
     [self saveAvatarPosition];
-    //[self pauseLayer:[mapCAView.layer presentationLayer]];
-    //[self gameState];
-    //[self pauseLayer:map1BCA];
-    //[self pauseLayer:map1CA];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
-	[super viewDidDisappear:animated];
-}
 
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc that aren't in use.
-}
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {

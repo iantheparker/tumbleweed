@@ -10,16 +10,13 @@
 
 @implementation Scene
 
-@synthesize name, categoryId, movieName, movieThumbnail, posterArt, unlocked, accessible, checkInResponse, recentSearchVenueResults, date, hintCopy, checkInCopy, checkedVenue, level, bonus;
-@synthesize button, sceneVC;
+@synthesize button, level, sceneVC, pListDetails, hintCopy;
 
 
 - (id) init
 {
     self = [super init];
     if (self) {
-        unlocked = FALSE;
-        accessible = FALSE;
     }
     
     return self;
@@ -28,16 +25,9 @@
 - (id) initWithDictionary:(NSMutableDictionary *) plistDict
 {
     self = [self init];
-    name = [plistDict objectForKey:@"name"];
-    categoryId = [plistDict objectForKey:@"categoryId"];
-    movieName = [plistDict objectForKey:@"movieName"];
-    movieThumbnail = [plistDict objectForKey:@"movieThumbnail"];
-    posterArt = [plistDict objectForKey:@"posterArt"];
-    hintCopy = [plistDict objectForKey:@"hintCopy"];
-    checkInCopy = [plistDict objectForKey:@"checkInCopy"];
     level = [[plistDict objectForKey:@"level"] integerValue];
-    //bonus = [plistDict objectForKey:@"bonus"];
-    bonus = [NSString stringWithFormat:@"%d", level];
+    hintCopy = [plistDict objectForKey:@"hintCopy"];
+    pListDetails = [NSMutableDictionary dictionaryWithDictionary:plistDict];
     
     button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.frame = CGRectMake(64, 40, 80, 80);
@@ -55,11 +45,16 @@
         [button setImage:buttonImg3 forState:UIControlStateSelected];
     }
     
-    
     return self;
 }
 
-
+- (SceneController*) sceneVC
+{
+    if (!sceneVC) {
+        return [[SceneController alloc] initWithScene:self];
+    }
+    return sceneVC;
+}
 
 
 @end

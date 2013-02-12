@@ -15,7 +15,7 @@
 #import <CoreImage/CoreImage.h>
 #import <AVFoundation/AVFoundation.h>
 #import "Scene.h"
-
+@class Scene;
 
 
 @interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate>
@@ -26,14 +26,13 @@
     IBOutlet UILabel *checkInIntructions;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
-    IBOutlet UIImageView *movieThumbnailImageView;
     IBOutlet UIActivityIndicatorView *activityIndicator;
     IBOutlet UIButton *refreshButton;
     IBOutlet UIButton *leftScroll;
     IBOutlet UIButton *rightScroll;
     IBOutlet MKMapView *mvFoursquare;
     IBOutlet UIView *searchView;
-    IBOutlet UIButton *playButton;
+    IBOutlet UIButton *movieThumbnailButton;
     IBOutlet UIView *extrasView;
     IBOutlet UILabel *timerLabel;
     CLLocationManager *locationManager;
@@ -51,7 +50,6 @@
 @property (nonatomic, retain) UIView *sceneSVView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIView *venueView;
-@property (nonatomic, retain) UIImageView *movieThumbnailImageView;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
 @property (nonatomic, retain) NSMutableDictionary *allVenues;
@@ -61,7 +59,7 @@
 @property (nonatomic, retain) UIActivityIndicatorView *activityIndicator;
 @property (nonatomic, retain) UIButton *leftScroll;
 @property (nonatomic, retain) UIButton *rightScroll;
-@property (nonatomic, retain) UIButton *playButton;
+@property (nonatomic, retain) UIButton *movieThumbnailButton;
 @property (nonatomic, retain) UIView *extrasView;
 @property (nonatomic, readonly) Scene *scene;
 

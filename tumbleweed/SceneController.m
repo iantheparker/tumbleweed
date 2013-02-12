@@ -25,7 +25,6 @@
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) NSString *categoryId;
 @property (nonatomic, retain) NSString *movieName;
-@property (nonatomic, retain) NSString *movieThumbnail;
 @property (nonatomic, retain) NSString *posterArt;
 @property (nonatomic, retain) NSString *checkInCopy;
 @property (nonatomic, retain) NSString *bonusUrl;
@@ -47,17 +46,18 @@
     CLLocationCoordinate2D userCoordinate;
     NSTimer *countDownTimer;
     int currentTime;
-    
+    UIColor *redC;
+    UIColor *brownC;
     
 }
 //plist properties
-@synthesize name, categoryId, movieName, movieThumbnail, posterArt, checkInCopy, bonusUrl;
+@synthesize name, categoryId, movieName, posterArt, checkInCopy, bonusUrl;
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
 @synthesize venueScrollView, venueDetailNib, venueView, allVenues, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
 //generic properties
-@synthesize sceneScrollView, movieThumbnailImageView, sceneTitle, checkInIntructions, playButton, moviePlayer, extrasView;
+@synthesize sceneScrollView, sceneTitle, checkInIntructions, movieThumbnailButton, moviePlayer, extrasView;
 
 
 - (id) initWithScene:(Scene *) scn
@@ -67,23 +67,11 @@
     if (self) {
         _scene = scn;
         
-        name = scn.name;
-        categoryId = scn.categoryId;
-        movieName = scn.movieName;
-        movieThumbnail = scn.movieThumbnail;
-        posterArt = scn.posterArt;
-        checkInCopy = scn.checkInCopy;
-        bonusUrl = scn.bonus;
-         
-    }
-    return self;
-}
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    
-    if (self) {
+        name = [scn.pListDetails objectForKey:@"name"];
+        categoryId = [scn.pListDetails objectForKey:@"categoryId"];
+        movieName = [scn.pListDetails objectForKey:@"movieName"];
+        checkInCopy = [scn.pListDetails objectForKey:@"checkInCopy"];
+        bonusUrl = [NSString stringWithFormat:@"%d", scn.level];
     }
     return self;
 }
@@ -256,8 +244,7 @@
         
         NSLog(@"items %@, itemsArrayLength %d, error %@, namelable %@", items, itemsArrayLength, err.domain, nameLabel.text);
         [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-        UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
-        [nameLabel setTextColor:redText];
+        [nameLabel setTextColor:redC];
         [nameLabel setClearsContextBeforeDrawing:YES];
         [venueDetailNib setCenter:CGPointMake(nibwidth/2, nibheight/2)];
         [venueView addSubview:venueDetailNib];
@@ -288,8 +275,7 @@
             [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
             //[nameLabel setTextAlignment:UITextAlignmentCenter];
             [nameLabel setText:vName];
-            UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
-            [nameLabel setTextColor:redText];
+            [nameLabel setTextColor:redC];
             [nameLabel setClearsContextBeforeDrawing:YES];
             
             offset = (int)(nibwidth + padding) * i; 
@@ -343,12 +329,11 @@
     } completion:^(BOOL finished) {
         [searchView removeFromSuperview];
         [checkInIntructions removeFromSuperview];
-        [UIView transitionWithView:movieThumbnailImageView
+        [UIView transitionWithView:movieThumbnailButton
                           duration:0.2f
                            options:UIViewAnimationOptionTransitionCrossDissolve
                         animations:^{
-                            movieThumbnailImageView.image = [UIImage imageNamed:movieThumbnail];
-                            playButton.enabled = YES;
+                            movieThumbnailButton.enabled = YES;
                             extrasView.alpha = 1.0;
                             
                         } completion:NULL];
@@ -357,12 +342,11 @@
 }
 - (void) refreshView
 {
-    UIImage *movieThumb = [UIImage imageNamed:movieThumbnail];
 
     if (_scene.level == [Tumbleweed weed].tumbleweedLevel) {
         // load up initial state
         //checkInIntructions.text = checkInCopy;
-        //playButton.enabled = NO;
+        movieThumbnailButton.enabled = NO;
         
         if (categoryId) {
             [self searchSetup];
@@ -380,33 +364,18 @@
                 currentTime = 3600;
                 countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
                 [timerLabel setFont:[UIFont fontWithName:@"Rockwell" size:26]];
-                UIColor *redText = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
-                [timerLabel setTextColor:redText];
+                [timerLabel setTextColor:redC];
                 timerLabel.hidden = NO;
                 sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
             }
         }
-        //sepia image if locked
-        {
-            CIImage *inputImage = [[CIImage alloc] initWithCGImage:[[UIImage imageNamed:movieThumbnail] CGImage]];
-            CIFilter *adjustmentFilter = [CIFilter filterWithName:@"CISepiaTone"];
-            [adjustmentFilter setDefaults];
-            [adjustmentFilter setValue:inputImage forKey:@"inputImage"];
-            [adjustmentFilter setValue:[NSNumber numberWithFloat:1.0f] forKey:@"inputIntensity"];
-            CIImage *outputImage = [adjustmentFilter valueForKey:@"outputImage"];
-            CIContext* context = [CIContext contextWithOptions:nil];
-            CGImageRef imgRef = [context createCGImage:outputImage fromRect:outputImage.extent] ;
-            movieThumb = [UIImage imageWithCGImage:imgRef scale:1.0 orientation:UIImageOrientationUp];
-            CGImageRelease(imgRef);
-            
-        }
+        
     }
     else{
         //load unlocked state
         [self animateRewards];
         
     }
-    movieThumbnailImageView.image = movieThumb;
 
 }
 - (void) searchSetup
@@ -420,6 +389,7 @@
     
     //guarantees the the mapView didUpdateUserLocation is called
     mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
+    mvFoursquare.showsUserLocation = YES;
     [self setPinsLoaded:NO];
     if (!locationManager){
         locationManager = [[CLLocationManager alloc] init];
@@ -539,7 +509,7 @@
         
         
         UIImageView *leftIcon = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 32, 32)];
-        [leftIcon setImageWithURL:[NSURL URLWithString:((FoursquareAnnotation *)annotation).iconUrl] placeholderImage:[UIImage imageNamed:@"appicon_114"]];
+        [leftIcon setImageWithURL:[NSURL URLWithString:((FoursquareAnnotation *)annotation).iconUrl] placeholderImage:[UIImage imageNamed:@"fsq_catIcon_none"]];
         [annotationView setLeftCalloutAccessoryView:leftIcon];
         
         return annotationView;
@@ -652,18 +622,31 @@
     // Do any additional setup after loading the view from its nib.
 
     [self refreshView];
+    
+    //set UIColors
+    brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
+    redC = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
         
-
-    [playButton setImage:[UIImage imageNamed:@"play_icon.png"] forState:UIControlStateNormal];
-    [playButton setImage:[UIImage imageNamed:@"lock_icon.png"] forState:UIControlStateDisabled];
-
     sceneTitle.text = name;
     sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:30];
-    UIColor *brownText = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
-    [sceneTitle setTextColor:brownText];
+    [sceneTitle setTextColor:brownC];
     checkInIntructions.font = [UIFont fontWithName:@"rockwell" size:18];
-    [checkInIntructions setTextColor:brownText];
+    [checkInIntructions setTextColor:brownC];
     checkInIntructions.text = checkInCopy;
+    
+    NSString *imgName1 =[_scene.pListDetails objectForKey:@"movieButtonOn"];
+    UIImage *buttonImg = [UIImage imageNamed:imgName1];
+    [movieThumbnailButton setImage:buttonImg forState:UIControlStateNormal];
+    
+    NSString *imgName2 =[_scene.pListDetails objectForKey:@"movieButtonPressed"];
+    UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
+    [movieThumbnailButton setImage:buttonImg2 forState:UIControlStateHighlighted];
+    
+    if ([_scene.pListDetails objectForKey:@"movieButtonOff"]) {
+        NSString *imgName3 =[_scene.pListDetails objectForKey:@"movieButtonOff"];
+        UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
+        [movieThumbnailButton setImage:buttonImg3 forState:UIControlStateDisabled];
+    }
     
     CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, sceneSVView.bounds.size.height);
     sceneScrollView.contentSize = screenSize;

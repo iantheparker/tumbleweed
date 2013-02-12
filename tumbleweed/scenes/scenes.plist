@@ -9,10 +9,10 @@
 			<string>No Man&apos;s Land</string>
 			<key>movieName</key>
 			<string>intro</string>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S1-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S1-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S1-onPRESS.jpg</string>
 			<key>hintCopy</key>
 			<string>Where the hell am I?</string>
 			<key>checkInCopy</key>
@@ -29,12 +29,14 @@
 			<integer>0</integer>
 			<key>movieName</key>
 			<string>deal</string>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S2-col.jpg</string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S2-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S2-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S2-OFF.jpg</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
-			<key>posterArt</key>
-			<string></string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
@@ -57,10 +59,12 @@
 			<string>bar</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06376d81259</string>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S3-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S3-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S3-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S3-OFF.jpg</string>
 			<key>hintCopy</key>
 			<string>I need a drink...</string>
 			<key>checkInCopy</key>
@@ -83,10 +87,12 @@
 			<string>gasStation</string>
 			<key>categoryId</key>
 			<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S4-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S4-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S4-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S4-OFF.jpg</string>
 			<key>hintCopy</key>
 			<string>Fill up your tank!</string>
 			<key>checkInCopy</key>
@@ -109,10 +115,12 @@
 			<integer>3</integer>
 			<key>movieName</key>
 			<string>riverbed1</string>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S5-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S5-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S5-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S5-OFF.jpg</string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
@@ -127,16 +135,20 @@
 			<string>top_lvl4_objs_6_ICON-press.png</string>
 		</dict>
 		<dict>
+			<key>categoryId</key>
+			<string>4bf58dd8d48988d12d941735</string>
 			<key>name</key>
 			<string>The Body</string>
 			<key>movieName</key>
 			<string>riverbed2</string>
 			<key>level</key>
 			<integer>4</integer>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S6-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S6-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S6-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S6-OFF.jpg</string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
@@ -157,16 +169,18 @@
 			<string>chase</string>
 			<key>level</key>
 			<integer>5</integer>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S7-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S7-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S7-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S7-OFF.jpg</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>keep moving and don&apos;t look back.</string>
+			<string>find somewhere new to hide.</string>
 			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
@@ -183,16 +197,18 @@
 			<string>lynch</string>
 			<key>level</key>
 			<integer>6</integer>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S8-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S8-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S8-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S8-OFF.jpg</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
-			<string>find somewhere new to hide</string>
+			<string>keep moving and don&apos;t look back.</string>
 			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
@@ -209,10 +225,10 @@
 			<string>campfire</string>
 			<key>level</key>
 			<integer>7</integer>
-			<key>movieThumbnail</key>
-			<string>video_thumbnail_S9-col.jpg</string>
-			<key>posterArt</key>
-			<string></string>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S9-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S9-onPRESS.jpg</string>
 			<key>hintCopy</key>
 			<string></string>
 			<key>checkInCopy</key>
