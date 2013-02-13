@@ -51,7 +51,7 @@
 - (SceneController*) sceneVC
 {
     if (!sceneVC) {
-        return [[SceneController alloc] initWithScene:self];
+        sceneVC = [[SceneController alloc] initWithScene:self];
     }
     return sceneVC;
 }

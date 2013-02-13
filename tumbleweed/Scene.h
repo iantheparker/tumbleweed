@@ -17,13 +17,13 @@
     UIButton *button;
     int level;
     NSString *hintCopy;
-    __weak SceneController *sceneVC;
+    SceneController *sceneVC;
     NSMutableDictionary *pListDetails;
 
 }
 
 @property (nonatomic, retain) UIButton *button;
-@property (nonatomic ,weak) SceneController *sceneVC;
+@property (nonatomic ) SceneController *sceneVC;
 @property (nonatomic) int level;
 @property (nonatomic, retain) NSString *hintCopy;
 @property (nonatomic, retain) NSMutableDictionary *pListDetails;

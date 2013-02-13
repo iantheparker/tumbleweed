@@ -245,12 +245,6 @@
 
 - (void) scenePressed:(UIButton *)sender
 {
-    /*
-    if (![[scenes objectAtIndex:sender.tag] sceneVC]) {
-        [[scenes objectAtIndex:sender.tag] setSceneVC:[[SceneController alloc] initWithScene:[scenes objectAtIndex:sender.tag]]];
-        NSLog(@"pressed %@", [[scenes objectAtIndex:sender.tag] name ]);
-    }
-     */
     [self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
     //[self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
     /*
@@ -601,7 +595,7 @@
         [cactusbird addAnimation:cactusbirdAnimation forKey:@"cactusbird"];
         [(CALayer*)parallaxLayers.lastObject addSublayer:cactusbird];
         }
-    //-->campFire eyes animation
+    //-->progress bar animation
     {
         blackPanel = [CALayer layer];
         [blackPanel setBounds:CGRectMake(0, 0, 340, screenSize.height)];

@@ -20,6 +20,12 @@
 #define MAP_LATITUDE_OFFSET .0014
 #define MAX_DEGREES_ARC 360
 
+typedef enum {
+    kSceneEmpty,
+    kSceneMap,
+    kSceneTimer
+} SceneType;
+
 @interface SceneController()
 
 @property (nonatomic, retain) NSString *name;
@@ -28,6 +34,8 @@
 @property (nonatomic, retain) NSString *posterArt;
 @property (nonatomic, retain) NSString *checkInCopy;
 @property (nonatomic, retain) NSString *bonusUrl;
+@property (nonatomic, assign) SceneType type;
+
 @property (nonatomic) unsigned int venueSVPos;
 
 -(void)zoomMapViewToFitAnnotations:(MKMapView *)mapView animated:(BOOL)animated;
@@ -135,6 +143,7 @@
                      }];
     
 }
+
 - (IBAction)rightScroll:(id)sender
 {
     self.venueSVPos += 1;
@@ -634,18 +643,21 @@
     [checkInIntructions setTextColor:brownC];
     checkInIntructions.text = checkInCopy;
     
-    NSString *imgName1 =[_scene.pListDetails objectForKey:@"movieButtonOn"];
-    UIImage *buttonImg = [UIImage imageNamed:imgName1];
-    [movieThumbnailButton setImage:buttonImg forState:UIControlStateNormal];
-    
-    NSString *imgName2 =[_scene.pListDetails objectForKey:@"movieButtonPressed"];
-    UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
-    [movieThumbnailButton setImage:buttonImg2 forState:UIControlStateHighlighted];
-    
-    if ([_scene.pListDetails objectForKey:@"movieButtonOff"]) {
-        NSString *imgName3 =[_scene.pListDetails objectForKey:@"movieButtonOff"];
-        UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
-        [movieThumbnailButton setImage:buttonImg3 forState:UIControlStateDisabled];
+    //movieButton settings
+    {
+        NSString *imgName1 =[_scene.pListDetails objectForKey:@"movieButtonOn"];
+        UIImage *buttonImg = [UIImage imageNamed:imgName1];
+        [movieThumbnailButton setImage:buttonImg forState:UIControlStateNormal];
+        
+        NSString *imgName2 =[_scene.pListDetails objectForKey:@"movieButtonPressed"];
+        UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
+        [movieThumbnailButton setImage:buttonImg2 forState:UIControlStateHighlighted];
+        
+        if ([_scene.pListDetails objectForKey:@"movieButtonOff"]) {
+            NSString *imgName3 =[_scene.pListDetails objectForKey:@"movieButtonOff"];
+            UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
+            [movieThumbnailButton setImage:buttonImg3 forState:UIControlStateDisabled];
+        }
     }
     
     CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, sceneSVView.bounds.size.height);
