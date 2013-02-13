@@ -19,7 +19,7 @@ static Tumbleweed *weed = nil;
 
 @implementation Tumbleweed
 
-@synthesize locationManager, fsqFirstName, fsqId, fsqLastName, tumbleweedId;
+@synthesize fsqFirstName, fsqId, fsqLastName, tumbleweedId;
 @synthesize sceneState;
 @synthesize tumbleweedLevel;
 
@@ -53,20 +53,11 @@ static Tumbleweed *weed = nil;
         
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         NSMutableDictionary *myEncodedObject = [defaults objectForKey:@"tumbleweed"];
-        fsqId = [myEncodedObject objectForKey:@"fsqId"];
-        fsqFirstName = [myEncodedObject objectForKey:@"fsqFirstName"];
-        fsqLastName = [myEncodedObject objectForKey:@"fsqLastName"];
         tumbleweedLevel = [[myEncodedObject objectForKey:@"tumbleweedLevel"] intValue];
-        sceneState = [myEncodedObject objectForKey:@"sceneState"];
         tumbleweedId = [myEncodedObject objectForKey:@"tumbleweedId"];
         NSLog(@"using stored tumbleweed %@", myEncodedObject);
     }
-    else{
-        sceneState = [NSMutableArray arrayWithObjects:
-                      [NSNumber numberWithBool:NO],
-                      [NSNumber numberWithBool:NO],
-                      [NSNumber numberWithBool:NO], nil];
-    }
+   
 }
 - (void) saveTumbleweed
 {
@@ -84,6 +75,34 @@ static Tumbleweed *weed = nil;
     //update game state
     [[NSNotificationCenter defaultCenter] postNotificationName:@"gameSave" object:self];
     
+}
+
++ (Tumbleweed *)sharedClient {
+    static Tumbleweed *_sharedClient = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedClient = [[Tumbleweed alloc] initWithDefaults];
+    });
+    
+    return _sharedClient;
+}
+
+- (id)initWithDefaults
+{
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"tumbleweed"])
+    {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        NSMutableDictionary *myEncodedObject = [defaults objectForKey:@"tumbleweed"];
+        self.tumbleweedLevel = [[myEncodedObject objectForKey:@"tumbleweedLevel"] intValue];
+        self.tumbleweedId = [myEncodedObject objectForKey:@"tumbleweedId"];
+        NSLog(@"using stored tumbleweed %@", myEncodedObject);
+    }
+    return self;
 }
 /*
 - (void) setTumbleweedLevel:( int)level
@@ -152,29 +171,6 @@ static Tumbleweed *weed = nil;
     return update;
 }
 
-- (void) getUserWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block
-{
-    if (!tumbleweedId) return;
-    NSString *userPath = [NSString stringWithFormat:@"users/%@", tumbleweedId];
-    [[AFTumbleweedClient sharedClient] getPath:userPath parameters:nil
-                                       success:^(AFHTTPRequestOperation *operation, id JSON) {
-                                           tumbleweedLevel = [[[JSON objectForKey:@"user"]objectForKey:@"level"] intValue];
-                                           //sceneState = [self milestonesToSceneState:[JSON objectForKey:@"checkins"]];
-                                           NSLog(@"tumbleweed- getUser json %@", JSON);
-                                           NSDictionary *results = [NSDictionary dictionaryWithDictionary:JSON];
-                                           if (block) {
-                                               block(results, nil);
-                                           }
-                                       } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                                           NSLog(@"tumbleweed- getUser error %@", error);
-                                           if (block) {
-                                               block([NSDictionary dictionary], error);
-                                               NSLog(@"error from getUser %@", error);
-                                           }
-                                       }];
-}
-
-
 - (void) postUserUpdates
 {
     if (!tumbleweedId) return;
@@ -190,51 +186,5 @@ static Tumbleweed *weed = nil;
 }
 
 
-
-
-
-
-
-/*
-#pragma mark -
-#pragma mark - CLLocationManagerDelegate
-
-- (void)startSignificantChangeUpdates
-{
-    // Create the location manager if this object does not
-    // already have one.
-    if (nil == locationManager)
-        locationManager = [[CLLocationManager alloc] init];
-    
-    locationManager.delegate = self;
-    locationManager.distanceFilter = kCLLocationAccuracyThreeKilometers;
-    [locationManager startMonitoringSignificantLocationChanges];
-}
-
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-	NSLog(@"didFailWithError: %@", error);
-}
-
-- (void)locationManager:(CLLocationManager *)manager
-    didUpdateToLocation:(CLLocation *)newLocation
-           fromLocation:(CLLocation *)oldLocation
-{
-    // If it's a relatively recent event, turn off updates to save power
-    NSDate* eventDate = newLocation.timestamp;
-    NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
-    if (abs(howRecent) < 300.0)
-    {
-        NSLog(@"latitude %+.6f, longitude %+.6f\n",
-              newLocation.coordinate.latitude,
-              newLocation.coordinate.longitude);
-        [locationManager stopMonitoringSignificantLocationChanges];
-        //[Tumbleweed weed].desertChase.unlocked = true;
-        // notify the unlocking -- animate the unlocking when back to app
-        //[self scheduleNotificationWithDate:weed.riverBed2.date intervalTime:5];
-        
-    }
-    
-}
- */
 
 @end

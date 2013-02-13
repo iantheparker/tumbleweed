@@ -14,8 +14,6 @@
     #import "Foursquare.h"
     #import "Tumbleweed.h"
     #import "Environment.h"
-    #import "AFFoursquareAPIClient.h"
-    #import "AFTumbleweedClient.h"
     #import <SystemConfiguration/SystemConfiguration.h>
     #import <MobileCoreServices/MobileCoreServices.h>
 #endif

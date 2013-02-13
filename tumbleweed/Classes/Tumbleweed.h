@@ -7,13 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
+#import "AFTumbleweedClient.h"
 
 
 //this tracks the path and progress of the user
 @interface Tumbleweed : NSObject {
     
-    CLLocationManager *locationManager;
     int tumbleweedLevel;
     NSMutableArray *sceneState;
     NSString *tumbleweedId;
@@ -22,7 +21,6 @@
 
 @property int tumbleweedLevel;
 @property (nonatomic, retain) NSString *tumbleweedId;
-@property (nonatomic, retain) CLLocationManager *locationManager;
 @property (nonatomic, retain) NSMutableArray *sceneState;
 
 + (Tumbleweed *) weed;
@@ -31,7 +29,6 @@
 
 - (void) registerUser;
 - (BOOL) getUserUpdates;
-- (void) getUserWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block;
 - (void) postUserUpdates;
 
 
