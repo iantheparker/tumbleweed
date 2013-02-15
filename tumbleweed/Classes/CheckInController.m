@@ -8,6 +8,23 @@
 
 #import "CheckInController.h"
 
+@interface UIView (FindAndResignFirstResponder)
+- (BOOL)findAndResignFirstResponder;
+@end
+@implementation UIView (FindAndResignFirstResponder)
+- (BOOL)findAndResignFirstResponder
+{
+    if (self.isFirstResponder) {
+        [self resignFirstResponder];
+        return YES;
+    }
+    for (UIView *subView in self.subviews) {
+        if ([subView findAndResignFirstResponder])
+            return YES;
+    }
+    return NO;
+}
+@end
 
 @implementation CheckInController{
 @private
@@ -76,7 +93,7 @@
             NSLog(@"error checking in %@", error);
         }
         else {
-            [[Tumbleweed weed] setTumbleweedLevel:(sceneControllerId.scene.level + 1)];
+            [[Tumbleweed sharedClient] setTumbleweedLevel:(sceneControllerId.scene.level + 1)];
             
             [self dismissViewControllerAnimated:YES completion:^{
                 //sceneControllerId.scene.checkInResponse = checkInResponse;
@@ -186,12 +203,9 @@
 
 }
 
-- (void)didReceiveMemoryWarning
+- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
+    [self.view findAndResignFirstResponder];
 }
 
 #pragma mark - View lifecycle

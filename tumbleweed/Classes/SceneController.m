@@ -352,7 +352,7 @@ typedef enum {
 - (void) refreshView
 {
 
-    if (_scene.level == [Tumbleweed weed].tumbleweedLevel) {
+    if (_scene.level == [Tumbleweed sharedClient].tumbleweedLevel) {
         // load up initial state
         //checkInIntructions.text = checkInCopy;
         movieThumbnailButton.enabled = NO;

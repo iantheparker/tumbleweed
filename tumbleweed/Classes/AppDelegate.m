@@ -38,14 +38,11 @@ void uncaughtExceptionHandler(NSException *exception) {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     
-    
     self.viewController = [[TumbleweedViewController alloc]initWithNibName:@"TumbleweedViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    
-    //[[Tumbleweed weed] getUserUpdates];
-    
+        
     //if remote notification received at launch
     NSDictionary *pushNotificationPayload = [launchOptions valueForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if(pushNotificationPayload) {
@@ -101,7 +98,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 - (void)application:(UIApplication *)app didReceiveRemoteNotification:(NSDictionary *)userInfo 
 {
 	NSLog(@"In did receive  Remote Notifications %@", userInfo);
-    [[Tumbleweed weed] getUserUpdates];
+    [[Tumbleweed sharedClient] getUserUpdates];
 }
 
 //You can alternately implement the pushNotification API
@@ -120,7 +117,7 @@ void uncaughtExceptionHandler(NSException *exception) {
         //nomansland://home#access_token=UT0L5SRHLHNCXFUNO3X4NKMIAFANLZBIWG13PA5F4N2L2F2M
         [Foursquare handleOpenURL:url WithBlock:^(NSString *access_token) {
             if (access_token) {
-                [[Tumbleweed weed] registerUser];
+                [[Tumbleweed sharedClient] registerUser];
             }
         }];
     }
@@ -149,7 +146,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     [viewController saveAvatarPosition];
     [viewController dismissViewControllerAnimated:NO completion:^{}];
     [viewController dismissModalViewControllerAnimated:NO];
-    [[Tumbleweed weed] saveTumbleweed];
+    [[Tumbleweed sharedClient] saveTumbleweed];
     NSLog(@"did enter background");
     [[NSNotificationCenter defaultCenter] postNotificationName:@"enteredBackground" object:self];
 }
@@ -166,7 +163,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    [[Tumbleweed weed] getUserUpdates];
+    [[Tumbleweed sharedClient] getUserUpdates];
     [UIApplication sharedApplication].applicationIconBadgeNumber=0;
     NSLog(@"appwill become active");
 

@@ -8,86 +8,26 @@
 
 #import "Tumbleweed.h"
 
-static Tumbleweed *weed = nil;
-
-@interface Tumbleweed()
-@property (nonatomic) NSString *fsqId;
-@property (nonatomic) NSString *fsqFirstName;
-@property (nonatomic) NSString *fsqLastName;
-@end
-
 
 @implementation Tumbleweed
 
-@synthesize fsqFirstName, fsqId, fsqLastName, tumbleweedId;
-@synthesize sceneState;
+@synthesize tumbleweedId;
 @synthesize tumbleweedLevel;
 
 
 #pragma mark - Lifecycle Methods
 
-+ (Tumbleweed *)weed
-{
-    @synchronized(self) {
-        if (weed == nil) {
-            weed = [[self alloc] init];
-            [weed loadTumbleweed];
-        }
-        return weed;
-    }
-}
-
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        // Do Nada
-    }
-    return self;
-}
-
-- (void) loadTumbleweed
-{
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"tumbleweed"])
-    {
-        
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        NSMutableDictionary *myEncodedObject = [defaults objectForKey:@"tumbleweed"];
-        tumbleweedLevel = [[myEncodedObject objectForKey:@"tumbleweedLevel"] intValue];
-        tumbleweedId = [myEncodedObject objectForKey:@"tumbleweedId"];
-        NSLog(@"using stored tumbleweed %@", myEncodedObject);
-    }
-   
-}
-- (void) saveTumbleweed
-{
-    NSMutableDictionary *myEncodedObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                            fsqId, @"fsqId",
-                                            fsqFirstName, @"fsqFirstName",
-                                            fsqLastName, @"fsqLastName",
-                                            [NSNumber numberWithInt:tumbleweedLevel], @"tumbleweedLevel",
-                                            tumbleweedId, @"tumbleweedId",
-                                            sceneState, @"sceneState", nil];
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:myEncodedObject forKey:@"tumbleweed"];
-    [defaults synchronize];
-    NSLog(@"saving tumbleweed %@", myEncodedObject);
-    //update game state
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"gameSave" object:self];
-    
-}
-
-+ (Tumbleweed *)sharedClient {
++ (Tumbleweed *) sharedClient {
     static Tumbleweed *_sharedClient = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _sharedClient = [[Tumbleweed alloc] initWithDefaults];
+        _sharedClient = [[Tumbleweed alloc] init];
     });
     
     return _sharedClient;
 }
 
-- (id)initWithDefaults
+- (id)init
 {
     self = [super init];
     if (!self) {
@@ -104,14 +44,21 @@ static Tumbleweed *weed = nil;
     }
     return self;
 }
-/*
-- (void) setTumbleweedLevel:( int)level
+- (void) saveTumbleweed
 {
-    tumbleweedLevel = level;
-    NSLog(@"setting tumbleweedLevel");
-    [self saveTumbleweed];
+    NSMutableDictionary *myEncodedObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                            [NSNumber numberWithInt:tumbleweedLevel], @"tumbleweedLevel",
+                                            tumbleweedId, @"tumbleweedId", nil];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:myEncodedObject forKey:@"tumbleweed"];
+    [defaults synchronize];
+    NSLog(@"saving tumbleweed %@", myEncodedObject);
+    //update game state
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"gameSave" object:self];
+    
 }
- */
+
+
 #pragma mark - 
 #pragma mark - API Methods
 
@@ -124,9 +71,9 @@ static Tumbleweed *weed = nil;
             NSLog(@"userCred error %@", error);
         }
         else{
-            fsqId = [userCred objectForKey:@"id"];
-            fsqFirstName = [userCred objectForKey:@"firstName"];
-            fsqLastName = [userCred objectForKey:@"lastName"];
+            NSString *fsqId = [userCred objectForKey:@"id"];
+            NSString *fsqFirstName = [userCred objectForKey:@"firstName"];
+            NSString *fsqLastName = [userCred objectForKey:@"lastName"];
             NSLog(@"fsqid: %@, name: %@ %@ level: %d", fsqId, fsqFirstName, fsqLastName, tumbleweedLevel);
             NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",

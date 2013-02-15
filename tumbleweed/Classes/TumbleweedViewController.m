@@ -8,14 +8,29 @@
 
 #import "TumbleweedViewController.h"
 #import "SceneController.h"
-#import "FoursquareAuthViewController.h"
+//#import "FoursquareAuthViewController.h"
 #import "MCSpriteLayer.h"
+
+@interface UIView (FindAndResignFirstResponder)
+- (BOOL)findAndResignFirstResponder;
+@end
+@implementation UIView (FindAndResignFirstResponder)
+- (BOOL)findAndResignFirstResponder
+{
+    if (self.isFirstResponder) {
+        [self resignFirstResponder];
+        return YES;
+    }
+    for (UIView *subView in self.subviews) {
+        if ([subView findAndResignFirstResponder])
+            return YES;
+    }
+    return NO;
+}
+@end
 
 @interface TumbleweedViewController()
 
-
-
-@property BOOL walkingForward;
 @property (nonatomic, retain) UIScrollView *scrollView;
 @property (nonatomic, retain) CALayer *map0CA;
 @property (nonatomic, retain) CALayer *map1CA;
@@ -27,13 +42,16 @@
 @property (nonatomic, retain) UIView *mapCAView;
 @property (nonatomic, retain) UIButton *buttonContainer;
 @property (nonatomic, retain) CALayer *blackPanel;
+@property (nonatomic, retain) CALayer *progressBarEmpty;
 
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) scenePressed:(UIButton*)sender;
+-(void) launchHintPopUp;
 -(void) renderScreen: (BOOL) direction : (BOOL) moving;
 -(void) loadAvatarPosition;
 -(CGRect) selectAvatarBounds:(float) position;
--(void)startCampfire;
+-(void) updateProgressBar: (int) level;
+-(void) startCampfire;
 -(void) updateSceneButtonStates;
 -(CGPoint) coordinatePListReader: (NSString*) positionString;
 -(NSMutableArray*) mapLayerPListPlacer: (NSDictionary*) plist : (CGSize) screenSize : (CALayer*) parentLayer : (NSMutableArray*) sceneArray;
@@ -45,13 +63,13 @@
 @private
     int lastContentOffset;
     BOOL walkingForward;
+    CATextLayer *progressLabel;
+    UIView *hintVC;
 
 }
 
-@synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar, walkingForward;
-
-//-- scene buttons
-@synthesize foursquareConnectButton, buttonContainer, blackPanel;
+@synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar;
+@synthesize foursquareConnectButton, buttonContainer, blackPanel, progressBarEmpty;
 
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -203,6 +221,7 @@
     lastContentOffset = scrollView.contentOffset.x;
     [self renderScreen:walkingForward:TRUE];
     
+    
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)sView
 {
@@ -211,6 +230,10 @@
 - (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     [self renderScreen:walkingForward:FALSE];
+}
+- (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    [hintVC removeFromSuperview];
 }
 
 #pragma mark -
@@ -248,6 +271,8 @@
     [self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
     //[self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
     /*
+     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:scenes objectAtIndex:sender.tag] sceneVC]];
+     [self presentModalViewController:navController animated:YES];
     [UIView transitionWithView:self.view
                       duration:1.0f
                        options:UIViewAnimationOptionTransitionCurlDown
@@ -270,11 +295,36 @@
         if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
             if ([layer.name isEqualToString:[janeAvatar name]]) {
                 NSLog(@"jane hit");
+                [self launchHintPopUp];
             }
         }
     }
 }
-
+- (void) launchHintPopUp
+{
+    if (!hintVC) {
+        hintVC = [[[NSBundle mainBundle] loadNibNamed:@"HintPopUp" owner:self options:nil] objectAtIndex:0];
+    }
+    hintVC.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, hintVC.bounds.size.height/2);
+    hintVC.layer.cornerRadius = 5.0;
+    UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
+    hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel] hintCopy];
+    UIColor *brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
+    hintLabel.textColor = brownC;
+    hintLabel.font = [UIFont fontWithName:@"rockwell" size:20];
+    
+    CATransition *transition = [CATransition animation];
+    transition.duration = 0.2;
+    transition.type = kCATransitionFromTop;
+    [hintVC.layer addAnimation:transition forKey:nil];
+    [self.view addSubview:hintVC];
+    
+}
+- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [self.view findAndResignFirstResponder];
+    NSLog(@"touched");
+}
 #pragma mark -
 #pragma mark game state updates
 -(void) gameSavetNotif: (NSNotification *) notif
@@ -284,7 +334,7 @@
 }
 - (void) gameState
 {
-    switch ([Tumbleweed weed].tumbleweedLevel) {
+    switch ([Tumbleweed sharedClient].tumbleweedLevel) {
         
         case 4:
             //wait for notification from server when timer is up
@@ -309,11 +359,12 @@
             
     }
     [self updateSceneButtonStates];
+    [self updateProgressBar:[Tumbleweed sharedClient].tumbleweedLevel];
 
 }
 -(void) updateSceneButtonStates
 {
-    NSLog(@"update scene with level %d", [Tumbleweed weed].tumbleweedLevel);
+    NSLog(@"update scene with level %d", [Tumbleweed sharedClient].tumbleweedLevel);
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
@@ -324,20 +375,43 @@
     //start this loop at 1 because scene 0 is the intro and that should always be accessible
     for (int i = 1; i < scenes.count; i++)
     {
-        if (![[Tumbleweed weed] tumbleweedId]) {
+        if (![[Tumbleweed sharedClient] tumbleweedId]) {
             [[scenes objectAtIndex:i] button].enabled = NO;
         }
-        else if (([[scenes objectAtIndex:i] level] > [Tumbleweed weed].tumbleweedLevel)) {
+        else if (([[scenes objectAtIndex:i] level] > [Tumbleweed sharedClient].tumbleweedLevel)) {
             [[scenes objectAtIndex:i] button].enabled = NO;
         }
-        else if ([[scenes objectAtIndex:i] level] == [Tumbleweed weed].tumbleweedLevel) {
+        else if ([[scenes objectAtIndex:i] level] == [Tumbleweed sharedClient].tumbleweedLevel) {
             [[scenes objectAtIndex:i] button].enabled = YES;
         }
-        else if ([[scenes objectAtIndex:i] level] < [Tumbleweed weed].tumbleweedLevel){
+        else if ([[scenes objectAtIndex:i] level] < [Tumbleweed sharedClient].tumbleweedLevel){
             [[scenes objectAtIndex:i] button].selected = YES;
         }
     }
 }
+-(void) updateProgressBar: (int) level
+{
+    float imageWidth = 292.0;
+    float imageHeight = 50.0;
+    //int iconWidth = 40;
+    
+    static const CGRect sampleRects[8] = {
+        {0, 0, 292, 50},
+        {40 * 1, 0, 292-(40*1), 50},
+        {40 * 2, 0, 292-(40*2), 50},
+        {40 * 3, 0, 292-(40*3), 50},
+        {40 * 4, 0, 292-(40*4), 50},
+        {40 * 5, 0, 292-(40*5), 50},
+        {40 * 6, 0, 292-(40*6), 50},
+        {40 * 7, 0, 292-(40*7), 50},
+        
+    };
+    progressBarEmpty.bounds = sampleRects[level];
+    progressBarEmpty.contentsRect = CGRectMake(progressBarEmpty.bounds.origin.x/imageWidth, progressBarEmpty.bounds.origin.y/imageHeight, progressBarEmpty.bounds.size.width/imageWidth, progressBarEmpty.bounds.size.height/imageHeight);
+    [progressLabel setString:[NSString stringWithFormat:@"%d left until the jig is up", 8-level]];
+
+}
+
 
 #pragma mark -
 #pragma mark pList tools
@@ -654,13 +728,54 @@
         [eyesSprite addAnimation:eyesAnimation forKey:@"eyeBlink"];
         [blackPanel addSublayer:eyesSprite];
         
+        float padding = 10.0;
         CALayer *progressBar = [CALayer layer];
-        UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all.jpg"];
+        UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all_full.jpg"];
         progressBar.bounds = CGRectMake(0, 0, progBarimg.size.width, progBarimg.size.height);
-        [progressBar setPosition:CGPointMake(eyesSprite.position.x, eyesSprite.position.y + (screenSize.height-(eyesSprite.position.y + eyesSprite.bounds.size.height/2))/2)];
+        [progressBar setPosition:CGPointMake(eyesSprite.position.x - padding/2, eyesSprite.position.y * 1.6)];
         CGImageRef progCGImage = [progBarimg CGImage];
         [progressBar setContents:(__bridge id)progCGImage];
         [blackPanel addSublayer:progressBar];
+        
+        progressBarEmpty = [CALayer layer];
+        [progressBarEmpty setAnchorPoint:CGPointMake(1.0, 1.0)];
+        progressBarEmpty.position = CGPointMake(progressBar.bounds.size.width, progressBar.bounds.size.height);
+        [progressBarEmpty setContents:(__bridge id)[[UIImage imageNamed:@"map_progress_all.jpg"] CGImage]];
+        [progressBar addSublayer:progressBarEmpty];
+        
+        /*
+        CATextLayer *progressLabel = [[CATextLayer alloc] init];
+        [progressLabel setFont:@"rockwell"];
+        [progressLabel setFontSize:17];
+        [progressLabel setAnchorPoint:CGPointMake(0.0, 1.0)];
+        [progressLabel setFrame:CGRectMake(0, 0, progressBar.bounds.size.width/2, progressBar.bounds.size.height/2)];
+        [progressLabel setPosition:CGPointMake(progressBar.position.x - padding, progressBar.position.y + progressBar.bounds.size.height)];
+        [progressLabel setString:@"until the jig is up"];
+        [progressLabel setAlignmentMode:kCAAlignmentRight];
+        [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
+        [blackPanel addSublayer:progressLabel];
+        
+        CATextLayer *progressLabelFraction = [[CATextLayer alloc] init];
+        [progressLabelFraction setFont:@"rockwell-bold"];
+        [progressLabelFraction setFontSize:17];
+        [progressLabelFraction setAnchorPoint:CGPointMake(0.0, 1.0)];
+        [progressLabelFraction setFrame:CGRectMake(0, 0, progressBar.bounds.size.width/2, progressBar.bounds.size.height/2)];
+        [progressLabelFraction setPosition:CGPointMake(padding + progressBar.position.x - progressBar.bounds.size.width/2, progressBar.position.y + progressBar.bounds.size.height)];
+        [progressLabelFraction setString:@"3/8"];
+        [progressLabelFraction setAlignmentMode:kCAAlignmentNatural];
+        [progressLabelFraction setForegroundColor:[[UIColor grayColor] CGColor]];
+        [blackPanel addSublayer:progressLabelFraction];
+         */
+        progressLabel = [[CATextLayer alloc] init];
+        [progressLabel setFont:@"rockwell"];
+        [progressLabel setFontSize:17];
+        [progressLabel setFrame:CGRectMake(0, 0, progressBar.bounds.size.width, progressBar.bounds.size.height/2)];
+        [progressLabel setPosition:CGPointMake(progressBar.position.x, progressBar.position.y + progressBar.bounds.size.height - padding)];
+        [progressLabel setAlignmentMode:kCAAlignmentCenter];
+        [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
+        [blackPanel addSublayer:progressLabel];
+
+        
         
     }
     //-->bird animation

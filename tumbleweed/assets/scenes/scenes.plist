@@ -14,9 +14,9 @@
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S1-onPRESS.jpg</string>
 			<key>hintCopy</key>
-			<string>Where the hell am I?</string>
+			<string>I was born from the old cowboys. This is my home.</string>
 			<key>checkInCopy</key>
-			<string>Sign in to foursquare!!</string>
+			<string></string>
 			<key>bonus</key>
 			<string></string>
 			<key>buttonAccessible</key>
@@ -38,7 +38,7 @@
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
-			<string></string>
+			<string>Something bad is coming here. I don’t like it.</string>
 			<key>checkInCopy</key>
 			<string>a shady deal is going down at:</string>
 			<key>bonus</key>
@@ -66,7 +66,7 @@
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S3-OFF.jpg</string>
 			<key>hintCopy</key>
-			<string>I need a drink...</string>
+			<string> Let’s find a stool with the best vantage point. I hate being thirsty. </string>
 			<key>checkInCopy</key>
 			<string>take a seat and grab a drink at:</string>
 			<key>bonus</key>
@@ -94,7 +94,7 @@
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S4-OFF.jpg</string>
 			<key>hintCopy</key>
-			<string>Fill up your tank!</string>
+			<string>Leaving town? Strangers always stop here on their way out.</string>
 			<key>checkInCopy</key>
 			<string>He&apos;ll run into you sooner or later here:</string>
 			<key>bonus</key>
@@ -122,7 +122,7 @@
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S5-OFF.jpg</string>
 			<key>hintCopy</key>
-			<string></string>
+			<string>Fools always take their clothes off first. Stupid.</string>
 			<key>checkInCopy</key>
 			<string>Still here? Give him a scare.</string>
 			<key>bonus</key>
@@ -143,18 +143,18 @@
 			<string>riverbed2</string>
 			<key>level</key>
 			<integer>4</integer>
+			<key>hintCopy</key>
+			<string>I could be halfway to Mexico before anyone notices...</string>
+			<key>checkInCopy</key>
+			<string>yikes. they&apos;re gonna find out soon.</string>
+			<key>bonus</key>
+			<string></string>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S6-ON.jpg</string>
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S6-onPRESS.jpg</string>
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S6-OFF.jpg</string>
-			<key>hintCopy</key>
-			<string></string>
-			<key>checkInCopy</key>
-			<string>yikes. they&apos;re gonna find out soon.</string>
-			<key>bonus</key>
-			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_7_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -178,7 +178,7 @@
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
-			<string></string>
+			<string>Uh oh. Where can I go where no one will find me?</string>
 			<key>checkInCopy</key>
 			<string>find somewhere new to hide.</string>
 			<key>bonus</key>
@@ -206,7 +206,7 @@
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
-			<string></string>
+			<string>I’m in trouble. Let’s run!</string>
 			<key>checkInCopy</key>
 			<string>keep moving and don&apos;t look back.</string>
 			<key>bonus</key>
@@ -230,7 +230,7 @@
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S9-onPRESS.jpg</string>
 			<key>hintCopy</key>
-			<string></string>
+			<string>I smell fire...</string>
 			<key>checkInCopy</key>
 			<string>game over</string>
 			<key>bonus</key>

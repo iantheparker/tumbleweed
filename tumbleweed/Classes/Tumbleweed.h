@@ -8,23 +8,21 @@
 
 #import <Foundation/Foundation.h>
 #import "AFTumbleweedClient.h"
+#import "Foursquare.h"
 
 
 //this tracks the path and progress of the user
 @interface Tumbleweed : NSObject {
     
     int tumbleweedLevel;
-    NSMutableArray *sceneState;
     NSString *tumbleweedId;
 
 }
 
 @property int tumbleweedLevel;
 @property (nonatomic, retain) NSString *tumbleweedId;
-@property (nonatomic, retain) NSMutableArray *sceneState;
 
-+ (Tumbleweed *) weed;
-- (void) loadTumbleweed;
++ (Tumbleweed *) sharedClient;
 - (void) saveTumbleweed;
 
 - (void) registerUser;
