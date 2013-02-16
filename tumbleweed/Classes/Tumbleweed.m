@@ -7,7 +7,11 @@
 //
 
 #import "Tumbleweed.h"
+#import <SVProgressHUD.h>
 
+@interface Tumbleweed(SVProgressHUD)
+- (void) dismissHUD: (BOOL) successful : (NSError*) err;
+@end
 
 @implementation Tumbleweed
 
@@ -66,6 +70,7 @@
 {
     NSLog(@"in register");
     if (tumbleweedId) return;
+    [SVProgressHUD showWithStatus:@"Logging in!" maskType:SVProgressHUDMaskTypeGradient];
     [Foursquare getUserIdWithBlock:^(NSDictionary *userCred, NSError *error) {
         if (error) {
             NSLog(@"userCred error %@", error);
@@ -86,9 +91,11 @@
                                                        tumbleweedId = [JSON objectForKey:@"id"];
                                                        tumbleweedLevel = 0;
                                                        [self saveTumbleweed];
+                                                       [self dismissHUD:YES :nil];
                                                        NSLog(@"tumbleweed id %@, register json %@", tumbleweedId, JSON);
                                                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                                        NSLog(@"tumbleweed id error %@", error);
+                                                       [self dismissHUD:0 :error];
                                                    }];
         }
     }];
@@ -98,6 +105,7 @@
 {
     if (!tumbleweedId) return NO;
     __block BOOL update = NO;
+    [SVProgressHUD showWithStatus:@"Checking Foursquare" maskType:SVProgressHUDMaskTypeNone];
     NSString *userPath = [NSString stringWithFormat:@"users/%@", tumbleweedId];
     [[AFTumbleweedClient sharedClient] getPath:userPath parameters:nil
                                        success:^(AFHTTPRequestOperation *operation, id JSON) {
@@ -111,9 +119,11 @@
                                                //post update to server if it's behind
                                                [self postUserUpdates];
                                            }
+                                           [self dismissHUD:NO :nil];
                                            NSLog(@"tumbleweed- getUser json %@", JSON);
                                        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                            NSLog(@"tumbleweed- getUser error %@", error);
+                                           [self dismissHUD:0 :error];
                                        }];
     return update;
 }
@@ -132,6 +142,17 @@
                                        }];
 }
 
+#pragma mark -
+#pragma mark - SVProgressHUD
 
+- (void) dismissHUD: (BOOL) successful : (NSError*) err
+{
+    if (err)
+        [SVProgressHUD showErrorWithStatus:@"Nope. Try Later :("];
+    else if (successful)
+        [SVProgressHUD showSuccessWithStatus:@"Boom!"];
+    else
+        [SVProgressHUD dismiss];
+}
 
 @end

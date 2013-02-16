@@ -13,7 +13,7 @@
 
 
 
-@interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, CLLocationManagerDelegate>
+@interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, UIGestureRecognizerDelegate, CLLocationManagerDelegate>
 {
     NSMutableArray *parallaxLayers;
     UIView *mapCAView;

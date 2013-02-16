@@ -10,24 +10,9 @@
 #import "SceneController.h"
 //#import "FoursquareAuthViewController.h"
 #import "MCSpriteLayer.h"
+#import <SVProgressHUD.h>
 
-@interface UIView (FindAndResignFirstResponder)
-- (BOOL)findAndResignFirstResponder;
-@end
-@implementation UIView (FindAndResignFirstResponder)
-- (BOOL)findAndResignFirstResponder
-{
-    if (self.isFirstResponder) {
-        [self resignFirstResponder];
-        return YES;
-    }
-    for (UIView *subView in self.subviews) {
-        if ([subView findAndResignFirstResponder])
-            return YES;
-    }
-    return NO;
-}
-@end
+
 
 @interface TumbleweedViewController()
 
@@ -46,7 +31,7 @@
 
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) scenePressed:(UIButton*)sender;
--(void) launchHintPopUp;
+-(void) launchHintPopUp:(BOOL) up;
 -(void) renderScreen: (BOOL) direction : (BOOL) moving;
 -(void) loadAvatarPosition;
 -(CGRect) selectAvatarBounds:(float) position;
@@ -75,9 +60,7 @@
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        //weed = [Tumbleweed weed];
-        
+    if (self) {        
         map0CA = [[CALayer alloc] init];
         map1CA = [[CALayer alloc] init];
         map1BCA = [[CALayer alloc] init];
@@ -86,7 +69,6 @@
         map4CA = [[CALayer alloc] init];
         janeAvatar = [[CALayer alloc] init];
         mapCAView = [[UIView alloc] init];
-        //buttonContainer = [[UIView alloc] init];
     }
     return self;
 }
@@ -233,7 +215,7 @@
 }
 - (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    [hintVC removeFromSuperview];
+    [self launchHintPopUp:FALSE];
 }
 
 #pragma mark -
@@ -266,6 +248,10 @@
 #pragma mark - 
 #pragma mark button handlers
 
+- (IBAction) foursquareConnect:(UIButton *)sender
+{
+    [Foursquare startAuthorization];
+}
 - (void) scenePressed:(UIButton *)sender
 {
     [self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
@@ -282,48 +268,69 @@
                     completion:NULL];
     */
 }
-- (IBAction) foursquareConnect:(UIButton *)sender
-{
-    [Foursquare startAuthorization];
-    NSLog(@"hi");
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    if ([touch.view isKindOfClass:[UIButton class]]){
+        return NO;
+    }
+    return YES;
 }
 - (void) handleSingleTap:(UIGestureRecognizer *)sender
 {
+    BOOL janeHit = NO;
     CGPoint loc = [sender locationInView:mapCAView];
-    //NSLog(@"touched %f,%f ", loc.x, loc.y);
     for (CALayer *layer in mapCAView.layer.sublayers) {
         if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
             if ([layer.name isEqualToString:[janeAvatar name]]) {
                 NSLog(@"jane hit");
-                [self launchHintPopUp];
+                janeHit = YES;
+                break;
             }
         }
     }
+    [self launchHintPopUp:janeHit];
 }
-- (void) launchHintPopUp
+- (void) launchHintPopUp :(BOOL) up
 {
-    if (!hintVC) {
-        hintVC = [[[NSBundle mainBundle] loadNibNamed:@"HintPopUp" owner:self options:nil] objectAtIndex:0];
+
+    if (up == TRUE && (!CGAffineTransformEqualToTransform(hintVC.transform, CGAffineTransformIdentity))) {
+        if (!hintVC) {
+            hintVC = [[[NSBundle mainBundle] loadNibNamed:@"HintPopUp" owner:self options:nil] objectAtIndex:0];
+            hintVC.layer.cornerRadius = 5.0;
+
+        }
+        
+        UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
+        if (![[Tumbleweed sharedClient] tumbleweedId]) hintLabel.text = @"Legend says all the best cowboys logged in to Foursquare first. I should too.";
+        else hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel+1] hintCopy];
+        UIColor *brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
+        hintLabel.textColor = brownC;
+        hintLabel.font = [UIFont fontWithName:@"rockwell" size:20];
+        
+        hintVC.center = CGPointMake(janeAvatar.position.x, janeAvatar.position.y - janeAvatar.bounds.size.height/3);
+        //hintVC.layer.transform = CATransform3DIdentity;
+        hintVC.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        [self.view addSubview:hintVC];
+        [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            hintVC.transform = CGAffineTransformIdentity;
+            hintVC.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, hintVC.bounds.size.height/2);
+        } completion:^(BOOL finished) {}];
+         
     }
-    hintVC.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, hintVC.bounds.size.height/2);
-    hintVC.layer.cornerRadius = 5.0;
-    UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
-    hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel] hintCopy];
-    UIColor *brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
-    hintLabel.textColor = brownC;
-    hintLabel.font = [UIFont fontWithName:@"rockwell" size:20];
+    else{
+        hintVC.transform = CGAffineTransformIdentity;
+        //hintVC.layer.transform = CATransform3DIdentity;
+        [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            hintVC.transform = CGAffineTransformMakeTranslation(0, -100);
+            
+            //hintVC.layer.transform = CATransform3DMakeRotation(M_PI_2,1.0,0.0,0.0);
+            //hintVC.center = janeAvatar.position;
+        } completion:^(BOOL finished) {
+            [hintVC removeFromSuperview];
+        }];
+    }
     
-    CATransition *transition = [CATransition animation];
-    transition.duration = 0.2;
-    transition.type = kCATransitionFromTop;
-    [hintVC.layer addAnimation:transition forKey:nil];
-    [self.view addSubview:hintVC];
     
-}
-- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [self.view findAndResignFirstResponder];
-    NSLog(@"touched");
+    
 }
 #pragma mark -
 #pragma mark game state updates
@@ -368,8 +375,6 @@
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
-        UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-        [scrollView addGestureRecognizer:tapHandler];
     }
     
     //start this loop at 1 because scene 0 is the intro and that should always be accessible
@@ -550,6 +555,10 @@
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
     [scrollView setDelegate:self];
+    
+    UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
+    [scrollView addGestureRecognizer:tapHandler];
+    [tapHandler setDelegate:self];
     
     mapCAView.frame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [scrollView addSubview:mapCAView];
