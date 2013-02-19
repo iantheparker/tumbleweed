@@ -25,6 +25,12 @@ WithBlock:(void (^)(NSString *access_token))block;
                         categoryId:(NSString*)category
 WithBlock:(void (^)(NSArray *venues, NSError *error))block;
 
++ (void)exploreVenuesNearByLatitude:(NSString*)lat
+                         longitude:(NSString*)lon
+                        sectionId:(NSString*)section
+                          noveltyId:(NSString*)novelty
+                         WithBlock:(void (^)(NSArray *venues, NSError *error))block;
+
 + (void)cancelSearchVenues;
 
 + (void)checkIn:(NSString*)venueId

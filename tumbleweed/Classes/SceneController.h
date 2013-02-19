@@ -37,8 +37,6 @@
     IBOutlet UILabel *timerLabel;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
-    NSMutableDictionary *allVenues;
-    //MKMapView *mvFoursquare;
     UIView *venueView;
     
 }
@@ -52,7 +50,6 @@
 @property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, retain) MPMoviePlayerViewController *moviePlayer;
-@property (nonatomic, retain) NSMutableDictionary *allVenues;
 @property (nonatomic, retain) MKMapView *mvFoursquare;
 @property (nonatomic, getter = isPinsLoaded) BOOL pinsLoaded;
 @property (nonatomic, retain) UIButton *refreshButton;
@@ -67,7 +64,6 @@
 - (id) initWithScene: (Scene *) scn;
 
 // touch events
-- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender;
 - (IBAction) dismissModal:(id)sender;
 - (IBAction) playVideo:(id)sender;
 - (IBAction)refreshSearch:(id)sender;

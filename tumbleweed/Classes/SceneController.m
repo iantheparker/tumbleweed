@@ -13,8 +13,6 @@
 #import <UIImageView+AFNetworking.h>
 
 
-
-
 #define MINIMUM_ZOOM_ARC 0.008 //approximately 1 miles (1 degree of arc ~= 69 miles)
 #define ANNOTATION_REGION_PAD_FACTOR 1.0
 #define MAP_LATITUDE_OFFSET .0014
@@ -22,8 +20,10 @@
 
 typedef enum {
     kSceneEmpty,
-    kSceneMap,
-    kSceneTimer
+    kSceneMap4SQSearchCategory,
+    kSceneTimer,
+    kSceneMap4SQExplore,
+    kSceneMap4SQRegion
 } SceneType;
 
 @interface SceneController()
@@ -41,7 +41,7 @@ typedef enum {
 -(void)zoomMapViewToFitAnnotations:(MKMapView *)mapView animated:(BOOL)animated;
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) refreshView;
--(void) launchCheckinVC: (NSDictionary*) dict;
+-(void) launchCheckinVC: (id)sender : (NSDictionary*) dict;
 -(IBAction) launchBonusWebView;
 -(void) willPresentError:(NSError *)error;
 -(void)updateTimer:(NSTimer *)timer;
@@ -56,6 +56,7 @@ typedef enum {
     int currentTime;
     UIColor *redC;
     UIColor *brownC;
+    NSMutableArray *allVenues;
     
 }
 //plist properties
@@ -63,7 +64,7 @@ typedef enum {
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
-@synthesize venueScrollView, venueDetailNib, venueView, allVenues, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
+@synthesize venueScrollView, venueDetailNib, venueView, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
 //generic properties
 @synthesize sceneScrollView, sceneTitle, checkInIntructions, movieThumbnailButton, moviePlayer, extrasView;
 
@@ -96,19 +97,25 @@ typedef enum {
         mvFoursquare.showsUserLocation = NO;
     }];
 }
-- (IBAction)handleSingleTap:(UIGestureRecognizer *)sender {
-    NSString *viewId = [NSString stringWithFormat:@"%d", [sender.view hash]];    ;
-    NSDictionary *venueDetails = [allVenues objectForKey:viewId];
-    [self launchCheckinVC:venueDetails];
-    
-}
-- (void) launchCheckinVC: (NSDictionary*) dict
+
+- (void) launchCheckinVC: (id)sender : (NSDictionary*) dict
 {
-    NSLog(@"venue name %@ : id %@", [dict objectForKey:@"name"], [dict objectForKey:@"id"]);
+    NSDictionary *launchDict;
+    if ([sender isKindOfClass:[UIButton class]]) {
+        [(UIButton*)sender setSelected:YES];
+        [(UIButton*)sender setBackgroundColor:redC];
+        launchDict = [NSDictionary dictionaryWithDictionary:[allVenues objectAtIndex:[(UIButton*)sender tag]]];
+    }
+    else
+    {
+        launchDict = [NSDictionary dictionaryWithDictionary:dict];
+    }
+    NSLog(@"venue name %@ : id %@", [launchDict objectForKey:@"name"], [launchDict objectForKey:@"id"]);
     CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
-    [checkIn setVenueDetails:dict];
-    //[checkIn setModalTransitionStyle:UIModalTransitionStylePartialCurl];
-    [self presentViewController:checkIn animated:YES completion:NULL];
+    [checkIn setVenueDetails:launchDict];
+    [self presentViewController:checkIn animated:YES completion:^{
+        //reset buttons
+    }];
 }
 - (void) launchBonusWebView
 {
@@ -232,19 +239,19 @@ typedef enum {
     int itemsArrayLength = [items count];
     if (!itemsArrayLength) itemsArrayLength = 1;
     float scrollWidth = (nibwidth + padding) * itemsArrayLength;
-    CGSize contentSize = CGSizeMake(scrollWidth, venueScrollView.contentSize.height);
+    CGSize contentSize = CGSizeMake(scrollWidth, nibheight);
     venueScrollView.contentSize = contentSize;
     
     //if re-search was hit, reset all the views and values
     allVenues = nil;
     venueView = nil;
-    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, scrollWidth, venueScrollView.frame.size.height)];
+    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
     [venueScrollView addSubview:venueView];
     
     // If there are no search results, throw up "Nothing found."
     if ([items count] == 0 || err) {
-        [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
-        UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
+        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
+        [nameLabel setTextAlignment:UITextAlignmentCenter];
         if (err) {
             [nameLabel setText:@"You need some internets."];
             [self willPresentError:err];
@@ -255,13 +262,14 @@ typedef enum {
         [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
         [nameLabel setTextColor:redC];
         [nameLabel setClearsContextBeforeDrawing:YES];
-        [venueDetailNib setCenter:CGPointMake(nibwidth/2, nibheight/2)];
-        [venueView addSubview:venueDetailNib];
+        [nameLabel setBackgroundColor:[UIColor clearColor]];
+        [nameLabel setCenter:CGPointMake(nibwidth/2, nibheight/2)];
+        [venueView addSubview:nameLabel];
         rightScroll.enabled = NO;
     }
     else{
         if (items.count > 1) rightScroll.enabled = YES;
-        allVenues = [[NSMutableDictionary alloc] init];
+        allVenues = [NSMutableArray array];
 
         int offset = 0;
         NSMutableArray *annotations = [[NSMutableArray alloc] init];
@@ -278,31 +286,32 @@ typedef enum {
             iconURL = [iconURL stringByAppendingString:@"64.png"];
             
             [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
+            UIButton *nameButton = (UIButton *)[venueDetailNib viewWithTag:1];
+            //UIButton *nameButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, nibwidth, nibheight)];
+            [[nameButton titleLabel] setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+            [[nameButton titleLabel] setBackgroundColor:[UIColor clearColor]];
+            [nameButton setTitle:vName forState:UIControlStateNormal];
+            [nameButton setTitleColor:redC forState:UIControlStateNormal];
+            [nameButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+            [nameButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
             
-            UILabel *nameLabel = (UILabel *)[venueDetailNib viewWithTag:1];
-            //UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, venueScrollView.frame.size.width, venueScrollView.frame.size.height)];
-            [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-            //[nameLabel setTextAlignment:UITextAlignmentCenter];
-            [nameLabel setText:vName];
-            [nameLabel setTextColor:redC];
-            [nameLabel setClearsContextBeforeDrawing:YES];
+            [nameButton.layer setBorderColor:[[UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:0.2] CGColor]];
+            [nameButton.layer setBorderWidth:2.0];
+            //nameButton.layer.cornerRadius = 5.0;
             
             offset = (int)(nibwidth + padding) * i; 
             CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
             [venueDetailNib setCenter:nibCenter];
             
-            // push venue details into a dictionary for future lookup
-            NSString *viewId = [NSString stringWithFormat:@"%d", [venueDetailNib hash]];
-            [allVenues setObject:ven forKey:viewId];
+            // push venue details into a tag for future lookup            
+            nameButton.tag = i;
+            [allVenues addObject:ven];
             
             // capture events
-            UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-            [venueDetailNib addGestureRecognizer:tapHandler];
+            [nameButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchDown];
             
             // add it to the content view
             [venueView addSubview:venueDetailNib];
-            [venueView setUserInteractionEnabled:YES];
-            [venueDetailNib setUserInteractionEnabled:YES];
             
             // create and initialise the annotation
             FoursquareAnnotation *foursquareAnnotation = [[FoursquareAnnotation alloc] init];
@@ -563,7 +572,7 @@ typedef enum {
               [(FoursquareAnnotation*)[view annotation] coordinate].longitude, 
               [(FoursquareAnnotation*)[view annotation] coordinate].latitude, (FoursquareAnnotation*)[view annotation].subtitle);
         
-        [self launchCheckinVC:[NSDictionary dictionaryWithObjectsAndKeys:
+        [self launchCheckinVC: nil:[NSDictionary dictionaryWithObjectsAndKeys:
                                ((FoursquareAnnotation*)[view annotation]).venueId, @"id",
                                ((FoursquareAnnotation*)[view annotation]).title, @"name", nil]];
         

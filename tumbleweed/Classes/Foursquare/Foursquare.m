@@ -7,9 +7,14 @@
 //
 
 #import "Foursquare.h"
+#import <SVProgressHUD.h>
 
 #define kAuthorizeBaseURL       @"https://foursquare.com/oauth2/authorize"
 static int vDate = 20120927;
+
+@interface Foursquare(SVProgressHUD)
++ (void) dismissHUD: (BOOL) successful : (NSError*) err;
+@end
 
 @implementation Foursquare
 
@@ -97,7 +102,7 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
-                                 @"5", @"limit",
+                                 //@"5", @"limit",
                                  @"200", @"radius",
                                  category, @"categoryId",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
@@ -121,10 +126,43 @@ static int vDate = 20120927;
         }
     }];
 }
-
++ (void)exploreVenuesNearByLatitude:(NSString*)lat
+                          longitude:(NSString*)lon
+                          sectionId:(NSString*)section
+                          noveltyId:(NSString*)novelty
+                          WithBlock:(void (^)(NSArray *venues, NSError *error))block
+{
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
+                                 //@"5", @"limit",
+                                 @"200", @"radius",
+                                 section, @"section",
+                                 novelty, @"novelty",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 [NSNumber numberWithInt:vDate], @"v", nil];
+    [[AFFoursquareAPIClient sharedClient] getPath:@"venues/explore" parameters:queryParams
+                                          success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                              NSMutableArray *mutableVenues = [NSMutableArray arrayWithCapacity:[JSON count]];
+                                              NSArray *results = [[JSON objectForKey:@"response"] objectForKey:@"venues"];
+                                              //NSLog(@"response from search= %@", results);
+                                              for (NSDictionary *attributes in results) {
+                                                  [mutableVenues addObject:attributes];
+                                              }
+                                              
+                                              if (block) {
+                                                  block([NSArray arrayWithArray:mutableVenues], nil);
+                                              }
+                                          } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                              if (block) {
+                                                  block([NSArray array], error);
+                                                  NSLog(@"error from query %@", error);
+                                              }
+                                          }];
+}
 + (void)cancelSearchVenues
 {
     [[AFFoursquareAPIClient sharedClient] cancelAllHTTPOperationsWithMethod:@"get" path:@"venues/search"];
+    [[AFFoursquareAPIClient sharedClient] cancelAllHTTPOperationsWithMethod:@"get" path:@"venues/explore"];
 
 }
 
@@ -140,16 +178,19 @@ static int vDate = 20120927;
                                  broadcastType, @"broadcast",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];
+    [SVProgressHUD showWithStatus:@"Checking in..." maskType:SVProgressHUDMaskTypeGradient];
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
     [[AFFoursquareAPIClient sharedClient] postPath:@"checkins/add" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
                                               if (block) {
                                                   block(JSON, nil);
+                                                  [self dismissHUD:NO :nil];
                                               }
                                           } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                               if (block) {
                                                   block([NSDictionary dictionary], error);
                                                   NSLog(@"error from checkin %@", error);
+                                                  [self dismissHUD:NO :error];
                                               }
                                           }];
 }
@@ -184,5 +225,17 @@ static int vDate = 20120927;
     [[AFFoursquareAPIClient sharedClient] enqueueHTTPRequestOperation:operation];
 }
 
+#pragma mark -
+#pragma mark - SVProgressHUD
+
++ (void) dismissHUD: (BOOL) successful : (NSError*) err
+{
+    if (err)
+        [SVProgressHUD showErrorWithStatus:@"Nope. Try Later :("];
+    else if (successful)
+        [SVProgressHUD showSuccessWithStatus:@"Boom!"];
+    else
+        [SVProgressHUD dismiss];
+}
 
 @end

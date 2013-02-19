@@ -295,8 +295,7 @@
     if (up == TRUE && (!CGAffineTransformEqualToTransform(hintVC.transform, CGAffineTransformIdentity))) {
         if (!hintVC) {
             hintVC = [[[NSBundle mainBundle] loadNibNamed:@"HintPopUp" owner:self options:nil] objectAtIndex:0];
-            hintVC.layer.cornerRadius = 5.0;
-
+            [hintVC viewWithTag:2].layer.cornerRadius = 5.0;
         }
         
         UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
@@ -396,19 +395,18 @@
 }
 -(void) updateProgressBar: (int) level
 {
-    float imageWidth = 292.0;
-    float imageHeight = 50.0;
-    //int iconWidth = 40;
+    const float imageWidth = 282.7;
+    const float imageHeight = 39.5;
     
     static const CGRect sampleRects[8] = {
-        {0, 0, 292, 50},
-        {40 * 1, 0, 292-(40*1), 50},
-        {40 * 2, 0, 292-(40*2), 50},
-        {40 * 3, 0, 292-(40*3), 50},
-        {40 * 4, 0, 292-(40*4), 50},
-        {40 * 5, 0, 292-(40*5), 50},
-        {40 * 6, 0, 292-(40*6), 50},
-        {40 * 7, 0, 292-(40*7), 50},
+        {0, 0, imageWidth, imageHeight},
+        {40 * 1, 0, imageWidth-(40*1), imageHeight},
+        {78, 0, imageWidth-78, imageHeight},
+        {117, 0, imageWidth-117, imageHeight},
+        {156.5, 0, imageWidth-156.5, imageHeight},
+        {188.5, 0, imageWidth-188.5, imageHeight},
+        {218, 0, imageWidth-218, imageHeight},
+        {255, 0, imageWidth-255, imageHeight},
         
     };
     progressBarEmpty.bounds = sampleRects[level];
@@ -416,7 +414,6 @@
     [progressLabel setString:[NSString stringWithFormat:@"%d left until the jig is up", 8-level]];
 
 }
-
 
 #pragma mark -
 #pragma mark pList tools
@@ -739,7 +736,7 @@
         
         float padding = 10.0;
         CALayer *progressBar = [CALayer layer];
-        UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all_full.jpg"];
+        UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all_ON.jpg"];
         progressBar.bounds = CGRectMake(0, 0, progBarimg.size.width, progBarimg.size.height);
         [progressBar setPosition:CGPointMake(eyesSprite.position.x - padding/2, eyesSprite.position.y * 1.6)];
         CGImageRef progCGImage = [progBarimg CGImage];
@@ -749,7 +746,7 @@
         progressBarEmpty = [CALayer layer];
         [progressBarEmpty setAnchorPoint:CGPointMake(1.0, 1.0)];
         progressBarEmpty.position = CGPointMake(progressBar.bounds.size.width, progressBar.bounds.size.height);
-        [progressBarEmpty setContents:(__bridge id)[[UIImage imageNamed:@"map_progress_all.jpg"] CGImage]];
+        [progressBarEmpty setContents:(__bridge id)[[UIImage imageNamed:@"map_progress_all_OFF.jpg"] CGImage]];
         [progressBar addSublayer:progressBarEmpty];
         
         /*

@@ -55,7 +55,13 @@ void uncaughtExceptionHandler(NSException *exception) {
         ([[UIApplication sharedApplication] enabledRemoteNotificationTypes] != (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)))
     {
         //user has probably disabled push. react accordingly.
+
     }
+#if TARGET_IPHONE_SIMULATOR
+    NSString *simDeviceToken = @"dde7db8a 02cedc6e 455c57b0 72ee77d1 22a78fc9 d2cdxxxd 3023a181 e335d7d6";
+    [[NSUserDefaults standardUserDefaults] setObject: simDeviceToken forKey: deviceTokenKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+#endif
     
     return YES;
 }

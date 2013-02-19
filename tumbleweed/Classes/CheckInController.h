@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "SceneController.h"
 
-//@class Scene;
 
 @interface CheckInController : UIViewController <UITextViewDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate>{
     IBOutlet UIButton *backButton;

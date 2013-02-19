@@ -78,8 +78,8 @@
 
 - (IBAction)checkIn:(id)sender
 {
-    [activityIndicator startAnimating];
-    NSString *broadcastType;// = [NSString stringWithFormat:@"public,%@,%@", facebookButton.selected ? @"facebook" : @"", twitterButton.selected ? @"twitter" : @""];
+    //[activityIndicator startAnimating];
+    NSString *broadcastType;
     NSLog(@"broadcast type %@", broadcastType);
     if (photoButton.selected){
         broadcastType = @"public";
@@ -96,9 +96,7 @@
             [[Tumbleweed sharedClient] setTumbleweedLevel:(sceneControllerId.scene.level + 1)];
             
             [self dismissViewControllerAnimated:YES completion:^{
-                //sceneControllerId.scene.checkInResponse = checkInResponse;
-                //sceneControllerId.scene.unlocked = YES;
-                //idempotence - set the gamestate level to the level of this scene
+                
                 if (photoButton.selected){
                     NSString *_broadcastType = [NSString stringWithFormat:@"%@,%@", facebookButton.selected ? @"facebook" : @"", twitterButton.selected ? @"twitter" : @""];
                     NSString *checkInId = [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"];

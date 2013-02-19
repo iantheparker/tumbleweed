@@ -39,11 +39,14 @@
 					<object class="IBUIImageView" id="280334469">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">303</int>
-						<string key="NSFrame">{{0, -474}, {480, 540}}</string>
+						<string key="NSFrame">{{14, -62.5}, {452, 125}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="209478373"/>
+						<reference key="NSNextKeyView" ref="1046338245"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
+						<bool key="IBUIClipsSubviews">YES</bool>
+						<int key="IBUIContentMode">6</int>
+						<int key="IBUITag">2</int>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<object class="NSCustomResource" key="IBUIImage">
@@ -54,10 +57,10 @@
 					<object class="IBUIImageView" id="209478373">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{0, -45}, {10, 110}}</string>
+						<string key="NSFrame">{{11, -45}, {10, 110}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="220879058"/>
+						<reference key="NSNextKeyView" ref="280334469"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIAutoresizesSubviews">NO</bool>
@@ -72,10 +75,10 @@
 					<object class="IBUIImageView" id="220879058">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{0, 57}, {480, 12}}</string>
+						<string key="NSFrame">{{12, 54}, {460, 12}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="1046338245"/>
+						<reference key="NSNextKeyView" ref="146237203"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIAutoresizesSubviews">NO</bool>
@@ -90,7 +93,7 @@
 					<object class="IBUIImageView" id="146237203">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">265</int>
-						<string key="NSFrame">{{458, -50}, {11, 119}}</string>
+						<string key="NSFrame">{{458, -52}, {11, 119}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView"/>
@@ -108,10 +111,10 @@
 					<object class="IBUILabel" id="1046338245">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{26, 5}, {418, 54}}</string>
+						<string key="NSFrame">{{31, 0}, {418, 54}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="146237203"/>
+						<reference key="NSNextKeyView" ref="220879058"/>
 						<string key="NSReuseIdentifierKey">_NS:328</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<int key="IBUIContentMode">5</int>
@@ -144,10 +147,10 @@
 						<double key="preferredMaxLayoutWidth">418</double>
 					</object>
 				</array>
-				<string key="NSFrameSize">{468, 66}</string>
+				<string key="NSFrameSize">{480, 66}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView" ref="280334469"/>
+				<reference key="NSNextKeyView" ref="209478373"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MCAwAA</bytes>
@@ -177,8 +180,8 @@
 						<array class="NSMutableArray" key="children">
 							<reference ref="146237203"/>
 							<reference ref="209478373"/>
-							<reference ref="280334469"/>
 							<reference ref="220879058"/>
+							<reference ref="280334469"/>
 							<reference ref="1046338245"/>
 						</array>
 						<reference key="parent" ref="0"/>
@@ -249,7 +252,6 @@
 					<string key="superclassName">UIViewController</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="dismissModal:">id</string>
-						<string key="handleSingleTap:">UIGestureRecognizer</string>
 						<string key="launchBonusWebView">id</string>
 						<string key="leftScroll:">id</string>
 						<string key="playVideo:">id</string>
@@ -260,10 +262,6 @@
 						<object class="IBActionInfo" key="dismissModal:">
 							<string key="name">dismissModal:</string>
 							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="handleSingleTap:">
-							<string key="name">handleSingleTap:</string>
-							<string key="candidateClassName">UIGestureRecognizer</string>
 						</object>
 						<object class="IBActionInfo" key="launchBonusWebView">
 							<string key="name">launchBonusWebView</string>
