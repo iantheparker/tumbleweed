@@ -18,23 +18,19 @@
 #define MAP_LATITUDE_OFFSET .0014
 #define MAX_DEGREES_ARC 360
 
-typedef enum {
-    kSceneEmpty,
-    kSceneMap4SQSearchCategory,
-    kSceneTimer,
-    kSceneMap4SQExplore,
-    kSceneMap4SQRegion
-} SceneType;
 
 @interface SceneController()
 
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) NSString *categoryId;
+@property (nonatomic, retain) NSString *sectionId;
+@property (nonatomic, retain) NSString *noveltyId;
+@property (nonatomic, retain) NSString *queryString;
+@property (nonatomic, retain) NSString *sceneTypeName;
+@property (nonatomic,retain) NSDictionary *sceneTypeDict;
 @property (nonatomic, retain) NSString *movieName;
-@property (nonatomic, retain) NSString *posterArt;
 @property (nonatomic, retain) NSString *checkInCopy;
 @property (nonatomic, retain) NSString *bonusUrl;
-@property (nonatomic, assign) SceneType type;
 
 @property (nonatomic) unsigned int venueSVPos;
 
@@ -60,7 +56,8 @@ typedef enum {
     
 }
 //plist properties
-@synthesize name, categoryId, movieName, posterArt, checkInCopy, bonusUrl;
+@synthesize name, movieName, checkInCopy, bonusUrl;
+@synthesize categoryId, sectionId, noveltyId, queryString, sceneTypeName, sceneTypeDict;
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
@@ -77,7 +74,9 @@ typedef enum {
         _scene = scn;
         
         name = [scn.pListDetails objectForKey:@"name"];
-        categoryId = [scn.pListDetails objectForKey:@"categoryId"];
+        sceneTypeName = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"type"];
+        categoryId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"categoryId"];
+        sectionId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"sectionId"];
         movieName = [scn.pListDetails objectForKey:@"movieName"];
         checkInCopy = [scn.pListDetails objectForKey:@"checkInCopy"];
         bonusUrl = [NSString stringWithFormat:@"%d", scn.level];
@@ -91,11 +90,17 @@ typedef enum {
 
 - (IBAction)dismissModal:(id)sender
 {
-    [self dismissViewControllerAnimated:YES completion:^{
-        [Foursquare cancelSearchVenues];
-        [locationManager stopUpdatingLocation];
-        mvFoursquare.showsUserLocation = NO;
-    }];
+    [UIView animateWithDuration:0.35
+                     animations:^{
+                         [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+                         [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp forView:self.navigationController.view cache:NO];
+                     } completion:^(BOOL finished) {
+                         
+                         [Foursquare cancelSearchVenues];
+                         [locationManager stopUpdatingLocation];
+                         mvFoursquare.showsUserLocation = NO;
+                     }];
+    [self.navigationController popViewControllerAnimated:NO];
 }
 
 - (void) launchCheckinVC: (id)sender : (NSDictionary*) dict
@@ -113,9 +118,13 @@ typedef enum {
     NSLog(@"venue name %@ : id %@", [launchDict objectForKey:@"name"], [launchDict objectForKey:@"id"]);
     CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     [checkIn setVenueDetails:launchDict];
-    [self presentViewController:checkIn animated:YES completion:^{
-        //reset buttons
-    }];
+    //[self presentViewController:checkIn animated:YES completion:^{}];
+    [UIView animateWithDuration:0.50
+                     animations:^{
+                         [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+                         [self.navigationController pushViewController:checkIn animated:YES];
+                         [UIView setAnimationTransition:UIViewAnimationTransitionNone forView:self.navigationController.view cache:NO];
+                     }];
 }
 - (void) launchBonusWebView
 {
@@ -150,7 +159,6 @@ typedef enum {
                      }];
     
 }
-
 - (IBAction)rightScroll:(id)sender
 {
     self.venueSVPos += 1;
@@ -278,8 +286,6 @@ typedef enum {
             NSString *vID = [ven objectForKey:@"id"];
             NSString *vName = [ven objectForKey:@"name"];
             NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
-            //float distance = [[[ven objectForKey: @"location"] objectForKey: @"distance"] floatValue] *.00062;
-            //int hereCount = [[[ven objectForKey: @"hereNow"] objectForKey:@"count"] intValue]; 
             CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
             CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
             NSString *iconURL = [[[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"] objectForKey:@"prefix"];
@@ -287,17 +293,14 @@ typedef enum {
             
             [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
             UIButton *nameButton = (UIButton *)[venueDetailNib viewWithTag:1];
-            //UIButton *nameButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, nibwidth, nibheight)];
             [[nameButton titleLabel] setFont:[UIFont fontWithName:@"Rockwell" size:24]];
             [[nameButton titleLabel] setBackgroundColor:[UIColor clearColor]];
             [nameButton setTitle:vName forState:UIControlStateNormal];
             [nameButton setTitleColor:redC forState:UIControlStateNormal];
-            [nameButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-            [nameButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+            [nameButton setTitleColor:[UIColor whiteColor] forState:(UIControlStateHighlighted | UIControlStateSelected)];
             
             [nameButton.layer setBorderColor:[[UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:0.2] CGColor]];
             [nameButton.layer setBorderWidth:2.0];
-            //nameButton.layer.cornerRadius = 5.0;
             
             offset = (int)(nibwidth + padding) * i; 
             CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
@@ -361,23 +364,23 @@ typedef enum {
 - (void) refreshView
 {
 
-    if (_scene.level == [Tumbleweed sharedClient].tumbleweedLevel) {
-        // load up initial state
-        //checkInIntructions.text = checkInCopy;
-        movieThumbnailButton.enabled = NO;
-        
-        if (categoryId) {
-            [self searchSetup];
-            
-        }
-        else{
-            //load alternate view
-            
-            if ([name isEqualToString:@"No Man's Land"] ||
-                [name isEqualToString:@"The End"]) {
-                [self animateRewards];
+    if ([sceneTypeName isEqualToString:@"Empty"])
+    {
+        movieThumbnailButton.enabled = YES;
+        [searchView removeFromSuperview];
+    }
+    else
+    {
+        if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards];
+        else
+        {
+            movieThumbnailButton.enabled = NO;
+            if ([sceneTypeName isEqualToString:@"FSQsearch"])
+            {
+                [self searchSetup];
             }
-            else{
+            else if ([sceneTypeName isEqualToString:@"Timer"])
+            {
                 [searchView removeFromSuperview];
                 currentTime = 3600;
                 countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
@@ -386,14 +389,13 @@ typedef enum {
                 timerLabel.hidden = NO;
                 sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
             }
+            else if ([sceneTypeName isEqualToString:@"FSQdistance"])
+            {
+                
+            }
         }
-        
     }
-    else{
-        //load unlocked state
-        [self animateRewards];
-        
-    }
+    
 
 }
 - (void) searchSetup
@@ -446,12 +448,8 @@ typedef enum {
         //should swap this for refresh view when i get the chance, otherwise if someone gets a slow update
         //this viewcontroller will close in the middle of them using it.
         //[self refreshView];
-        [self dismissModalViewControllerAnimated:NO];
+        [self refreshView];
         
-    }
-    else if ([[notif name] isEqualToString:@"enteredBackground"])
-    {
-        [self dismissModalViewControllerAnimated:NO];
     }
     
 }
@@ -687,18 +685,12 @@ typedef enum {
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    /*
-    if ([Tumbleweed weed].tumbleweedLevel > _scene.level) {
-        [self animateRewards];
-    }
-     */
+
     [self refreshView];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"gameSave" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(gameSavetNotif:)
-                                                 name:@"enteredBackground" object:nil];
+
      
 }
 - (void)viewDidDisappear:(BOOL)animated

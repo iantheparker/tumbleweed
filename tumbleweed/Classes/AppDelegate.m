@@ -18,7 +18,7 @@
 @implementation AppDelegate
 
 @synthesize window = _window;
-@synthesize viewController, weed;
+@synthesize tweedNavController;
 
 /**
   * Catch any exceptions that leak through and report
@@ -38,8 +38,11 @@ void uncaughtExceptionHandler(NSException *exception) {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     
-    self.viewController = [[TumbleweedViewController alloc]initWithNibName:@"TumbleweedViewController" bundle:nil];
-    self.window.rootViewController = self.viewController;
+    TumbleweedViewController *tweedViewController = [[TumbleweedViewController alloc]initWithNibName:@"TumbleweedViewController" bundle:nil];
+    tweedNavController = [[UINavigationController alloc] initWithRootViewController:tweedViewController];
+    tweedNavController.navigationBarHidden = YES;
+    
+    self.window.rootViewController = tweedNavController;
     [self.window makeKeyAndVisible];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
         
@@ -149,9 +152,10 @@ void uncaughtExceptionHandler(NSException *exception) {
      If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
      */
 
-    [viewController saveAvatarPosition];
-    [viewController dismissViewControllerAnimated:NO completion:^{}];
-    [viewController dismissModalViewControllerAnimated:NO];
+    [[[tweedNavController viewControllers] objectAtIndex:0] saveAvatarPosition];
+    [tweedNavController dismissModalViewControllerAnimated:NO];
+    [tweedNavController popToRootViewControllerAnimated:NO];
+    
     [[Tumbleweed sharedClient] saveTumbleweed];
     NSLog(@"did enter background");
     [[NSNotificationCenter defaultCenter] postNotificationName:@"enteredBackground" object:self];

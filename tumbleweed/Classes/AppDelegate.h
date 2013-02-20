@@ -13,13 +13,11 @@
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 {
-    TumbleweedViewController *viewController;
-    Tumbleweed *weed;
+    UINavigationController *tweedNavController;
 }
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) TumbleweedViewController *viewController;
-@property (strong, nonatomic) Tumbleweed *weed;
+@property (strong, nonatomic) UINavigationController *tweedNavController;
 
 void uncaughtExceptionHandler(NSException *exception);
 

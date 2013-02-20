@@ -31,6 +31,7 @@
     UIColor *beigeC;
     UIColor *redC;
     UIColor *brownC;
+    UIImagePickerController *imagePickerController;
 }
 
 @synthesize venueDetails, venueNameLabel, shoutText, characterCounter, shoutTextView, sceneControllerId, photoButton, facebookButton, twitterButton;
@@ -64,7 +65,15 @@
 - (IBAction)dismissModal:(id)sender
 {
     //NSLog(@"dismissing modal");
-    [self dismissModalViewControllerAnimated:YES];
+    //[self dismissModalViewControllerAnimated:YES];
+    [UIView animateWithDuration:0.35
+                     animations:^{
+                         [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+                         [UIView setAnimationTransition:UIViewAnimationTransitionNone forView:self.navigationController.view cache:NO];
+                     } completion:^(BOOL finished) {
+                         [self.navigationController popViewControllerAnimated:YES];
+                     }];
+    
 }
 - (IBAction)toggleFacebookShare:(id)sender
 {
@@ -121,7 +130,7 @@
 
 -(void)takePhoto: (NSInteger)sourceType
 {
-    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController = [[UIImagePickerController alloc] init];
     switch (sourceType) {
         case UIImagePickerControllerSourceTypeCamera:
             if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
@@ -248,6 +257,7 @@
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
 }
+
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {

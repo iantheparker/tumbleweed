@@ -254,19 +254,14 @@
 }
 - (void) scenePressed:(UIButton *)sender
 {
-    [self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
-    //[self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
-    /*
-     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:scenes objectAtIndex:sender.tag] sceneVC]];
-     [self presentModalViewController:navController animated:YES];
-    [UIView transitionWithView:self.view
-                      duration:1.0f
-                       options:UIViewAnimationOptionTransitionCurlDown
-                    animations:^{
-                        [self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC].navigationController animated:NO];
-                    }
-                    completion:NULL];
-    */
+    //[self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
+    [UIView animateWithDuration:0.50
+                     animations:^{
+                         [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+                         [self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:NO];
+                         [UIView setAnimationTransition:UIViewAnimationTransitionCurlDown forView:self.navigationController.view cache:NO];
+                     }];
+    
 }
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     if ([touch.view isKindOfClass:[UIButton class]]){

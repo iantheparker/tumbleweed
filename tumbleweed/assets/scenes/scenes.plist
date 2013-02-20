@@ -9,16 +9,21 @@
 			<string>No Man&apos;s Land</string>
 			<key>movieName</key>
 			<string>intro</string>
+			<key>hintCopy</key>
+			<string>Legend has it that all the best cowboys logged into Foursquare...</string>
+			<key>checkInCopy</key>
+			<string>STARRING</string>
+			<key>bonus</key>
+			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>type</key>
+				<string>Empty</string>
+			</dict>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S1-ON.jpg</string>
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S1-onPRESS.jpg</string>
-			<key>hintCopy</key>
-			<string>I was born from the old cowboys. This is my home.</string>
-			<key>checkInCopy</key>
-			<string></string>
-			<key>bonus</key>
-			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_2_ICON-on.png</string>
 		</dict>
@@ -29,20 +34,27 @@
 			<integer>0</integer>
 			<key>movieName</key>
 			<string>deal</string>
+			<key>sceneType</key>
+			<dict>
+				<key>type</key>
+				<string>FSQsearch</string>
+				<key>sectionId</key>
+				<string>shops</string>
+				<key>categoryId</key>
+				<string>4d4b7105d754a06378d81259</string>
+			</dict>
+			<key>hintCopy</key>
+			<string>Something bad is coming here. I don’t like it.</string>
+			<key>checkInCopy</key>
+			<string>watch the deal going down at:</string>
+			<key>bonus</key>
+			<string></string>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S2-ON.jpg</string>
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S2-onPRESS.jpg</string>
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S2-OFF.jpg</string>
-			<key>categoryId</key>
-			<string>4d4b7105d754a06378d81259</string>
-			<key>hintCopy</key>
-			<string>Something bad is coming here. I don’t like it.</string>
-			<key>checkInCopy</key>
-			<string>a shady deal is going down at:</string>
-			<key>bonus</key>
-			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_3_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -59,18 +71,27 @@
 			<string>bar</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06376d81259</string>
-			<key>movieButtonOn</key>
-			<string>video_thumbnail_S3-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S3-onPRESS.jpg</string>
-			<key>movieButtonOff</key>
-			<string>video_thumbnail_S3-OFF.jpg</string>
 			<key>hintCopy</key>
 			<string> Let’s find a stool with the best vantage point. I hate being thirsty. </string>
 			<key>checkInCopy</key>
 			<string>take a seat and grab a drink at:</string>
 			<key>bonus</key>
 			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>sectionId</key>
+				<string>drinks,coffee</string>
+				<key>type</key>
+				<string>FSQsearch</string>
+				<key>categoryId</key>
+				<string>4d4b7105d754a06378d81259</string>
+			</dict>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S3-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S3-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S3-OFF.jpg</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_4_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -85,20 +106,27 @@
 			<integer>2</integer>
 			<key>movieName</key>
 			<string>gasStation</string>
-			<key>categoryId</key>
-			<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
+			<key>hintCopy</key>
+			<string>Leaving town? Strangers always stop here on their way out.</string>
+			<key>checkInCopy</key>
+			<string>wait around until he shows up at:</string>
+			<key>bonus</key>
+			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>query</key>
+				<string>travel</string>
+				<key>type</key>
+				<string>FSQsearch</string>
+				<key>categoryId</key>
+				<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
+			</dict>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S4-ON.jpg</string>
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S4-onPRESS.jpg</string>
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S4-OFF.jpg</string>
-			<key>hintCopy</key>
-			<string>Leaving town? Strangers always stop here on their way out.</string>
-			<key>checkInCopy</key>
-			<string>He&apos;ll run into you sooner or later here:</string>
-			<key>bonus</key>
-			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_5_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -109,24 +137,31 @@
 		<dict>
 			<key>name</key>
 			<string>The Riverbed</string>
-			<key>categoryId</key>
-			<string>4d4b7105d754a06377d81259</string>
 			<key>level</key>
 			<integer>3</integer>
 			<key>movieName</key>
 			<string>riverbed1</string>
+			<key>hintCopy</key>
+			<string>Fools always take their clothes off first. Stupid.</string>
+			<key>checkInCopy</key>
+			<string>show him what nature&apos;s about at:</string>
+			<key>bonus</key>
+			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>sectionId</key>
+				<string>outdoors</string>
+				<key>type</key>
+				<string>FSQsearch</string>
+				<key>categoryId</key>
+				<string></string>
+			</dict>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S5-ON.jpg</string>
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S5-onPRESS.jpg</string>
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S5-OFF.jpg</string>
-			<key>hintCopy</key>
-			<string>Fools always take their clothes off first. Stupid.</string>
-			<key>checkInCopy</key>
-			<string>Still here? Give him a scare.</string>
-			<key>bonus</key>
-			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_6_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -135,8 +170,6 @@
 			<string>top_lvl4_objs_6_ICON-press.png</string>
 		</dict>
 		<dict>
-			<key>categoryId</key>
-			<string>4bf58dd8d48988d12d941735</string>
 			<key>name</key>
 			<string>The Body</string>
 			<key>movieName</key>
@@ -149,6 +182,11 @@
 			<string>yikes. they&apos;re gonna find out soon.</string>
 			<key>bonus</key>
 			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>type</key>
+				<string>Timer</string>
+			</dict>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S6-ON.jpg</string>
 			<key>movieButtonPressed</key>
@@ -169,20 +207,27 @@
 			<string>chase</string>
 			<key>level</key>
 			<integer>5</integer>
+			<key>hintCopy</key>
+			<string>Uh oh. Where can I go where no one will find me?</string>
+			<key>checkInCopy</key>
+			<string>hide somewhere new to you:</string>
+			<key>bonus</key>
+			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>sectionId</key>
+				<string></string>
+				<key>type</key>
+				<string>FSQdistance</string>
+				<key>categoryId</key>
+				<string></string>
+			</dict>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S7-ON.jpg</string>
 			<key>movieButtonPressed</key>
 			<string>video_thumbnail_S7-onPRESS.jpg</string>
 			<key>movieButtonOff</key>
 			<string>video_thumbnail_S7-OFF.jpg</string>
-			<key>categoryId</key>
-			<string>4d4b7105d754a06378d81259</string>
-			<key>hintCopy</key>
-			<string>Uh oh. Where can I go where no one will find me?</string>
-			<key>checkInCopy</key>
-			<string>find somewhere new to hide.</string>
-			<key>bonus</key>
-			<string></string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_8_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -197,12 +242,6 @@
 			<string>lynch</string>
 			<key>level</key>
 			<integer>6</integer>
-			<key>movieButtonOn</key>
-			<string>video_thumbnail_S8-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S8-onPRESS.jpg</string>
-			<key>movieButtonOff</key>
-			<string>video_thumbnail_S8-OFF.jpg</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
@@ -211,6 +250,19 @@
 			<string>keep moving and don&apos;t look back.</string>
 			<key>bonus</key>
 			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>novelty</key>
+				<string>new</string>
+				<key>type</key>
+				<string>FSQsearch</string>
+			</dict>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S8-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S8-onPRESS.jpg</string>
+			<key>movieButtonOff</key>
+			<string>video_thumbnail_S8-OFF.jpg</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_9_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -225,16 +277,21 @@
 			<string>campfire</string>
 			<key>level</key>
 			<integer>7</integer>
-			<key>movieButtonOn</key>
-			<string>video_thumbnail_S9-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S9-onPRESS.jpg</string>
 			<key>hintCopy</key>
 			<string>I smell fire...</string>
 			<key>checkInCopy</key>
 			<string>game over</string>
 			<key>bonus</key>
 			<string></string>
+			<key>sceneType</key>
+			<dict>
+				<key>type</key>
+				<string>Empty</string>
+			</dict>
+			<key>movieButtonOn</key>
+			<string>video_thumbnail_S9-ON.jpg</string>
+			<key>movieButtonPressed</key>
+			<string>video_thumbnail_S9-onPRESS.jpg</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_10_ICON-on.png</string>
 			<key>buttonUnlocked</key>

@@ -102,7 +102,7 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
-                                 //@"5", @"limit",
+                                 @"10", @"limit",
                                  @"200", @"radius",
                                  category, @"categoryId",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
@@ -134,7 +134,7 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
-                                 //@"5", @"limit",
+                                 @"10", @"limit",
                                  @"200", @"radius",
                                  section, @"section",
                                  novelty, @"novelty",
