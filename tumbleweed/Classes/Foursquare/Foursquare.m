@@ -102,10 +102,10 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  @"10", @"limit",
                                  @"200", @"radius",
                                  category, @"categoryId",
-                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];
     [[AFFoursquareAPIClient sharedClient] getPath:@"venues/search" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
@@ -134,11 +134,11 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  @"10", @"limit",
                                  @"200", @"radius",
                                  section, @"section",
                                  novelty, @"novelty",
-                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];
     [[AFFoursquareAPIClient sharedClient] getPath:@"venues/explore" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {

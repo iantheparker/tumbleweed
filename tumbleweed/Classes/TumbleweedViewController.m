@@ -28,6 +28,7 @@
 @property (nonatomic, retain) UIButton *buttonContainer;
 @property (nonatomic, retain) CALayer *blackPanel;
 @property (nonatomic, retain) CALayer *progressBarEmpty;
+@property (nonatomic, getter = isLoggedIn) BOOL loggedIn;
 
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) scenePressed:(UIButton*)sender;
@@ -294,8 +295,8 @@
         }
         
         UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
-        if (![[Tumbleweed sharedClient] tumbleweedId]) hintLabel.text = @"Legend says all the best cowboys logged in to Foursquare first. I should too.";
-        else hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel+1] hintCopy];
+        if ([[Tumbleweed sharedClient] tumbleweedId])hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel+1] hintCopy];
+        else hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel] hintCopy];
         UIColor *brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
         hintLabel.textColor = brownC;
         hintLabel.font = [UIFont fontWithName:@"rockwell" size:20];
@@ -366,9 +367,10 @@
 -(void) updateSceneButtonStates
 {
     NSLog(@"update scene with level %d", [Tumbleweed sharedClient].tumbleweedLevel);
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]){
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] && ![self isLoggedIn]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
         foursquareConnectButton.enabled = NO;
+        [self setLoggedIn:YES];
     }
     
     //start this loop at 1 because scene 0 is the intro and that should always be accessible
@@ -400,13 +402,13 @@
         {117, 0, imageWidth-117, imageHeight},
         {156.5, 0, imageWidth-156.5, imageHeight},
         {188.5, 0, imageWidth-188.5, imageHeight},
-        {218, 0, imageWidth-218, imageHeight},
+        {212, 0, imageWidth-212, imageHeight},
         {255, 0, imageWidth-255, imageHeight},
         
     };
     progressBarEmpty.bounds = sampleRects[level];
     progressBarEmpty.contentsRect = CGRectMake(progressBarEmpty.bounds.origin.x/imageWidth, progressBarEmpty.bounds.origin.y/imageHeight, progressBarEmpty.bounds.size.width/imageWidth, progressBarEmpty.bounds.size.height/imageHeight);
-    [progressLabel setString:[NSString stringWithFormat:@"%d left until the jig is up", 8-level]];
+    [progressLabel setString:[NSString stringWithFormat:@"%d more until the jig is up", 8-level]];
 
 }
 

@@ -12,5 +12,6 @@
 @interface AFFoursquareAPIClient : AFHTTPClient
 
 + (AFFoursquareAPIClient *)sharedClient;
+- (void)setAuthTokenHeader;
 
 @end

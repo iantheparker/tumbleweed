@@ -41,6 +41,8 @@
 -(IBAction) launchBonusWebView;
 -(void) willPresentError:(NSError *)error;
 -(void)updateTimer:(NSTimer *)timer;
+- (void) processVenues: (NSArray *) items : (NSError*) err;
+- (void) searchSetup : (NSInteger) searchType;
 
 @end
 
@@ -94,15 +96,9 @@
                      animations:^{
                          [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
                          [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp forView:self.navigationController.view cache:NO];
-                     } completion:^(BOOL finished) {
-                         
-                         [Foursquare cancelSearchVenues];
-                         [locationManager stopUpdatingLocation];
-                         mvFoursquare.showsUserLocation = NO;
-                     }];
+                     } completion:^(BOOL finished) {}];
     [self.navigationController popViewControllerAnimated:NO];
 }
-
 - (void) launchCheckinVC: (id)sender : (NSDictionary*) dict
 {
     NSDictionary *launchDict;
@@ -123,7 +119,10 @@
                      animations:^{
                          [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
                          [self.navigationController pushViewController:checkIn animated:YES];
-                         [UIView setAnimationTransition:UIViewAnimationTransitionNone forView:self.navigationController.view cache:NO];
+                         //[UIView setAnimationTransition:UIViewAnimationTransitionNone forView:self.navigationController.view cache:NO];
+                     } completion:^(BOOL finished) {
+                         [(UIButton*)sender setSelected:NO];
+                         [(UIButton*)sender setBackgroundColor:[UIColor clearColor]];
                      }];
 }
 - (void) launchBonusWebView
@@ -143,22 +142,6 @@
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
     [self presentMoviePlayerViewControllerAnimated:moviePlayer];
 }
-- (IBAction)refreshSearch:(id)sender
-{
-    [UIView animateWithDuration:.5
-                          delay:0
-                        options: UIViewAnimationOptionCurveEaseInOut
-                     animations:^{
-                         CGAffineTransform transform1 = CGAffineTransformMakeRotation(180 * M_PI / 180);
-                         CGAffineTransform transform2 = CGAffineTransformMakeRotation(360 * M_PI / 180);
-                         refreshButton.transform = transform1;
-                         refreshButton.transform = transform2;
-                     }
-                     completion:^(BOOL finished){
-                         [self searchSetup];
-                     }];
-    
-}
 - (IBAction)rightScroll:(id)sender
 {
     self.venueSVPos += 1;
@@ -166,6 +149,10 @@
 - (IBAction)leftScroll:(id)sender
 {
     self.venueSVPos -= 1;
+}
+-(void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    self.venueSVPos = venueScrollView.contentOffset.x / venueScrollView.frame.size.width;
 }
 - (void) setVenueSVPos:(unsigned int)position
 {
@@ -204,256 +191,6 @@
     }
     NSLog(@"venuesvpos = %i", venueSVPos);
 }
-- (void) willPresentError:(NSError *)error
-{
-    
-    NSString *errorTitle;
-    NSString *errorMessage;
-    NSLog(@"presenting alert error");
-    if ([[error domain] isEqualToString:kCLErrorDomain] || [[error domain] isEqualToString:NSURLErrorDomain]) {
-        switch([error code]) {
-            case kCLAuthorizationStatusAuthorized:
-            case kCLErrorDenied:
-                errorTitle = @"Location Services Disabled";
-                errorMessage = @"To re-enable, please go to Settings and turn on Location Service for this app.";
-                break;
-            default:
-                errorTitle = @"Get Some Internet";
-                errorMessage = @"You need some reception for this to work. Hit the re-search button on the map when you're ready.";
-                break;
-                
-        }
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:errorTitle
-                                           message:errorMessage
-                                          delegate:nil
-                                 cancelButtonTitle:@"OK"
-                                 otherButtonTitles:nil];
-        [alert show];
-        
-    }
-    
-}
-
-- (void) processVenues: (NSArray*) items : (NSError*) err
-{
-    [activityIndicator stopAnimating];
-    NSLog(@"processing foursquare venues");
-    
-    //init view sizes
-    float nibwidth = venueScrollView.frame.size.width;
-    float nibheight = venueScrollView.frame.size.height;
-    int padding = 0;
-
-    int itemsArrayLength = [items count];
-    if (!itemsArrayLength) itemsArrayLength = 1;
-    float scrollWidth = (nibwidth + padding) * itemsArrayLength;
-    CGSize contentSize = CGSizeMake(scrollWidth, nibheight);
-    venueScrollView.contentSize = contentSize;
-    
-    //if re-search was hit, reset all the views and values
-    allVenues = nil;
-    venueView = nil;
-    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
-    [venueScrollView addSubview:venueView];
-    
-    // If there are no search results, throw up "Nothing found."
-    if ([items count] == 0 || err) {
-        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
-        [nameLabel setTextAlignment:UITextAlignmentCenter];
-        if (err) {
-            [nameLabel setText:@"You need some internets."];
-            [self willPresentError:err];
-        }
-        else [nameLabel setText:@"Nothing nearby? Weird."];
-        
-        NSLog(@"items %@, itemsArrayLength %d, error %@, namelable %@", items, itemsArrayLength, err.domain, nameLabel.text);
-        [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-        [nameLabel setTextColor:redC];
-        [nameLabel setClearsContextBeforeDrawing:YES];
-        [nameLabel setBackgroundColor:[UIColor clearColor]];
-        [nameLabel setCenter:CGPointMake(nibwidth/2, nibheight/2)];
-        [venueView addSubview:nameLabel];
-        rightScroll.enabled = NO;
-    }
-    else{
-        if (items.count > 1) rightScroll.enabled = YES;
-        allVenues = [NSMutableArray array];
-
-        int offset = 0;
-        NSMutableArray *annotations = [[NSMutableArray alloc] init];
-        for (int i = 0; i < [items count]; i++) {
-            NSDictionary *ven = [items objectAtIndex:i];
-            NSString *vID = [ven objectForKey:@"id"];
-            NSString *vName = [ven objectForKey:@"name"];
-            NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
-            CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
-            CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
-            NSString *iconURL = [[[[ven objectForKey:@"categories"] objectAtIndex:0] objectForKey:@"icon"] objectForKey:@"prefix"];
-            iconURL = [iconURL stringByAppendingString:@"64.png"];
-            
-            [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
-            UIButton *nameButton = (UIButton *)[venueDetailNib viewWithTag:1];
-            [[nameButton titleLabel] setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-            [[nameButton titleLabel] setBackgroundColor:[UIColor clearColor]];
-            [nameButton setTitle:vName forState:UIControlStateNormal];
-            [nameButton setTitleColor:redC forState:UIControlStateNormal];
-            [nameButton setTitleColor:[UIColor whiteColor] forState:(UIControlStateHighlighted | UIControlStateSelected)];
-            
-            [nameButton.layer setBorderColor:[[UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:0.2] CGColor]];
-            [nameButton.layer setBorderWidth:2.0];
-            
-            offset = (int)(nibwidth + padding) * i; 
-            CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
-            [venueDetailNib setCenter:nibCenter];
-            
-            // push venue details into a tag for future lookup            
-            nameButton.tag = i;
-            [allVenues addObject:ven];
-            
-            // capture events
-            [nameButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchDown];
-            
-            // add it to the content view
-            [venueView addSubview:venueDetailNib];
-            
-            // create and initialise the annotation
-            FoursquareAnnotation *foursquareAnnotation = [[FoursquareAnnotation alloc] init];
-            // create the map region for the coordinate
-            MKCoordinateRegion region = { { latitude , longitude } , { 0.001f , 0.001f } };
-            
-            // set all properties with the necessary details
-            [foursquareAnnotation setCoordinate: region.center];
-            [foursquareAnnotation setTitle: vName];
-            [foursquareAnnotation setSubtitle: address];
-            [foursquareAnnotation setVenueId: vID];
-            [foursquareAnnotation setIconUrl:iconURL];
-            [foursquareAnnotation setArrayPos:((unsigned int) i)];
-            
-            // add the annotation object to the container
-            [annotations addObject: foursquareAnnotation];
-            
-        }
-        [mvFoursquare addAnnotations: annotations];
-    }
-    [venueScrollView.subviews makeObjectsPerformSelector:@selector(setNeedsDisplay)];
-    self.venueSVPos = 0;
-}
-- (void) animateRewards
-{
-    extrasView.hidden = NO;
-    [UIView animateWithDuration:1 animations:^{
-        CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, 320);
-        sceneScrollView.contentSize = screenSize;
-        checkInIntructions.alpha = 0.0;
-        mvFoursquare.layer.opacity = 0.0;
-        searchView.layer.opacity = 0.0;
-    } completion:^(BOOL finished) {
-        [searchView removeFromSuperview];
-        [checkInIntructions removeFromSuperview];
-        [UIView transitionWithView:movieThumbnailButton
-                          duration:0.2f
-                           options:UIViewAnimationOptionTransitionCrossDissolve
-                        animations:^{
-                            movieThumbnailButton.enabled = YES;
-                            extrasView.alpha = 1.0;
-                            
-                        } completion:NULL];
-    }];
-
-}
-- (void) refreshView
-{
-
-    if ([sceneTypeName isEqualToString:@"Empty"])
-    {
-        movieThumbnailButton.enabled = YES;
-        [searchView removeFromSuperview];
-    }
-    else
-    {
-        if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards];
-        else
-        {
-            movieThumbnailButton.enabled = NO;
-            if ([sceneTypeName isEqualToString:@"FSQsearch"])
-            {
-                [self searchSetup];
-            }
-            else if ([sceneTypeName isEqualToString:@"Timer"])
-            {
-                [searchView removeFromSuperview];
-                currentTime = 3600;
-                countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
-                [timerLabel setFont:[UIFont fontWithName:@"Rockwell" size:26]];
-                [timerLabel setTextColor:redC];
-                timerLabel.hidden = NO;
-                sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
-            }
-            else if ([sceneTypeName isEqualToString:@"FSQdistance"])
-            {
-                
-            }
-        }
-    }
-    
-
-}
-- (void) searchSetup
-{
-    NSLog(@"search setup");
-    
-    //clear all previous results
-    [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];    
-    [mvFoursquare removeAnnotations:mvFoursquare.annotations];
-    [activityIndicator startAnimating];
-    
-    //guarantees the the mapView didUpdateUserLocation is called
-    mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
-    mvFoursquare.showsUserLocation = YES;
-    [self setPinsLoaded:NO];
-    if (!locationManager){
-        locationManager = [[CLLocationManager alloc] init];
-        [locationManager setDelegate:self];
-    }
-    [locationManager startUpdatingLocation];
-
-
-}
--(void)updateTimer:(NSTimer *)timer {
-    currentTime -= 1 ;
-    [self populateLabelwithTime:currentTime];
-    if(currentTime <=0)
-        [countDownTimer invalidate];
-    //NSLog(@"updatetimer");
-}
-
-
-- (void)populateLabelwithTime:(int)seconds {
-    //int seconds = milliseconds/1000;
-    int minutes = seconds / 60;
-    int hours = minutes / 60;
-    
-    seconds -= minutes * 60;
-    minutes -= hours * 60;
-    
-    NSString * result1 = [NSString stringWithFormat:@"%02d:%02d:%02d", hours, minutes, seconds];
-    timerLabel.text = result1;
-    
-}
--(void) gameSavetNotif: (NSNotification *) notif
-{
-    //dismiss view if game state is saved - saving occurs when app enters background or receives update from server
-    if ([[notif name] isEqualToString:@"gameSaved"])
-    {
-        //should swap this for refresh view when i get the chance, otherwise if someone gets a slow update
-        //this viewcontroller will close in the middle of them using it.
-        //[self refreshView];
-        [self refreshView];
-        
-    }
-    
-}
-
 #pragma mark -
 #pragma mark -  CoreLocation delegate methods
 
@@ -476,7 +213,7 @@
     [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:categoryId WithBlock:^(NSArray *venues, NSError *error) {
         if (error) {
             NSLog(@"error %@", error);
-        } 
+        }
         [self processVenues:venues :error];
         
     }];
@@ -489,7 +226,7 @@
     
 }
 
-#pragma mark - 
+#pragma mark -
 #pragma mark - Map View Delegate methods
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
@@ -505,17 +242,17 @@
         
         if (annotationView == nil) {
             annotationView = [[MKPinAnnotationView alloc]
-                              initWithAnnotation:annotation 
+                              initWithAnnotation:annotation
                               reuseIdentifier:identifier];
         } else {
             annotationView.annotation = annotation;
         }
         
         annotationView.enabled = YES;
-        annotationView.canShowCallout = YES;        
+        annotationView.canShowCallout = YES;
         //annotationView.image = ((FoursquareAnnotation *)annotation).icon;
         
-        // Create a UIButton object to add on the 
+        // Create a UIButton object to add on the
         UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
         rightButton.frame = CGRectMake(0, 0, 32, 32);
         rightButton.imageView.layer.cornerRadius = 10.0;
@@ -531,7 +268,7 @@
         return annotationView;
     }
     
-    return nil; 
+    return nil;
 }
 - (void) mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view
 {
@@ -556,7 +293,7 @@
         NSString* foursquareURL = [NSString stringWithFormat: @"foursquare://venues/%@",((FoursquareAnnotation*)[view annotation]).venueId];
         BOOL canOpenFoursquareApp = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString: foursquareURL]];
         if (canOpenFoursquareApp) {
-            [[UIApplication sharedApplication] openURL: [NSURL URLWithString: foursquareURL]]; 
+            [[UIApplication sharedApplication] openURL: [NSURL URLWithString: foursquareURL]];
         }
         else {
             NSString *formattedAddress = [[NSString stringWithFormat:@"%@",(FoursquareAnnotation*)[view annotation].subtitle] stringByReplacingOccurrencesOfString:@" " withString:@"+"];
@@ -566,20 +303,20 @@
         
     } else if([(UIButton*)control buttonType] ==  UIButtonTypeCustom) {
         // Do your thing when the infoDarkButton is touched
-        NSLog(@"infoDarkButton for longitude: %f and latitude: %f and address is %@", 
-              [(FoursquareAnnotation*)[view annotation] coordinate].longitude, 
+        NSLog(@"infoDarkButton for longitude: %f and latitude: %f and address is %@",
+              [(FoursquareAnnotation*)[view annotation] coordinate].longitude,
               [(FoursquareAnnotation*)[view annotation] coordinate].latitude, (FoursquareAnnotation*)[view annotation].subtitle);
         
         [self launchCheckinVC: nil:[NSDictionary dictionaryWithObjectsAndKeys:
-                               ((FoursquareAnnotation*)[view annotation]).venueId, @"id",
-                               ((FoursquareAnnotation*)[view annotation]).title, @"name", nil]];
+                                    ((FoursquareAnnotation*)[view annotation]).venueId, @"id",
+                                    ((FoursquareAnnotation*)[view annotation]).title, @"name", nil]];
         
     }
 }
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
     [self zoomMapViewToFitAnnotations:mapView animated:YES];
-
+    
     for (id<MKAnnotation> currentAnnotation in mapView.annotations) {
         if ([currentAnnotation isKindOfClass:[FoursquareAnnotation class]]){
             if (((FoursquareAnnotation*)currentAnnotation).arrayPos == 0) {
@@ -628,6 +365,322 @@
     [mapView setRegion:region animated:animated];
 }
 
+#pragma mark -
+#pragma mark - SearchView methods
+- (void) searchSetup  : (NSInteger) searchType
+{
+    NSLog(@"search setup");
+    
+    //clear all previous results
+    [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [mvFoursquare removeAnnotations:mvFoursquare.annotations];
+    [activityIndicator startAnimating];
+    
+    //guarantees the the mapView didUpdateUserLocation is called
+    mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
+    mvFoursquare.showsUserLocation = YES;
+    [self setPinsLoaded:NO];
+    if (!locationManager){
+        locationManager = [[CLLocationManager alloc] init];
+        [locationManager setDelegate:self];
+    }
+    //[locationManager startUpdatingLocation];
+    RCLocationManager *locationManagerRC = [RCLocationManager sharedManager];
+    [locationManagerRC setPurpose:@"My custom purpose message"];
+    [locationManagerRC setUserDistanceFilter:kCLLocationAccuracyHundredMeters];
+    [locationManagerRC setUserDesiredAccuracy:kCLLocationAccuracyBest];
+    if (searchType == 1) {
+        
+        [locationManagerRC retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
+            userCoordinate = [newLocation coordinate];
+            
+            NSString *lat = [NSString stringWithFormat:@"%f", userCoordinate.latitude];
+            NSString *lon = [NSString stringWithFormat:@"%f", userCoordinate.longitude];
+            NSLog(@"locationmanager lat %@ long %@", lat, lon);
+            
+            [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:categoryId WithBlock:^(NSArray *venues, NSError *error) {
+                if (error) {
+                    NSLog(@"error %@", error);
+                }
+                [self processVenues:venues :error];
+            }];
+            
+        } errorBlock:^(CLLocationManager *manager, NSError *error) {
+            [self processVenues:nil :error];
+        }];
+    }
+    else if (searchType ==2){
+        
+    }
+
+     
+    
+}
+- (void) processVenues: (NSArray*) items : (NSError*) err
+{
+    [activityIndicator stopAnimating];
+    
+    //init view sizes
+    float nibwidth = venueScrollView.frame.size.width;
+    float nibheight = venueScrollView.frame.size.height;
+    int padding = 0;
+
+    int itemsArrayLength = [items count];
+    if (!itemsArrayLength) itemsArrayLength = 1;
+    float scrollWidth = (nibwidth + padding) * itemsArrayLength;
+    CGSize contentSize = CGSizeMake(scrollWidth, nibheight);
+    venueScrollView.contentSize = contentSize;
+    NSLog(@"processing %d foursquare venues", itemsArrayLength);
+    
+    //if re-search was hit, reset all the views and values
+    //allVenues = nil;
+    //venueView = nil;
+    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
+    [venueScrollView addSubview:venueView];
+    
+    // If there are no search results, throw up "Nothing found."
+    if ([items count] == 0 || err) {
+        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
+        [nameLabel setTextAlignment:UITextAlignmentCenter];
+        if (err) {
+            [nameLabel setText:@"You need some internets."];
+            [self willPresentError:err];
+        }
+        else [nameLabel setText:@"Nothing nearby? Weird."];
+        
+        NSLog(@"items %@, itemsArrayLength %d, error %@, namelable %@", items, itemsArrayLength, err.domain, nameLabel.text);
+        [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+        [nameLabel setTextColor:redC];
+        [nameLabel setClearsContextBeforeDrawing:YES];
+        [nameLabel setBackgroundColor:[UIColor clearColor]];
+        [nameLabel setCenter:CGPointMake(nibwidth/2, nibheight/2)];
+        [venueView addSubview:nameLabel];
+        rightScroll.enabled = NO;
+    }
+    else{
+        if (items.count > 1) rightScroll.enabled = YES;
+        
+        allVenues = [NSMutableArray arrayWithCapacity:itemsArrayLength];
+
+        int offset = 0;
+        NSMutableArray *annotations = [[NSMutableArray alloc] init];
+        for (int i = 0; i < [items count]; i++) {
+            
+            NSDictionary *ven = [items objectAtIndex:i];
+            NSString *vID = [ven objectForKey:@"id"];
+            NSString *vName = [ven objectForKey:@"name"];
+            NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
+            CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
+            CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
+            NSArray *venCats = [ven objectForKey:@"categories"];
+            NSString *iconURL;
+            if (venCats.count) {
+                iconURL = [[[venCats objectAtIndex:0] objectForKey:@"icon"] objectForKey:@"prefix"];
+                iconURL = [iconURL stringByAppendingString:@"64.png"];
+            }
+            
+            [[NSBundle mainBundle] loadNibNamed:@"ListItemScrollView" owner:self options:nil];
+            UIButton *nameButton = (UIButton *)[venueDetailNib viewWithTag:1];
+            [[nameButton titleLabel] setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+            [[nameButton titleLabel] setBackgroundColor:[UIColor clearColor]];
+            [nameButton setTitle:vName forState:UIControlStateNormal];
+            [nameButton setTitleColor:redC forState:UIControlStateNormal];
+            [nameButton setTitleColor:[UIColor whiteColor] forState:(UIControlStateHighlighted | UIControlStateSelected)];
+            
+            [nameButton.layer setBorderColor:[[UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:0.2] CGColor]];
+            [nameButton.layer setBorderWidth:2.0];
+            
+            offset = (int)(nibwidth + padding) * i; 
+            CGPoint nibCenter = CGPointMake(offset + (nibwidth / 2), nibheight/2);
+            [venueDetailNib setCenter:nibCenter];
+            
+            // push venue details into a tag for future lookup            
+            nameButton.tag = i;
+            [allVenues addObject:ven];
+            
+            // capture events
+            [nameButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchDown];
+            
+            // add it to the content view
+            [venueView addSubview:venueDetailNib];
+            
+            // create and initialise the annotation
+            FoursquareAnnotation *foursquareAnnotation = [[FoursquareAnnotation alloc] init];
+            // create the map region for the coordinate
+            MKCoordinateRegion region = { { latitude , longitude } , { 0.001f , 0.001f } };
+            
+            // set all properties with the necessary details
+            [foursquareAnnotation setCoordinate: region.center];
+            [foursquareAnnotation setTitle: vName];
+            [foursquareAnnotation setSubtitle: address];
+            [foursquareAnnotation setVenueId: vID];
+            [foursquareAnnotation setIconUrl:iconURL];
+            [foursquareAnnotation setArrayPos:((unsigned int) i)];
+            
+            // add the annotation object to the container
+            [annotations addObject: foursquareAnnotation];
+            
+        }
+        [mvFoursquare addAnnotations: annotations];
+    }
+    [venueScrollView.subviews makeObjectsPerformSelector:@selector(setNeedsDisplay)];
+    self.venueSVPos = 0;
+}
+- (IBAction)refreshSearch:(id)sender
+{
+    [UIView animateWithDuration:.5
+                          delay:0
+                        options: UIViewAnimationOptionCurveEaseInOut
+                     animations:^{
+                         CGAffineTransform transform1 = CGAffineTransformMakeRotation(180 * M_PI / 180);
+                         CGAffineTransform transform2 = CGAffineTransformMakeRotation(360 * M_PI / 180);
+                         refreshButton.transform = transform1;
+                         refreshButton.transform = transform2;
+                     }
+                     completion:^(BOOL finished){
+                         [self searchSetup:1];
+                     }];
+    
+}
+#pragma mark -
+#pragma mark - Timer methods
+-(void)updateTimer:(NSTimer *)timer
+{
+    currentTime -= 1 ;
+    [self populateLabelwithTime:currentTime];
+    if(currentTime <=0)
+        [countDownTimer invalidate];
+    //NSLog(@"updatetimer");
+}
+- (void)populateLabelwithTime:(int)seconds
+{
+    //int seconds = milliseconds/1000;
+    int minutes = seconds / 60;
+    int hours = minutes / 60;
+    
+    seconds -= minutes * 60;
+    minutes -= hours * 60;
+    
+    NSString * result1 = [NSString stringWithFormat:@"%02d:%02d:%02d", hours, minutes, seconds];
+    timerLabel.text = result1;
+    
+}
+
+#pragma mark -
+#pragma mark - Load/Unload methods
+- (void) animateRewards : (NSTimeInterval) duration
+{
+    extrasView.hidden = NO;
+    [UIView animateWithDuration:duration animations:^{
+        CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, 320);
+        sceneScrollView.contentSize = screenSize;
+        checkInIntructions.alpha = 0.0;
+        contentView.layer.opacity = 0.0;
+    } completion:^(BOOL finished) {
+        [contentView removeFromSuperview];
+        [checkInIntructions removeFromSuperview];
+        [UIView transitionWithView:movieThumbnailButton
+                          duration:0.2f
+                           options:UIViewAnimationOptionTransitionCrossDissolve
+                        animations:^{
+                            movieThumbnailButton.enabled = YES;
+                            extrasView.alpha = 1.0;
+                            
+                        } completion:NULL];
+    }];
+    
+}
+-(void) gameSavetNotif: (NSNotification *) notif
+{
+    //dismiss view if game state is saved - saving occurs when app enters background or receives update from server
+    if ([[notif name] isEqualToString:@"gameSaved"])
+    {
+        //should swap this for refresh view when i get the chance, otherwise if someone gets a slow update
+        //this viewcontroller will close in the middle of them using it.
+        //[self refreshView];
+        [self refreshView];
+        
+    }
+    
+}
+- (void) willPresentError:(NSError *)error
+{
+    
+    NSString *errorTitle;
+    NSString *errorMessage;
+    NSLog(@"presenting alert error");
+    if ([[error domain] isEqualToString:kCLErrorDomain] || [[error domain] isEqualToString:NSURLErrorDomain]) {
+        switch([error code]) {
+            case kCLAuthorizationStatusAuthorized:
+            case kCLErrorDenied:
+                errorTitle = @"Location Services Disabled";
+                errorMessage = @"To re-enable, please go to Settings and turn on Location Service for this app.";
+                break;
+            default:
+                errorTitle = @"Get Some Internet";
+                errorMessage = @"You need some reception for this to work. Hit the re-search button on the map when you're ready.";
+                break;
+                
+        }
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:errorTitle
+                                                        message:errorMessage
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+        
+    }
+    
+}
+- (void) refreshView
+{
+    
+    if ([sceneTypeName isEqualToString:@"Empty"])
+    {
+        movieThumbnailButton.enabled = YES;
+        [contentView addSubview:introView];
+        introView.center = CGPointMake(contentView.bounds.size.width/2, introView.center.y);
+        for (UILabel *loopLabel in introView.subviews) {
+            if ([loopLabel isKindOfClass:[UILabel class]]) {
+                loopLabel.font = [UIFont fontWithName:@"rockwell" size:loopLabel.font.pointSize];
+                loopLabel.textColor = brownC;
+            }
+        }
+    }
+    else
+    {
+        if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards:0];
+        else
+        {
+            if ([sceneTypeName isEqualToString:@"FSQsearch"])
+            {
+                [contentView addSubview:searchView];
+                searchView.center = CGPointMake(contentView.bounds.size.width/2, searchView.center.y);
+                venueScrollView.delegate = self;
+                [self searchSetup:1];
+            }
+            else if ([sceneTypeName isEqualToString:@"Timer"])
+            {
+                timerLabel.hidden = NO;
+                [timerLabel addSubview:activityIndicator];
+                [activityIndicator startAnimating];
+                [timerLabel setFont:[UIFont fontWithName:@"rockwell" size:26]];
+                [timerLabel setTextColor:redC];
+                currentTime = 7200 - (int)[[[Tumbleweed sharedClient] lastLevelUpdate] timeIntervalSinceNow];
+                NSLog(@"%@ lastdate seconds left %d",[[Tumbleweed sharedClient] lastLevelUpdate], currentTime);
+                countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
+                sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
+                [activityIndicator stopAnimating];
+            }
+            else if ([sceneTypeName isEqualToString:@"FSQdistance"])
+            {
+                [self searchSetup:2];
+            }
+        }
+    }
+    
+    
+}
 
 #pragma mark -
 #pragma mark - View lifecycle
@@ -635,9 +688,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
-
-    [self refreshView];
     
     //set UIColors
     brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
@@ -667,45 +717,37 @@
         }
     }
     
+    [sceneSVView.layer setContents:(__bridge id)[[UIImage imageNamed:@"check-in_bg.jpg"] CGImage]];
+    
     CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, sceneSVView.bounds.size.height);
-    sceneScrollView.contentSize = screenSize;
+    if ([sceneSVView.subviews containsObject:contentView]) sceneScrollView.contentSize = screenSize;
     [sceneScrollView addSubview:sceneSVView];
+    
     mvFoursquare.layer.cornerRadius = 10.0;
     
-
+    [self refreshView];
 }
 
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-}
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
 
-    [self refreshView];
+    //[self refreshView];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
-                                                 name:@"gameSave" object:nil];
-
-     
+                                                 name:@"gameSave" object:nil];     
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
     NSLog(@"disappearing scenecontroller");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[RCLocationManager sharedManager] stopUpdatingLocation];
+    
+    [Foursquare cancelSearchVenues];
+    [locationManager stopUpdatingLocation];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {

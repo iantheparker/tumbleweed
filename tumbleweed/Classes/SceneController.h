@@ -18,7 +18,7 @@
 @class Scene;
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate>
 {
     IBOutlet UIScrollView *sceneScrollView;
     IBOutlet UIView *sceneSVView;
@@ -35,6 +35,8 @@
     IBOutlet UIButton *movieThumbnailButton;
     IBOutlet UIView *extrasView;
     IBOutlet UILabel *timerLabel;
+    IBOutlet UIView *introView;
+    IBOutlet UIView *contentView;
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     UIView *venueView;
@@ -70,9 +72,8 @@
 - (IBAction)leftScroll :(id)sender;
 - (IBAction)rightScroll :(id)sender;
 
-- (void) processVenues: (NSArray *) items : (NSError*) err;
-- (void) animateRewards;
-- (void) searchSetup;
+- (void) animateRewards : (NSTimeInterval) duration;
+
 
 
 @end

@@ -32,7 +32,16 @@ static NSString * const kAFFoursquareAPIBaseURLString = @"https://api.foursquare
     [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
     [self setDefaultHeader:@"Accept" value:@"application/json"];
     self.parameterEncoding = AFJSONParameterEncoding;
+    [self setAuthTokenHeader];
     return self;
+}
+
+- (void)setAuthTokenHeader {
+    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]) {
+        NSString *authToken = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
+        [self setDefaultHeader:@"0auth_token" value:authToken];
+    }
+
 }
 
 @end

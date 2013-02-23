@@ -102,19 +102,18 @@
             NSLog(@"error checking in %@", error);
         }
         else {
-            [[Tumbleweed sharedClient] setTumbleweedLevel:(sceneControllerId.scene.level + 1)];
+            //[[Tumbleweed sharedClient] setTumbleweedLevel:(sceneControllerId.scene.level + 1)];
+            [[Tumbleweed sharedClient] updateLevel:(sceneControllerId.scene.level + 1)];
             
-            [self dismissViewControllerAnimated:YES completion:^{
+            [self.navigationController popViewControllerAnimated:YES];
                 
-                if (photoButton.selected){
-                    NSString *_broadcastType = [NSString stringWithFormat:@"%@,%@", facebookButton.selected ? @"facebook" : @"", twitterButton.selected ? @"twitter" : @""];
-                    NSString *checkInId = [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"];
-                    [Foursquare addPhoto:[photoButton imageForState:UIControlStateSelected] checkin:checkInId broadcast:_broadcastType];
-                }
-                [sceneControllerId animateRewards];
-                //NSLog(@"foursquare checkinresponse %@", checkInResponse);
-
-            }];
+            if (photoButton.selected){
+                NSString *_broadcastType = [NSString stringWithFormat:@"%@,%@", facebookButton.selected ? @"facebook" : @"", twitterButton.selected ? @"twitter" : @""];
+                NSString *checkInId = [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"];
+                [Foursquare addPhoto:[photoButton imageForState:UIControlStateSelected] checkin:checkInId broadcast:_broadcastType];
+            }
+            [sceneControllerId animateRewards:1];
+            //NSLog(@"foursquare checkinresponse %@", checkInResponse);
             
         }
     }];
@@ -246,6 +245,8 @@
     photoButton.clipsToBounds = YES;
     [photoButton.layer setBorderColor:[beigeC CGColor]];
     [photoButton.layer setBorderWidth:3.0];
+    
+    [self.view.layer setContents:(__bridge id)[[UIImage imageNamed:@"check-in_bg.jpg"] CGImage]];
 
     
 }

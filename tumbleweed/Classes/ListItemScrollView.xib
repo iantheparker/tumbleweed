@@ -38,7 +38,7 @@
 					<object class="IBUIButton" id="892021974">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{5, 14.5}, {304, 30}}</string>
+						<string key="NSFrame">{{5, 12.5}, {304, 36}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView"/>
@@ -53,6 +53,14 @@
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<int key="IBUIContentHorizontalAlignment">0</int>
 						<int key="IBUIContentVerticalAlignment">0</int>
+						<double key="IBUIContentEdgeInsets.top">-5</double>
+						<double key="IBUIContentEdgeInsets.bottom">-5</double>
+						<double key="IBUIContentEdgeInsets.left">0.0</double>
+						<double key="IBUIContentEdgeInsets.right">0.0</double>
+						<double key="IBUITitleEdgeInsets.top">-5</double>
+						<double key="IBUITitleEdgeInsets.bottom">-5</double>
+						<double key="IBUITitleEdgeInsets.left">0.0</double>
+						<double key="IBUITitleEdgeInsets.right">0.0</double>
 						<int key="IBUILineBreakMode">4</int>
 						<string key="IBUINormalTitle">Button</string>
 						<object class="NSColor" key="IBUIHighlightedTitleColor">
@@ -85,7 +93,6 @@
 				<reference key="IBUIBackgroundColor" ref="241439860"/>
 				<bool key="IBUIOpaque">NO</bool>
 				<bool key="IBUIAutoresizesSubviews">NO</bool>
-				<bool key="IBUIClipsSubviews">YES</bool>
 				<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
 					<int key="IBUIInterfaceOrientation">3</int>
 					<int key="interfaceOrientation">3</int>
@@ -145,7 +152,7 @@
 				<string key="-2.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="1.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="17.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-				<real value="1" key="17.IBUIButtonInspectorSelectedEdgeInsetMetadataKey"/>
+				<real value="0.0" key="17.IBUIButtonInspectorSelectedEdgeInsetMetadataKey"/>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
@@ -160,7 +167,6 @@
 					<string key="superclassName">UIViewController</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="dismissModal:">id</string>
-						<string key="handleSingleTap:">UIGestureRecognizer</string>
 						<string key="launchBonusWebView">id</string>
 						<string key="leftScroll:">id</string>
 						<string key="playVideo:">id</string>
@@ -171,10 +177,6 @@
 						<object class="IBActionInfo" key="dismissModal:">
 							<string key="name">dismissModal:</string>
 							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="handleSingleTap:">
-							<string key="name">handleSingleTap:</string>
-							<string key="candidateClassName">UIGestureRecognizer</string>
 						</object>
 						<object class="IBActionInfo" key="launchBonusWebView">
 							<string key="name">launchBonusWebView</string>
@@ -200,7 +202,9 @@
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="activityIndicator">UIActivityIndicatorView</string>
 						<string key="checkInIntructions">UILabel</string>
+						<string key="contentView">UIView</string>
 						<string key="extrasView">UIView</string>
+						<string key="introView">UIView</string>
 						<string key="leftScroll">UIButton</string>
 						<string key="movieThumbnailButton">UIButton</string>
 						<string key="mvFoursquare">MKMapView</string>
@@ -223,8 +227,16 @@
 							<string key="name">checkInIntructions</string>
 							<string key="candidateClassName">UILabel</string>
 						</object>
+						<object class="IBToOneOutletInfo" key="contentView">
+							<string key="name">contentView</string>
+							<string key="candidateClassName">UIView</string>
+						</object>
 						<object class="IBToOneOutletInfo" key="extrasView">
 							<string key="name">extrasView</string>
+							<string key="candidateClassName">UIView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="introView">
+							<string key="name">introView</string>
 							<string key="candidateClassName">UIView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="leftScroll">

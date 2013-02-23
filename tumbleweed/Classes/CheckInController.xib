@@ -14,7 +14,6 @@
 			<string>IBProxyObject</string>
 			<string>IBUIActivityIndicatorView</string>
 			<string>IBUIButton</string>
-			<string>IBUIImageView</string>
 			<string>IBUILabel</string>
 			<string>IBUITextView</string>
 			<string>IBUIView</string>
@@ -39,20 +38,6 @@
 				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">298</int>
 				<array class="NSMutableArray" key="NSSubviews">
-					<object class="IBUIImageView" id="1043097474">
-						<reference key="NSNextResponder" ref="191373211"/>
-						<int key="NSvFlags">295</int>
-						<string key="NSFrameSize">{480, 540}</string>
-						<reference key="NSSuperview" ref="191373211"/>
-						<reference key="NSNextKeyView" ref="35878999"/>
-						<string key="NSReuseIdentifierKey">_NS:9</string>
-						<bool key="IBUIUserInteractionEnabled">NO</bool>
-						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-						<object class="NSCustomResource" key="IBUIImage">
-							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">check-in_bg.jpg</string>
-						</object>
-					</object>
 					<object class="IBUIView" id="35878999">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">290</int>
@@ -346,7 +331,7 @@
 				</array>
 				<string key="NSFrameSize">{480, 300}</string>
 				<reference key="NSSuperview"/>
-				<reference key="NSNextKeyView" ref="1043097474"/>
+				<reference key="NSNextKeyView"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MQA</bytes>
@@ -503,7 +488,6 @@
 						<array class="NSMutableArray" key="children">
 							<reference ref="23519301"/>
 							<reference ref="35878999"/>
-							<reference ref="1043097474"/>
 							<reference ref="6289769"/>
 							<reference ref="153703268"/>
 						</array>
@@ -545,11 +529,6 @@
 						<reference key="object" ref="104851582"/>
 						<reference key="parent" ref="35878999"/>
 						<string key="objectName">Back Button</string>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">47</int>
-						<reference key="object" ref="1043097474"/>
-						<reference key="parent" ref="191373211"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">17</int>
@@ -617,7 +596,6 @@
 				<string key="41.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="42.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="43.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-				<string key="47.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="49.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<real value="2" key="49.IBUIButtonInspectorSelectedStateConfigurationMetadataKey"/>
 				<string key="50.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -640,7 +618,6 @@
 			<string key="Twit_toggle_button_OFF.png">{48, 40}</string>
 			<string key="Twit_toggle_button_ON.png">{48, 40}</string>
 			<string key="back2map_button.png">{154, 141}</string>
-			<string key="check-in_bg.jpg">{480, 540}</string>
 			<string key="check-in_button-Default.png">{193, 61}</string>
 			<string key="check-in_button-onPress.png">{193, 61}</string>
 			<string key="checkIN-photo_Default.png">{93, 93}</string>

@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "AFTumbleweedClient.h"
 #import "Foursquare.h"
+#import <RCLocationManager.h>
 
 
 //this tracks the path and progress of the user
@@ -16,14 +17,17 @@
     
     int tumbleweedLevel;
     NSString *tumbleweedId;
+    NSDate *lastLevelUpdate;
 
 }
 
 @property int tumbleweedLevel;
 @property (nonatomic, retain) NSString *tumbleweedId;
+@property (nonatomic, retain) NSDate *lastLevelUpdate;
 
 + (Tumbleweed *) sharedClient;
 - (void) saveTumbleweed;
+- (void) updateLevel : (int) toLevel;
 
 - (void) registerUser;
 - (BOOL) getUserUpdates;

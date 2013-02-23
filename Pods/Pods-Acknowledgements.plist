@@ -49,6 +49,14 @@ THE SOFTWARE.
 		</dict>
 		<dict>
 			<key>FooterText</key>
+			<string>Copyright 2012 Ricardo Caballero (hello@rcabamo.es)</string>
+			<key>Title</key>
+			<string>RCLocationManager</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>FooterText</key>
 			<string>Copyright (c) 2011 Sam Vermette
 
 Permission is hereby granted, free of charge, to any person
