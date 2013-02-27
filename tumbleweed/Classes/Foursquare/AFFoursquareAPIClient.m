@@ -33,15 +33,22 @@ static NSString * const kAFFoursquareAPIBaseURLString = @"https://api.foursquare
     [self setDefaultHeader:@"Accept" value:@"application/json"];
     self.parameterEncoding = AFJSONParameterEncoding;
     [self setAuthTokenHeader];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(tokenChanged:)
+                                                 name:@"loggedIn"
+                                               object:nil];
     return self;
 }
 
 - (void)setAuthTokenHeader {
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]) {
         NSString *authToken = [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"];
-        [self setDefaultHeader:@"0auth_token" value:authToken];
+        [self setDefaultHeader:@"oauth_token" value:authToken];
     }
 
+}
+- (void)tokenChanged:(NSNotification *)notification {
+    [self setAuthTokenHeader];
 }
 
 @end

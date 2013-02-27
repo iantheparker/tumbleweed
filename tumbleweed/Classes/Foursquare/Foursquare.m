@@ -69,6 +69,7 @@ static int vDate = 20120927;
     NSLog(@"access token from handleopenurl is %@", accessToken);
     //should turn this into a block - 
     block(accessToken);
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loggedIn" object:self];
 
     return YES;
 }
@@ -138,17 +139,18 @@ static int vDate = 20120927;
                                  @"10", @"limit",
                                  @"200", @"radius",
                                  section, @"section",
+                                 //@"travel", @"query",
                                  novelty, @"novelty",
-                                 [NSNumber numberWithInt:vDate], @"v", nil];
+                                 [NSNumber numberWithInt:vDate], @"v",
+                                 nil];
     [[AFFoursquareAPIClient sharedClient] getPath:@"venues/explore" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
                                               NSMutableArray *mutableVenues = [NSMutableArray arrayWithCapacity:[JSON count]];
-                                              NSArray *results = [[JSON objectForKey:@"response"] objectForKey:@"venues"];
-                                              //NSLog(@"response from search= %@", results);
+                                              NSArray *results = [[[[JSON objectForKey:@"response"] objectForKey:@"groups"] objectAtIndex:0] objectForKey:@"items"];
                                               for (NSDictionary *attributes in results) {
-                                                  [mutableVenues addObject:attributes];
+                                                  [mutableVenues addObject:[attributes objectForKey:@"venue"]];
+                                                  //NSLog(@"response from explore= %@", attributes);
                                               }
-                                              
                                               if (block) {
                                                   block([NSArray arrayWithArray:mutableVenues], nil);
                                               }

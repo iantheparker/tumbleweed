@@ -10,7 +10,7 @@
 			<key>movieName</key>
 			<string>intro</string>
 			<key>hintCopy</key>
-			<string>Legend has it that all the best cowboys logged into Foursquare...</string>
+			<string>Legend has it that great adventures start by connecting to Foursquare. Walk on back.</string>
 			<key>checkInCopy</key>
 			<string>STARRING</string>
 			<key>bonus</key>
@@ -37,7 +37,7 @@
 			<key>sceneType</key>
 			<dict>
 				<key>type</key>
-				<string>FSQsearch</string>
+				<string>FSQexplorenew</string>
 				<key>sectionId</key>
 				<string>shops</string>
 				<key>categoryId</key>
@@ -80,9 +80,9 @@
 			<key>sceneType</key>
 			<dict>
 				<key>sectionId</key>
-				<string>drinks,coffee</string>
+				<string>drinks</string>
 				<key>type</key>
-				<string>FSQsearch</string>
+				<string>FSQexplorenew</string>
 				<key>categoryId</key>
 				<string>4d4b7105d754a06378d81259</string>
 			</dict>
@@ -152,7 +152,7 @@
 				<key>sectionId</key>
 				<string>outdoors</string>
 				<key>type</key>
-				<string>FSQsearch</string>
+				<string>FSQexplorenew</string>
 				<key>categoryId</key>
 				<string></string>
 			</dict>
@@ -177,7 +177,7 @@
 			<key>level</key>
 			<integer>4</integer>
 			<key>hintCopy</key>
-			<string>I could be halfway to Mexico before anyone notices...</string>
+			<string></string>
 			<key>checkInCopy</key>
 			<string>yikes. they&apos;re gonna find out soon.</string>
 			<key>bonus</key>
@@ -215,10 +215,12 @@
 			<string></string>
 			<key>sceneType</key>
 			<dict>
+				<key>novelty</key>
+				<string>new</string>
 				<key>sectionId</key>
 				<string></string>
 				<key>type</key>
-				<string>FSQsearch</string>
+				<string>FSQexplorenew</string>
 				<key>categoryId</key>
 				<string></string>
 			</dict>
@@ -252,10 +254,8 @@
 			<string></string>
 			<key>sceneType</key>
 			<dict>
-				<key>novelty</key>
-				<string>new</string>
 				<key>type</key>
-				<string>FSQsearch</string>
+				<string>FSQdistance</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>video_thumbnail_S8-ON.jpg</string>

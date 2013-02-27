@@ -38,6 +38,7 @@
 -(CGRect) selectAvatarBounds:(float) position;
 -(void) updateProgressBar: (int) level;
 -(void) startCampfire;
+-(void) popBeginSign;
 -(void) updateSceneButtonStates;
 -(CGPoint) coordinatePListReader: (NSString*) positionString;
 -(NSMutableArray*) mapLayerPListPlacer: (NSDictionary*) plist : (CGSize) screenSize : (CALayer*) parentLayer : (NSMutableArray*) sceneArray;
@@ -221,7 +222,10 @@
 
 #pragma mark -
 #pragma mark animation controls
-
+-(void) popBeginSign
+{
+    
+}
 -(void) startCampfire
 {
     [blackPanel removeFromSuperlayer];
@@ -332,7 +336,16 @@
 -(void) gameSavetNotif: (NSNotification *) notif
 {
     NSLog(@"in gameSaveNotif with %@", [notif name]);
-    [self gameState];
+    
+    if ([[notif name] isEqualToString:@"gameSave"])
+    {
+        [self gameState];
+    }
+    else if ([[notif name] isEqualToString:@"loggedIn"])
+    {
+        //[self gameState];
+        //trigger begin sign animation
+    }
 }
 - (void) gameState
 {
@@ -548,6 +561,9 @@
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.bounces = NO;
+    //scrollView.alwaysBounceHorizontal = YES;
+    //self.view.backgroundColor = [UIColor blackColor];
+    //scrollView.contentInset = UIEdgeInsetsMake(0, -200, 0, 0);
     [scrollView setDelegate:self];
     
     UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
@@ -840,6 +856,9 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"gameSave" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(gameSavetNotif:)
+                                                 name:@"loggedIn" object:nil];
     [self gameState];
 
 }

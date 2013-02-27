@@ -102,8 +102,7 @@
             NSLog(@"error checking in %@", error);
         }
         else {
-            //[[Tumbleweed sharedClient] setTumbleweedLevel:(sceneControllerId.scene.level + 1)];
-            [[Tumbleweed sharedClient] updateLevel:(sceneControllerId.scene.level + 1)];
+            //[[Tumbleweed sharedClient] updateLevel:(sceneControllerId.scene.level + 1)];
             
             [self.navigationController popViewControllerAnimated:YES];
                 
@@ -230,9 +229,9 @@
     [venueNameLabel setFont:[UIFont fontWithName:@"rockwell-bold" size:30]];
     [venueNameLabel setTextColor:brownC];
     
-    shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check-in. Thanks tumbleweed!";
+    shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check-in. Thanks Tumbleweed!";
     shoutTextView.text = shoutText;
-    NSLog(@"shoutText is %@", shoutText);
+    //NSLog(@"shoutText is %@", shoutText);
     shoutTextView.layer.cornerRadius = 10.0;
     shoutTextView.clipsToBounds = YES;
     [shoutTextView.layer setBorderColor:[beigeC CGColor]];

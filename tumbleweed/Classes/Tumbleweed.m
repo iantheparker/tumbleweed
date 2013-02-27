@@ -21,6 +21,7 @@
 @synthesize tumbleweedId;
 @synthesize tumbleweedLevel;
 @synthesize lastLevelUpdate;
+@synthesize lastKnownLocation;
 
 
 #pragma mark - Lifecycle Methods
@@ -49,6 +50,7 @@
         self.tumbleweedLevel = [[myEncodedObject objectForKey:@"tumbleweedLevel"] intValue];
         self.tumbleweedId = [myEncodedObject objectForKey:@"tumbleweedId"];
         self.lastLevelUpdate = [myEncodedObject objectForKey:@"lastLevelUpdate"];
+        self.lastKnownLocation = [myEncodedObject objectForKey:@"lastKnownLocation"];
         NSLog(@"using stored tumbleweed %@", myEncodedObject);
     }
     return self;
@@ -59,6 +61,7 @@
     NSMutableDictionary *myEncodedObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                             [NSNumber numberWithInt:tumbleweedLevel], @"tumbleweedLevel",
                                             tumbleweedId, @"tumbleweedId",
+                                            lastKnownLocation, @"lastKnownLocation",
                                             lastLevelUpdate, @"lastLevelUpdate", nil];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:myEncodedObject forKey:@"tumbleweed"];
@@ -72,26 +75,9 @@
 #pragma mark -
 #pragma mark - iVar Methods
 
--(BOOL) setLastLevelUpdateWithString : (NSString*) dateString
-{
-    BOOL updated = NO;
-    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"];
-    NSDate *tempDate = [dateFormatter dateFromString:dateString];
-    //compensate for timezone
-    tempDate = [tempDate dateByAddingTimeInterval:-3600*5];
-    if (!lastLevelUpdate || [tempDate compare:lastLevelUpdate] == NSOrderedDescending) {
-        NSLog(@"date1 is later than date2");
-        lastLevelUpdate = tempDate;
-        updated = YES;
-    }
-    return updated;
-}
-
 - (void) updateLevel : (int) toLevel
 {
     tumbleweedLevel = toLevel;
-    lastLevelUpdate = [NSDate date];
 }
 
 #pragma mark -
@@ -141,8 +127,6 @@
     [[AFTumbleweedClient sharedClient] getPath:userPath parameters:nil
                                        success:^(AFHTTPRequestOperation *operation, id JSON) {
                                            int tempLevel = [[[JSON objectForKey:@"user"]objectForKey:@"level"] intValue];
-                                           [self setLastLevelUpdateWithString:[[JSON objectForKey:@"user"]objectForKey:@"updated_at"]];
-                                          
                                            if (tempLevel > tumbleweedLevel) {
                                                tumbleweedLevel = tempLevel;
                                                update = YES;
