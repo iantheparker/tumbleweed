@@ -4,6 +4,8 @@
 <dict>
 	<key>mapLayer1</key>
 	<array>
+		<string>mapLayer1_00A.jpg</string>
+		<string>mapLayer1_00B.jpg</string>
 		<string>mapLayer1_01A.png</string>
 		<string>mapLayer1_01B.jpg</string>
 		<string>mapLayer1_02A.png</string>
@@ -42,6 +44,8 @@
 		<string>mapLayer1_18B.jpg</string>
 		<string>mapLayer1_19A.png</string>
 		<string>mapLayer1_19B.jpg</string>
+		<string>mapLayer1_20A.jpg</string>
+		<string>mapLayer1_20B.jpg</string>
 	</array>
 	<key>mapLayer4</key>
 	<dict>

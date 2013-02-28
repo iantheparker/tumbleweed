@@ -18,6 +18,7 @@
 #define ANNOTATION_REGION_PAD_FACTOR 1.0
 #define MAP_LATITUDE_OFFSET .0014
 #define MAX_DEGREES_ARC 360
+#define DISTANCE_UNLOCK_RADIUS 1000.0
 
 typedef enum {
     kSearch,
@@ -47,9 +48,10 @@ typedef enum {
 -(IBAction) launchBonusWebView;
 -(void) willPresentError:(NSError *)error;
 -(void)updateTimer:(NSTimer *)timer;
+-(void) refreshTimer;
 - (void) processVenues: (NSInteger) searchType : (NSArray *) items : (NSError*) err;
 - (void) searchSetup : (NSInteger) searchType;
-- (void) addRegion : (CLLocation*) toLocation;
+- (void) addDistanceMonitoringRegion : (CLLocation*) toLocation;
 
 @end
 
@@ -61,6 +63,7 @@ typedef enum {
     int currentTime;
     UIColor *redC;
     UIColor *brownC;
+    UIColor *beigeC;
     NSMutableArray *allVenues;
     
 }
@@ -214,11 +217,9 @@ typedef enum {
     [locationManager stopUpdatingLocation];
     userCoordinate = [locations.lastObject coordinate];
     
-    NSString *lat = [NSString stringWithFormat:@"%f", [locations.lastObject coordinate].latitude];
-    NSString *lon = [NSString stringWithFormat:@"%f", [locations.lastObject coordinate].longitude];
-    NSLog(@"locationmanager lat %@ long %@", lat, lon);
+    NSLog(@"locationmanager latlong %f,%f ", userCoordinate.latitude, userCoordinate.longitude);
     
-    [Foursquare exploreVenuesNearByLatitude:lat longitude:lon sectionId:sectionId noveltyId:noveltyId WithBlock:^(NSArray *venues, NSError *error) {
+    [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId WithBlock:^(NSArray *venues, NSError *error) {
         if (error) {
             NSLog(@"error %@", error);
         }
@@ -343,14 +344,17 @@ typedef enum {
 }
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-    [self zoomMapViewToFitAnnotations:mapView animated:YES];
-    
     for (id<MKAnnotation> currentAnnotation in mapView.annotations) {
         if ([currentAnnotation isKindOfClass:[FoursquareAnnotation class]]){
             if (((FoursquareAnnotation*)currentAnnotation).arrayPos == 0) {
                 [mapView selectAnnotation:(FoursquareAnnotation*)currentAnnotation animated:YES];
                 //NSLog(@"mv selected %@", [[mapView selectedAnnotations] objectAtIndex:0]);
+                [self zoomMapViewToFitAnnotations:mapView animated:YES];
+                break;
             }
+        }
+        else if ([currentAnnotation isKindOfClass:[RegionAnnotation class]]){
+            break;
         }
     }
 }
@@ -425,55 +429,35 @@ typedef enum {
         [locationManager setDelegate:self];
     }
     //[locationManager startUpdatingLocation];
+    
     RCLocationManager *locationManagerRC = [RCLocationManager sharedManager];
     [locationManagerRC setUserDistanceFilter:kCLLocationAccuracyHundredMeters];
     [locationManagerRC setUserDesiredAccuracy:kCLLocationAccuracyBest];
-    if (searchType == kExplore) {
-        [locationManagerRC setPurpose:@"Foursquare Venue/Explore"];
-        [locationManagerRC retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
-            userCoordinate = [newLocation coordinate];
-            
-            NSString *lat = [NSString stringWithFormat:@"%f", userCoordinate.latitude];
-            NSString *lon = [NSString stringWithFormat:@"%f", userCoordinate.longitude];
-            NSLog(@"locationmanager lat %@ long %@ sectionid %@ novelty %@", lat, lon, sectionId, noveltyId);
+    [locationManagerRC setPurpose:@"Foursquare Search/Explore"];
+    [locationManagerRC retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
+        userCoordinate = [newLocation coordinate];
 
-            [Foursquare exploreVenuesNearByLatitude:lat longitude:lon sectionId:sectionId noveltyId:noveltyId WithBlock:^(NSArray *venues, NSError *error) {
+        if (searchType == kExplore) {
+            [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId WithBlock:^(NSArray *venues, NSError *error) {
                 if (error) {
                     NSLog(@"error %@", error);
                 }
                 [self processVenues:searchType:venues :error];
             }];
-            
-        } errorBlock:^(CLLocationManager *manager, NSError *error) {
-            [self processVenues:searchType:nil :error];
-        }];
-    }
-    else if (searchType == kSearch) {
-        [locationManagerRC setPurpose:@"Foursquare Venue/Search"];
-        [locationManagerRC retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
-            userCoordinate = [newLocation coordinate];
-            
-            NSString *lat = [NSString stringWithFormat:@"%f", userCoordinate.latitude];
-            NSString *lon = [NSString stringWithFormat:@"%f", userCoordinate.longitude];
-            NSLog(@"locationmanager lat %@ long %@ categoryId %@ ", lat, lon, categoryId);
-            
-            [Foursquare searchVenuesNearByLatitude:lat longitude:lon categoryId:categoryId WithBlock:^(NSArray *venues, NSError *error) {
+        }
+        else if (searchType == kSearch) {
+            [Foursquare searchVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude categoryId:categoryId WithBlock:^(NSArray *venues, NSError *error) {
                 if (error) {
                     NSLog(@"error %@", error);
                 }
                 [self processVenues:searchType:venues :error];
             }];
-            
-        } errorBlock:^(CLLocationManager *manager, NSError *error) {
-            [self processVenues:searchType:nil :error];
-        }];
-    }
-    else if (searchType ==kDistance){
-        [locationManagerRC setPurpose:@"Foursquare Distance"];
-
-    }
-
-     
+        }
+        
+    } errorBlock:^(CLLocationManager *manager, NSError *error) {
+        [self processVenues:searchType:nil :error];
+    }];
+    
     
 }
 - (void) processVenues: (NSInteger) searchType : (NSArray*) items : (NSError*) err
@@ -511,7 +495,7 @@ typedef enum {
         
         NSLog(@"items %@, itemsArrayLength %d, error %@, namelable %@", items, itemsArrayLength, err.domain, nameLabel.text);
         [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-        [nameLabel setTextColor:redC];
+        [nameLabel setTextColor:beigeC];
         [nameLabel setClearsContextBeforeDrawing:YES];
         [nameLabel setBackgroundColor:[UIColor clearColor]];
         [nameLabel setCenter:CGPointMake(nibwidth/2, nibheight/2)];
@@ -605,21 +589,29 @@ typedef enum {
                          refreshButton.transform = transform2;
                      }
                      completion:^(BOOL finished){
-                         [self searchSetup:1];
+                         [self refreshView];
                      }];
     
 }
 #pragma mark -
 #pragma mark - Timer methods
+-(void)refreshTimer
+{
+    if ([sceneTypeName isEqualToString:@"Timer"]){
+        currentTime = 1000 + (int)[[[Tumbleweed sharedClient] lastLevelUpdate] timeIntervalSinceNow];
+        NSLog(@"reStartTimer");
+    }
+}
 -(void)updateTimer:(NSTimer *)timer
 {
     currentTime -= 1 ;
-    [self populateLabelwithTime:currentTime];
     if(currentTime <=0){
         [countDownTimer invalidate];
         [self animateRewards:1];
-    }
-    //NSLog(@"updatetimer");
+        [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
+    }else
+        [self populateLabelwithTime:currentTime];
+
 }
 - (void)populateLabelwithTime:(int)seconds
 {
@@ -639,19 +631,13 @@ typedef enum {
 }
 #pragma mark - 
 #pragma mark - Distance methods
-- (void) addRegion : (CLLocation*) toLocation
+- (void) addDistanceMonitoringRegion : (CLLocation*) toLocation
 {
     [activityIndicator stopAnimating];
-    if ([RCLocationManager regionMonitoringAvailable]) {
-		// Create a new region based on the center of the map view.
-		
-        MKCoordinateRegion userLocation = MKCoordinateRegionMakeWithDistance(toLocation.coordinate, 1500.0, 1500.0);
-        [mvFoursquare setRegion:userLocation animated:YES];
-        mvFoursquare.showsUserLocation = YES;
-    
+    if ([RCLocationManager regionMonitoringAvailable]) {    
         CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(toLocation.coordinate.latitude, toLocation.coordinate.longitude);
         CLRegion *newRegion = [[CLRegion alloc] initCircularRegionWithCenter:coord
-                                                                      radius:1000.0
+                                                                      radius:DISTANCE_UNLOCK_RADIUS
                                                                   identifier:[NSString stringWithFormat:@"%f, %f", toLocation.coordinate.latitude, toLocation.coordinate.longitude]];
         
         // Create an annotation to show where the region is located on the map.
@@ -660,35 +646,45 @@ typedef enum {
         myRegionAnnotation.radius = newRegion.radius;
         [mvFoursquare addAnnotation:myRegionAnnotation];
         
-        CLLocationDistance distance = [[[Tumbleweed sharedClient] lastKnownLocation] distanceFromLocation:toLocation];
-        timerLabel.text = [NSString stringWithFormat:@"%.2f km to go", (newRegion.radius - distance)/1000];
+        MKCoordinateRegion userLocation = MKCoordinateRegionMakeWithDistance(toLocation.coordinate, 2.5 * DISTANCE_UNLOCK_RADIUS, 2.5 * DISTANCE_UNLOCK_RADIUS);
+        [mvFoursquare setRegion:userLocation animated:YES];
+        mvFoursquare.showsUserLocation = YES;
+        mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
         
         // Start monitoring the newly created region.
         [[RCLocationManager sharedManager] addRegionForMonitoring:newRegion desiredAccuracy:kCLLocationAccuracyBest updateBlock:^(CLLocationManager *manager, CLRegion *region, BOOL enter) {
             if (enter) {
                 NSLog(@"Enter to region %@", region);
-                CLLocationDistance distance = [[[Tumbleweed sharedClient] lastKnownLocation] distanceFromLocation:manager.location];
-                timerLabel.text = [NSString stringWithFormat:@"%.2f km to go", region.radius - distance];
+                
             } else {
                 NSLog(@"Exit from region %@", region);
+                [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
+                [[RCLocationManager sharedManager] stopMonitoringAllRegions];
                 [self animateRewards:1];
             }
+            
         } errorBlock:^(CLLocationManager *manager, CLRegion *region, NSError *error) {
             NSLog(@"Error: %@", [error localizedDescription]);
+            [self processVenues:0 :nil :error];
         }];
         
 	}
 	else {
 		NSLog(@"Region monitoring is not available.");
 	}
+    [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [[RCLocationManager sharedManager] startUpdatingLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
+        CLLocationDistance distance = [[[Tumbleweed sharedClient] lastKnownLocation] distanceFromLocation:newLocation];
+        timerLabel.text = [NSString stringWithFormat:@"%.f meters to go", DISTANCE_UNLOCK_RADIUS-distance];
+    } errorBlock:^(CLLocationManager *manager, NSError *error) {
+        [self processVenues:0 :nil :error];
+    }];
 
 }
 #pragma mark -
 #pragma mark - Load/Unload methods
 - (void) animateRewards : (NSTimeInterval) duration
 {
-    [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
-    [[RCLocationManager sharedManager] stopMonitoringAllRegions];
     extrasView.hidden = NO;
     [UIView animateWithDuration:duration animations:^{
         CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, 320);
@@ -712,13 +708,8 @@ typedef enum {
 -(void) gameSavetNotif: (NSNotification *) notif
 {
     //dismiss view if game state is saved - saving occurs when app enters background or receives update from server
-    if ([[notif name] isEqualToString:@"gameSaved"])
-    {
-        //should swap this for refresh view when i get the chance, otherwise if someone gets a slow update
-        //this viewcontroller will close in the middle of them using it.
-        //[self refreshView];
+    if ([[notif name] isEqualToString:@"gameSaved"]){
         [self refreshView];
-        
     }
     
 }
@@ -753,18 +744,25 @@ typedef enum {
 }
 - (void) refreshView
 {
-    
+    NSLog(@"refreshing view");
     if ([sceneTypeName isEqualToString:@"Empty"])
     {
         movieThumbnailButton.enabled = YES;
-        [contentView addSubview:introView];
-        introView.center = CGPointMake(contentView.bounds.size.width/2, introView.center.y);
-        for (UILabel *loopLabel in introView.subviews) {
-            if ([loopLabel isKindOfClass:[UILabel class]]) {
-                loopLabel.font = [UIFont fontWithName:@"rockwell" size:loopLabel.font.pointSize];
-                loopLabel.textColor = brownC;
+        if ([movieName isEqualToString:@"intro"]) {
+            [contentView addSubview:introView];
+            introView.center = CGPointMake(contentView.bounds.size.width/2, introView.center.y);
+            for (UILabel *loopLabel in introView.subviews) {
+                if ([loopLabel isKindOfClass:[UILabel class]]) {
+                    loopLabel.font = [UIFont fontWithName:@"rockwell" size:loopLabel.font.pointSize];
+                    loopLabel.textColor = brownC;
+                }
             }
         }
+        else if ([movieName isEqualToString:@"campfire"])
+        {
+            [self animateRewards:0];
+        }
+        
     }
     else
     {
@@ -776,7 +774,7 @@ typedef enum {
                 [contentView addSubview:searchView];
                 searchView.center = CGPointMake(contentView.bounds.size.width/2, searchView.center.y);
                 venueScrollView.delegate = self;
-                [self searchSetup:kExplore];
+                [self searchSetup:kSearch];
             }
             else if ([sceneTypeName isEqualToString:@"Timer"])
             {
@@ -784,14 +782,13 @@ typedef enum {
                 [contentView addSubview:timerLabel];
                 timerLabel.center = CGPointMake(contentView.bounds.size.width/2, timerLabel.center.y);
                 [contentView addSubview:activityIndicator];
-                
+                sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
+
                 if (![[Tumbleweed sharedClient] lastLevelUpdate]) {
                     [[Tumbleweed sharedClient] setLastLevelUpdate:[NSDate date]];
                 }
-                currentTime = 1000 - (int)[[[Tumbleweed sharedClient] lastLevelUpdate] timeIntervalSinceNow];
-
+                [self refreshTimer];
                 countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
-                sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
                 
             }
             else if ([sceneTypeName isEqualToString:@"FSQexplorenew"])
@@ -808,9 +805,8 @@ typedef enum {
                 searchView.center = CGPointMake(contentView.bounds.size.width/2, searchView.center.y);
                 venueScrollView.delegate = self;
                 [refreshButton removeFromSuperview];
-                //mvFoursquare.showsUserLocation = YES;
                 if ([[Tumbleweed sharedClient] lastKnownLocation]) {
-                    [self addRegion: [[Tumbleweed sharedClient] lastKnownLocation]];
+                    [self addDistanceMonitoringRegion: [[Tumbleweed sharedClient] lastKnownLocation]];
                 }
                 else{
                     [contentView addSubview:timerLabel];
@@ -818,12 +814,14 @@ typedef enum {
                     [activityIndicator startAnimating];
                    
                     [[RCLocationManager sharedManager] retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
-                        [self addRegion:newLocation];
+                        [self addDistanceMonitoringRegion:newLocation];
                         [[Tumbleweed sharedClient] setLastKnownLocation:newLocation];
                     } errorBlock:^(CLLocationManager *manager, NSError *error) {
                         NSLog(@"addregion error 1");
+                        [self processVenues:0 :nil :error];
                     }];
                 }
+                
                 
             }
         }
@@ -842,6 +840,7 @@ typedef enum {
     //set UIColors
     brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
     redC = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
+    beigeC = beigeC = [UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:1.0];
         
     sceneTitle.text = name;
     sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:30];
@@ -850,7 +849,7 @@ typedef enum {
     [checkInIntructions setTextColor:brownC];
     checkInIntructions.text = checkInCopy;
     [timerLabel setFont:[UIFont fontWithName:@"rockwell" size:26]];
-    [timerLabel setTextColor:redC];
+    [timerLabel setTextColor:beigeC];
     
     //movieButton settings
     {
@@ -885,19 +884,21 @@ typedef enum {
 {
     [super viewWillAppear:animated];
 
-    //[self refreshView];
+    [self refreshTimer];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"gameSave" object:nil];     
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
-    NSLog(@"disappearing scenecontroller");
+    [super viewDidDisappear:animated];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[RCLocationManager sharedManager] stopUpdatingLocation];
     
     [Foursquare cancelSearchVenues];
     [locationManager stopUpdatingLocation];
+    
 }
 
 

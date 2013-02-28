@@ -96,13 +96,13 @@ static int vDate = 20120927;
                                           }];
 }
 
-+ (void)searchVenuesNearByLatitude:(NSString*)lat
-                         longitude:(NSString*)lon
++ (void)searchVenuesNearByLatitude:(float)lat
+                         longitude:(float)lon
                         categoryId:(NSString*)category
                          WithBlock:(void (^)(NSArray *venues, NSError *error))block
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
+                                 [NSString stringWithFormat:@"%f,%f", lat, lon], @"ll",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  @"10", @"limit",
                                  @"200", @"radius",
@@ -127,14 +127,14 @@ static int vDate = 20120927;
         }
     }];
 }
-+ (void)exploreVenuesNearByLatitude:(NSString*)lat
-                          longitude:(NSString*)lon
++ (void)exploreVenuesNearByLatitude:(float)lat
+                          longitude:(float)lon
                           sectionId:(NSString*)section
                           noveltyId:(NSString*)novelty
                           WithBlock:(void (^)(NSArray *venues, NSError *error))block
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSString stringWithFormat:@"%@,%@", lat, lon], @"ll",
+                                 [NSString stringWithFormat:@"%f,%f", lat, lon], @"ll",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  @"10", @"limit",
                                  @"200", @"radius",

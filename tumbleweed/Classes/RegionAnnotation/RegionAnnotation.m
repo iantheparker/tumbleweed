@@ -68,7 +68,7 @@
 		self.region = newRegion;
 		self.coordinate = region.center;
 		self.radius = region.radius;
-		self.title = @"Get outta here!";
+		self.title = @"Get away from here!";
 	}		
 
 	return self;		

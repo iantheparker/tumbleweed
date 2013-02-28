@@ -102,7 +102,7 @@
             NSLog(@"error checking in %@", error);
         }
         else {
-            //[[Tumbleweed sharedClient] updateLevel:(sceneControllerId.scene.level + 1)];
+            [[Tumbleweed sharedClient] updateLevel:(sceneControllerId.scene.level + 1)];
             
             [self.navigationController popViewControllerAnimated:YES];
                 

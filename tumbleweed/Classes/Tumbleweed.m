@@ -61,8 +61,9 @@
     NSMutableDictionary *myEncodedObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                             [NSNumber numberWithInt:tumbleweedLevel], @"tumbleweedLevel",
                                             tumbleweedId, @"tumbleweedId",
+                                            lastLevelUpdate, @"lastLevelUpdate",
                                             lastKnownLocation, @"lastKnownLocation",
-                                            lastLevelUpdate, @"lastLevelUpdate", nil];
+                                            nil];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:myEncodedObject forKey:@"tumbleweed"];
     [defaults synchronize];

@@ -177,7 +177,7 @@
 			<key>level</key>
 			<integer>4</integer>
 			<key>hintCopy</key>
-			<string></string>
+			<string>It&apos;s only a matter of time before everyone finds out...</string>
 			<key>checkInCopy</key>
 			<string>yikes. they&apos;re gonna find out soon.</string>
 			<key>bonus</key>
@@ -208,9 +208,9 @@
 			<key>level</key>
 			<integer>5</integer>
 			<key>hintCopy</key>
-			<string>Uh oh. Where can I go where no one will find me?</string>
+			<string>Uh oh. Where can I go where no one will find me? Somewhere I&apos;ve never been before...</string>
 			<key>checkInCopy</key>
-			<string>hide somewhere new to you:</string>
+			<string>find a new place to hide</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
@@ -218,7 +218,7 @@
 				<key>novelty</key>
 				<string>new</string>
 				<key>sectionId</key>
-				<string></string>
+				<string>outdoors</string>
 				<key>type</key>
 				<string>FSQexplorenew</string>
 				<key>categoryId</key>
@@ -247,9 +247,9 @@
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
-			<string>I’m in trouble. Let’s run!</string>
+			<string>Get up, keep moving, and don&apos;t look back!</string>
 			<key>checkInCopy</key>
-			<string>keep moving and don&apos;t look back.</string>
+			<string>get out of the danger zone!</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
@@ -280,7 +280,7 @@
 			<key>hintCopy</key>
 			<string>I smell fire...</string>
 			<key>checkInCopy</key>
-			<string>game over</string>
+			<string>It&apos;s just a story, silly goose.</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>

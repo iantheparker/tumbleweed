@@ -382,7 +382,8 @@
     NSLog(@"update scene with level %d", [Tumbleweed sharedClient].tumbleweedLevel);
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] && ![self isLoggedIn]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
-        foursquareConnectButton.enabled = NO;
+         //foursquareConnectButton.enabled = NO;
+        [foursquareConnectButton removeFromSuperview];
         [self setLoggedIn:YES];
     }
     
@@ -468,7 +469,8 @@
         if ([[plist objectForKey:key] isKindOfClass:[NSArray class]])
         {
             NSArray *mapLayerArray = [plist objectForKey:key];
-            float subLayerOriginX = 0;
+            //subLayerOriginX is now -200 to compensate for superdrag image width
+            float subLayerOriginX = -(float)[UIImage imageNamed:[mapLayerArray objectAtIndex:0]].size.width/2.0;
             for (int i=0; i<mapLayerArray.count; i+=2)
             {
                 CALayer *subLayer1 = [CALayer layer];
@@ -556,14 +558,12 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    CGSize screenSize = CGSizeMake(5759, 320.0);
+    CGSize screenSize = CGSizeMake(5762, 320.0);
     scrollView.contentSize = screenSize;    
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.showsVerticalScrollIndicator = NO;
-    scrollView.bounces = NO;
-    //scrollView.alwaysBounceHorizontal = YES;
-    //self.view.backgroundColor = [UIColor blackColor];
-    //scrollView.contentInset = UIEdgeInsetsMake(0, -200, 0, 0);
+    scrollView.alwaysBounceHorizontal = YES;
+    scrollView.decelerationRate = UIScrollViewDecelerationRateFast;
     [scrollView setDelegate:self];
     
     UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
@@ -692,17 +692,22 @@
     {
         blackPanel = [CALayer layer];
         [blackPanel setBounds:CGRectMake(0, 0, 340, screenSize.height)];
-        [blackPanel setPosition:CGPointMake(screenSize.width - blackPanel.bounds.size.width/2, screenSize.height/2)];
+        [blackPanel setPosition:CGPointMake(screenSize.width - 200, screenSize.height/2)];
         blackPanel.backgroundColor = [UIColor blackColor].CGColor;
         blackPanel.zPosition = 3;
         [mapCAView.layer addSublayer:blackPanel];
+        
+        CALayer *blackPanelExtension = [CALayer layer];
+        [blackPanelExtension setFrame:CGRectMake(blackPanel.bounds.size.width, 0, 400, screenSize.height)];
+        blackPanelExtension.backgroundColor  = [UIColor blackColor].CGColor;
+        [blackPanel addSublayer:blackPanelExtension];
         
         //the colors for the gradient.  highColor is at the right, lowColor as at the left
         UIColor * highColor = [UIColor colorWithWhite:0.0 alpha:1.0];
         UIColor * lowColor = [UIColor colorWithRed:.4 green:.1 blue:.1 alpha:0];
         
         CAGradientLayer * gradient = [CAGradientLayer layer];
-        [gradient setFrame:CGRectMake(0, 0, blackPanel.bounds.size.width*2, blackPanel.bounds.size.height)];
+        [gradient setFrame:CGRectMake(0, 0, 680, blackPanel.bounds.size.height)];
         [gradient setColors:[NSArray arrayWithObjects:(id)[highColor CGColor], (id)[lowColor CGColor], nil]];
         [gradient setStartPoint:CGPointMake(1, .5)];
         [gradient setEndPoint:CGPointMake(0, .5)];
@@ -762,29 +767,13 @@
         [progressBarEmpty setContents:(__bridge id)[[UIImage imageNamed:@"map_progress_all_OFF.jpg"] CGImage]];
         [progressBar addSublayer:progressBarEmpty];
         
-        /*
-        CATextLayer *progressLabel = [[CATextLayer alloc] init];
-        [progressLabel setFont:@"rockwell"];
-        [progressLabel setFontSize:17];
-        [progressLabel setAnchorPoint:CGPointMake(0.0, 1.0)];
-        [progressLabel setFrame:CGRectMake(0, 0, progressBar.bounds.size.width/2, progressBar.bounds.size.height/2)];
-        [progressLabel setPosition:CGPointMake(progressBar.position.x - padding, progressBar.position.y + progressBar.bounds.size.height)];
-        [progressLabel setString:@"until the jig is up"];
-        [progressLabel setAlignmentMode:kCAAlignmentRight];
-        [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
-        [blackPanel addSublayer:progressLabel];
+        CALayer *forgotImage = [CALayer layer];
+        UIImage *forgotImg = [UIImage imageNamed:@"map_hint-at-end.jpg"];
+        forgotImage.bounds = CGRectMake(0, 0, forgotImg.size.width, forgotImg.size.height);
+        forgotImage.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/4);
+        [forgotImage setContents:(__bridge id)[forgotImg CGImage]];
+        [blackPanel addSublayer:forgotImage];
         
-        CATextLayer *progressLabelFraction = [[CATextLayer alloc] init];
-        [progressLabelFraction setFont:@"rockwell-bold"];
-        [progressLabelFraction setFontSize:17];
-        [progressLabelFraction setAnchorPoint:CGPointMake(0.0, 1.0)];
-        [progressLabelFraction setFrame:CGRectMake(0, 0, progressBar.bounds.size.width/2, progressBar.bounds.size.height/2)];
-        [progressLabelFraction setPosition:CGPointMake(padding + progressBar.position.x - progressBar.bounds.size.width/2, progressBar.position.y + progressBar.bounds.size.height)];
-        [progressLabelFraction setString:@"3/8"];
-        [progressLabelFraction setAlignmentMode:kCAAlignmentNatural];
-        [progressLabelFraction setForegroundColor:[[UIColor grayColor] CGColor]];
-        [blackPanel addSublayer:progressLabelFraction];
-         */
         progressLabel = [[CATextLayer alloc] init];
         [progressLabel setFont:@"rockwell"];
         [progressLabel setFontSize:17];
@@ -852,6 +841,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
     [self loadAvatarPosition];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
@@ -866,6 +856,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[super viewWillDisappear:animated];
+    
     [self saveAvatarPosition];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     

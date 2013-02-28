@@ -20,13 +20,13 @@ WithBlock:(void (^)(NSString *access_token))block;
 
 + (void)getUserIdWithBlock:(void (^)(NSDictionary *userCred, NSError *error))block;
 
-+ (void)searchVenuesNearByLatitude:(NSString*)lat
-                         longitude:(NSString*)lon
++ (void)searchVenuesNearByLatitude:(float)lat
+                         longitude:(float)lon
                         categoryId:(NSString*)category
 WithBlock:(void (^)(NSArray *venues, NSError *error))block;
 
-+ (void)exploreVenuesNearByLatitude:(NSString*)lat
-                         longitude:(NSString*)lon
++ (void)exploreVenuesNearByLatitude:(float)lat
+                         longitude:(float)lon
                         sectionId:(NSString*)section
                           noveltyId:(NSString*)novelty
                          WithBlock:(void (^)(NSArray *venues, NSError *error))block;
