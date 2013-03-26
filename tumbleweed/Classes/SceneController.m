@@ -48,7 +48,7 @@ typedef enum {
 -(IBAction) launchBonusWebView;
 -(void) willPresentError:(NSError *)error;
 -(void)updateTimer:(NSTimer *)timer;
--(void) refreshTimer;
+-(void) killTimer;
 - (void) processVenues: (NSInteger) searchType : (NSArray *) items : (NSError*) err;
 - (void) searchSetup : (NSInteger) searchType;
 - (void) addDistanceMonitoringRegion : (CLLocation*) toLocation;
@@ -272,7 +272,7 @@ typedef enum {
         
         UIImageView *leftIcon = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 32, 32)];
         [leftIcon setImageWithURL:[NSURL URLWithString:((FoursquareAnnotation *)annotation).iconUrl] placeholderImage:[UIImage imageNamed:@"fsq_catIcon_none"]];
-        [annotationView setLeftCalloutAccessoryView:leftIcon];
+        //[annotationView setLeftCalloutAccessoryView:leftIcon];
         
         return annotationView;
     }
@@ -562,8 +562,9 @@ typedef enum {
             
             // set all properties with the necessary details
             [foursquareAnnotation setCoordinate: region.center];
-            [foursquareAnnotation setTitle: vName];
-            [foursquareAnnotation setSubtitle: address];
+            //[foursquareAnnotation setTitle: vName];
+            [foursquareAnnotation setTitle: [NSString stringWithFormat:@"%d", i+1]];
+            //[foursquareAnnotation setSubtitle: address];
             [foursquareAnnotation setVenueId: vID];
             [foursquareAnnotation setIconUrl:iconURL];
             [foursquareAnnotation setArrayPos:((unsigned int) i)];
@@ -595,12 +596,9 @@ typedef enum {
 }
 #pragma mark -
 #pragma mark - Timer methods
--(void)refreshTimer
+-(void) killTimer
 {
-    if ([sceneTypeName isEqualToString:@"Timer"]){
-        currentTime = 1000 + (int)[[[Tumbleweed sharedClient] lastLevelUpdate] timeIntervalSinceNow];
-        NSLog(@"reStartTimer");
-    }
+    [countDownTimer invalidate];
 }
 -(void)updateTimer:(NSTimer *)timer
 {
@@ -672,10 +670,17 @@ typedef enum {
 	else {
 		NSLog(@"Region monitoring is not available.");
 	}
-    [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
     [[RCLocationManager sharedManager] startUpdatingLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
-        CLLocationDistance distance = [[[Tumbleweed sharedClient] lastKnownLocation] distanceFromLocation:newLocation];
-        timerLabel.text = [NSString stringWithFormat:@"%.f meters to go", DISTANCE_UNLOCK_RADIUS-distance];
+        [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        float distance = DISTANCE_UNLOCK_RADIUS-[[[Tumbleweed sharedClient] lastKnownLocation] distanceFromLocation:newLocation];
+        if (distance <= 0) {
+            [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
+            [[RCLocationManager sharedManager] stopMonitoringAllRegions];
+            [[RCLocationManager sharedManager] stopUpdatingLocation];
+            [self animateRewards:1];
+        }
+        timerLabel.text = [NSString stringWithFormat:@"%.f meters to go", distance];
     } errorBlock:^(CLLocationManager *manager, NSError *error) {
         [self processVenues:0 :nil :error];
     }];
@@ -787,7 +792,8 @@ typedef enum {
                 if (![[Tumbleweed sharedClient] lastLevelUpdate]) {
                     [[Tumbleweed sharedClient] setLastLevelUpdate:[NSDate date]];
                 }
-                [self refreshTimer];
+                currentTime = 1000 + (int)[[[Tumbleweed sharedClient] lastLevelUpdate] timeIntervalSinceNow];
+                [countDownTimer invalidate];
                 countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
                 
             }
@@ -803,19 +809,21 @@ typedef enum {
             {
                 [contentView addSubview:searchView];
                 searchView.center = CGPointMake(contentView.bounds.size.width/2, searchView.center.y);
-                venueScrollView.delegate = self;
-                [refreshButton removeFromSuperview];
+                [contentView addSubview:timerLabel];
+                timerLabel.center = CGPointMake(contentView.bounds.size.width/2, timerLabel.center.y);
+                [activityIndicator startAnimating];
+                [leftScroll removeFromSuperview];
+                [rightScroll removeFromSuperview];
+                [[RCLocationManager sharedManager] stopMonitoringAllRegions];
+                
                 if ([[Tumbleweed sharedClient] lastKnownLocation]) {
                     [self addDistanceMonitoringRegion: [[Tumbleweed sharedClient] lastKnownLocation]];
                 }
                 else{
-                    [contentView addSubview:timerLabel];
-                    timerLabel.center = CGPointMake(contentView.bounds.size.width/2, timerLabel.center.y);
-                    [activityIndicator startAnimating];
-                   
                     [[RCLocationManager sharedManager] retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
-                        [self addDistanceMonitoringRegion:newLocation];
                         [[Tumbleweed sharedClient] setLastKnownLocation:newLocation];
+                        [self addDistanceMonitoringRegion:newLocation];
+                        NSLog(@"retriveloc for add region");
                     } errorBlock:^(CLLocationManager *manager, NSError *error) {
                         NSLog(@"addregion error 1");
                         [self processVenues:0 :nil :error];
@@ -884,7 +892,7 @@ typedef enum {
 {
     [super viewWillAppear:animated];
 
-    [self refreshTimer];
+    [self refreshView];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"gameSave" object:nil];     
@@ -895,8 +903,10 @@ typedef enum {
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[RCLocationManager sharedManager] stopUpdatingLocation];
-    
+    [[RCLocationManager sharedManager] stopMonitoringAllRegions];
     [Foursquare cancelSearchVenues];
+    [self killTimer];
+    
     [locationManager stopUpdatingLocation];
     
 }

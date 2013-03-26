@@ -205,6 +205,15 @@
     lastContentOffset = scrollView.contentOffset.x;
     [self renderScreen:walkingForward:TRUE];
     
+    if( scrollView.contentOffset.x < -scrollView.contentInset.left )
+    {
+        //NSLog( @"bounce left" );
+    }
+    if( scrollView.contentOffset.x > scrollView.contentSize.width - scrollView.frame.size.width + scrollView.contentInset.right )
+    {
+        //NSLog( @"bounce right" );
+    }
+    
     
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)sView
@@ -224,7 +233,17 @@
 #pragma mark animation controls
 -(void) popBeginSign
 {
-    
+    UIImage *beginSignimg = [UIImage imageNamed:@"top_lvl4_objs_0.png"];
+    UIImageView *beginSign = [[UIImageView alloc] initWithImage:beginSignimg];
+    beginSign.center = CGPointMake(120, 320 + beginSignimg.size.width );
+    beginSign.transform = CGAffineTransformMakeRotation(-90 * M_PI / 180);
+
+    [scrollView addSubview:beginSign];
+    [UIView animateWithDuration:0.5 animations:^{
+        beginSign.center = CGPointMake(120, 320 - beginSignimg.size.height/2 );
+        CGAffineTransform transform1 = CGAffineTransformMakeRotation(1 * M_PI / 180);
+        beginSign.transform = transform1;
+    }];
 }
 -(void) startCampfire
 {
@@ -255,7 +274,10 @@
 
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
-    [Foursquare startAuthorization];
+    if ([[Tumbleweed sharedClient] tumbleweedId]){
+        [[Tumbleweed sharedClient] resetUser];
+    }else
+        [Foursquare startAuthorization];
 }
 - (void) scenePressed:(UIButton *)sender
 {
@@ -283,6 +305,7 @@
             if ([layer.name isEqualToString:[janeAvatar name]]) {
                 NSLog(@"jane hit");
                 janeHit = YES;
+                [self popBeginSign];
                 break;
             }
         }
@@ -380,10 +403,10 @@
 -(void) updateSceneButtonStates
 {
     NSLog(@"update scene with level %d", [Tumbleweed sharedClient].tumbleweedLevel);
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"] && ![self isLoggedIn]){
+    if ([[Tumbleweed sharedClient] tumbleweedId]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
          //foursquareConnectButton.enabled = NO;
-        [foursquareConnectButton removeFromSuperview];
+        //[foursquareConnectButton removeFromSuperview];
         [self setLoggedIn:YES];
     }
     

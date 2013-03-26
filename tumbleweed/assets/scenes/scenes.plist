@@ -179,7 +179,7 @@
 			<key>hintCopy</key>
 			<string>It&apos;s only a matter of time before everyone finds out...</string>
 			<key>checkInCopy</key>
-			<string>yikes. they&apos;re gonna find out soon.</string>
+			<string>news travels fast. this fast.</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
@@ -239,7 +239,7 @@
 		</dict>
 		<dict>
 			<key>name</key>
-			<string>Play Dead</string>
+			<string>Dead Heat</string>
 			<key>movieName</key>
 			<string>lynch</string>
 			<key>level</key>

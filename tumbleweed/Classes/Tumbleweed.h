@@ -33,6 +33,7 @@
 - (void) updateLevel : (int) toLevel;
 
 - (void) registerUser;
+- (void) resetUser;
 - (BOOL) getUserUpdates;
 - (void) postUserUpdates;
 

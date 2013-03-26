@@ -13,7 +13,7 @@
 - (void) dismissHUD: (BOOL) successful : (NSError*) err;
 @end
 @interface Tumbleweed(Private)
-- (BOOL) setLastLevelUpdateWithString : (NSString*) dateString;
+- (void) setLastKnownLocation : (NSString*) lat : (NSString*) lon;
 @end
 
 @implementation Tumbleweed
@@ -50,7 +50,8 @@
         self.tumbleweedLevel = [[myEncodedObject objectForKey:@"tumbleweedLevel"] intValue];
         self.tumbleweedId = [myEncodedObject objectForKey:@"tumbleweedId"];
         self.lastLevelUpdate = [myEncodedObject objectForKey:@"lastLevelUpdate"];
-        self.lastKnownLocation = [myEncodedObject objectForKey:@"lastKnownLocation"];
+        [self setLastKnownLocation: [myEncodedObject objectForKey:@"lastKnownLocationLat"]
+                                  : [myEncodedObject objectForKey:@"lastKnownLocationLon"]];
         NSLog(@"using stored tumbleweed %@", myEncodedObject);
     }
     return self;
@@ -62,7 +63,8 @@
                                             [NSNumber numberWithInt:tumbleweedLevel], @"tumbleweedLevel",
                                             tumbleweedId, @"tumbleweedId",
                                             lastLevelUpdate, @"lastLevelUpdate",
-                                            lastKnownLocation, @"lastKnownLocation",
+                                            [NSString stringWithFormat:@"%f",lastKnownLocation.coordinate.latitude], @"lastKnownLocationLat",
+                                            [NSString stringWithFormat:@"%f",lastKnownLocation.coordinate.longitude], @"lastKnownLocationLon",
                                             nil];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:myEncodedObject forKey:@"tumbleweed"];
@@ -81,6 +83,16 @@
     tumbleweedLevel = toLevel;
 }
 
+- (void) setLastKnownLocation : (NSString*) lat : (NSString*) lon
+{
+    if (lat && lon)
+    {
+        lastKnownLocation = [[CLLocation alloc] initWithLatitude:[lat floatValue]
+                                                            longitude:[lon floatValue]];
+    }
+    else
+        lastKnownLocation = nil;
+}
 #pragma mark -
 #pragma mark - API Methods
 
@@ -118,6 +130,24 @@
         }
     }];
 
+}
+- (void) resetUser
+{
+    [SVProgressHUD showWithStatus:@"Resetting..." maskType:SVProgressHUDMaskTypeGradient];
+    
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 tumbleweedId, @"id",
+                                 [NSNumber numberWithInt:0], @"level", nil];
+    [[AFTumbleweedClient sharedClient] postPath:@"updater" parameters:queryParams
+                                        success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                            NSLog(@"tumbleweed- updateUser json %@", JSON);
+                                            tumbleweedLevel = 0;
+                                            [self saveTumbleweed];
+                                            [self dismissHUD:YES :nil];
+                                        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                            NSLog(@"tumbleweed- updateUser error %@", error);
+                                            [self dismissHUD:0 :error];
+                                        }];
 }
 - (BOOL) getUserUpdates
 {
