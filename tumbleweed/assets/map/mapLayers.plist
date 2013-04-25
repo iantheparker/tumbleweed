@@ -165,6 +165,13 @@
 			<key>position</key>
 			<string>{2150, 246.25}</string>
 		</dict>
+		<key>tires</key>
+		<dict>
+			<key>img</key>
+			<string>tires.png4</string>
+			<key>position</key>
+			<string>{6800, 250}</string>
+		</dict>
 	</dict>
 	<key>mapLayer3</key>
 	<dict>
@@ -175,16 +182,16 @@
 		<key>bar</key>
 		<dict>
 			<key>img</key>
-			<string>mapLayer3_Saloon.png</string>
+			<string>mapLayer3_Saloon2.png</string>
 			<key>position</key>
-			<string>{2230, 105}</string>
+			<string>{2230, 125}</string>
 		</dict>
 		<key>gas</key>
 		<dict>
 			<key>img</key>
-			<string>mapLayer3_Gas.png</string>
+			<string>mapLayer3_Gas_altFlip.png</string>
 			<key>position</key>
-			<string>{2670, 160}</string>
+			<string>{2670, 120}</string>
 		</dict>
 	</dict>
 	<key>mapLayer1B</key>
@@ -220,6 +227,20 @@
 			<string>mapLayer1B_TownMTNS_desert1.png</string>
 			<key>position</key>
 			<string>{3525, 82}</string>
+		</dict>
+		<key>entryMountains1</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer1B_EntryMTNS_q.png</string>
+			<key>position</key>
+			<string>{1000, 82}</string>
+		</dict>
+		<key>entryMountains2</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer1B_EntryMTNS_B.png</string>
+			<key>position</key>
+			<string>{1775, 90}</string>
 		</dict>
 	</dict>
 </dict>

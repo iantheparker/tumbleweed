@@ -275,7 +275,7 @@
 - (IBAction) foursquareConnect:(UIButton *)sender
 {
     if ([[Tumbleweed sharedClient] tumbleweedId]){
-        [[Tumbleweed sharedClient] resetUser];
+        //[[Tumbleweed sharedClient] resetUser];
     }else
         [Foursquare startAuthorization];
 }
