@@ -43,6 +43,7 @@
 -(CGPoint) coordinatePListReader: (NSString*) positionString;
 -(NSMutableArray*) mapLayerPListPlacer: (NSDictionary*) plist : (CGSize) screenSize : (CALayer*) parentLayer : (NSMutableArray*) sceneArray;
 -(CALayer*) layerInitializer: (id) plistObject :(CGSize) screenSize : (CALayer*) parentLayer : (NSString*) layerName;
+-(int)getRandomNumberBetween:(int)from to:(int)to;
 
 @end
 
@@ -167,7 +168,7 @@
     [map1CCA setPosition:layer1CPos];
     
     //--> layer1B position
-    float layer1BCoefficient = .03;
+    float layer1BCoefficient = .04;
     CGPoint layer1BPos = CGPointMake(mapCenter.x + (janeOffset * layer1BCoefficient), map1BCA.position.y);
     [map1BCA setPosition:layer1BPos];
     
@@ -233,6 +234,7 @@
 #pragma mark animation controls
 -(void) popBeginSign
 {
+    /*
     UIImage *beginSignimg = [UIImage imageNamed:@"top_lvl4_objs_0.png"];
     UIImageView *beginSign = [[UIImageView alloc] initWithImage:beginSignimg];
     beginSign.center = CGPointMake(120, 320 + beginSignimg.size.width );
@@ -244,6 +246,7 @@
         CGAffineTransform transform1 = CGAffineTransformMakeRotation(1 * M_PI / 180);
         beginSign.transform = transform1;
     }];
+     */
 }
 -(void) startCampfire
 {
@@ -405,8 +408,8 @@
     NSLog(@"update scene with level %d", [Tumbleweed sharedClient].tumbleweedLevel);
     if ([[Tumbleweed sharedClient] tumbleweedId]){
         NSLog(@"access token %@", [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"]);
-         //foursquareConnectButton.enabled = NO;
-        //[foursquareConnectButton removeFromSuperview];
+        foursquareConnectButton.enabled = NO;
+        [foursquareConnectButton removeFromSuperview];
         [self setLoggedIn:YES];
     }
     
@@ -489,7 +492,7 @@
     {
         CALayer *mapCALayer = [self layerInitializer:[plist objectForKey:key]  :screenSize : parentLayer : key];
         // This is for the double-placing an array, currently only maplayer1
-        if ([[plist objectForKey:key] isKindOfClass:[NSArray class]])
+        if ([[plist objectForKey:key] isKindOfClass:[NSArray class]] )
         {
             NSArray *mapLayerArray = [plist objectForKey:key];
             //subLayerOriginX is now -200 to compensate for superdrag image width
@@ -572,6 +575,16 @@
 }
 
 
+- (void) animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
+{
+    NSLog(@"2sup");
+    
+}
+-(int)getRandomNumberBetween:(int)from to:(int)to {
+    
+    return (int)from + arc4random() % (to-from+1);
+}
+
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad
@@ -625,7 +638,7 @@
     [scrollView addSubview:buttonContainer];
     [scrollView addSubview:foursquareConnectButton];
 
-    //--> sky
+    //-->sky
     {
         UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
         CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
@@ -637,7 +650,7 @@
         map0CA.opaque = YES;
         [mapCAView.layer addSublayer:map0CA];
     }
-    //--> rock
+    //-->rock
     {
         CALayer *rock = [CALayer layer];
         UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
@@ -648,6 +661,16 @@
         [rock setContents:(__bridge id)rockCGImage];
         rock.zPosition = 3;
         [mapCAView.layer addSublayer:rock];
+    }
+    //-->gas station
+    {
+        CALayer *gasPumps = [CALayer layer];
+        UIImage *pumpImg = [UIImage imageNamed:@"mapLayer2_gas_pumps.png"];
+        gasPumps.frame = CGRectMake(2380, 43, pumpImg.size.width/2, pumpImg.size.height/2);
+        CGImageRef pumpCGImage = [pumpImg CGImage];
+        [gasPumps setContents:(__bridge id)pumpCGImage];
+        gasPumps.zPosition = 3;
+        [mapCAView.layer addSublayer:gasPumps];
     }
     //-->noose animation
     {
@@ -672,6 +695,147 @@
         nooseAnimation.fillMode = kCAFillModeForwards;
         nooseAnimation.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
         [hangnoose2 addAnimation:nooseAnimation forKey:@"transform.rotation.z"];
+    }
+    //-->cloud animation
+    {
+        CALayer *cloud1 = [CALayer layer];
+        UIImage *cloud1img = [UIImage imageNamed:@"cloud_1.png"];
+        cloud1.bounds = CGRectMake(0, 0, cloud1img.size.width/2, cloud1img.size.height/2);
+        cloud1.position = CGPointMake(0, 27);
+        CGImageRef cloud1imgref = [cloud1img CGImage];
+        [cloud1 setContents:(__bridge id)cloud1imgref];
+        [map1BCA addSublayer:cloud1];
+        
+        CABasicAnimation *cloud1anim;
+        cloud1anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.x"];
+        cloud1anim.fromValue = [NSNumber numberWithInt:1000];
+        cloud1anim.toValue = [NSNumber numberWithInt:screenSize.width];
+        cloud1anim.duration = [self getRandomNumberBetween:90 to:300]; //90 - 300?
+        cloud1anim.autoreverses = NO;
+        //cloud1anim.cumulative = YES;
+        //cloud1anim.repeatCount = HUGE_VAL;
+        cloud1anim.removedOnCompletion = YES;
+        //cloud1anim.fillMode = kCAFillModeForwards;
+        //cloud1anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        cloud1anim.delegate = self;
+        [cloud1 addAnimation:cloud1anim forKey:@"transform.translation.x"];
+        //[cloud1anim setValue:@"cloud1anim" forKey:@"id"];
+        
+        
+        //set this up so it pulls from a plist of images with variable speeds assigned and positions in the canvas
+        //place them 
+    }
+    //-->cowboy animation
+    {
+        CALayer *cowboy = [CALayer layer];
+        UIImage *cowboyimg = [UIImage imageNamed:@"Dude_head.png"];
+        cowboy.bounds = CGRectMake(0, 0, cowboyimg.size.width/2, cowboyimg.size.height/2);
+        cowboy.anchorPoint = CGPointMake(0.5, 0.5);
+        cowboy.position = CGPointMake(2591.55, screenSize.height - cowboy.bounds.size.height/2);
+        CGImageRef cowboyimgref = [cowboyimg CGImage];
+        [cowboy setContents:(__bridge id)cowboyimgref];
+        [map4CA addSublayer:cowboy];
+        
+        CALayer *cowboyHat = [CALayer layer];
+        UIImage *cowboyHatimg = [UIImage imageNamed:@"Dude_hat.png"];
+        cowboyHat.bounds = CGRectMake(0, 0, cowboyHatimg.size.width/2, cowboyHatimg.size.height/2);
+        cowboyHat.anchorPoint = CGPointMake(0.5, 0.5);
+        cowboyHat.position = CGPointMake(142, -10);
+        CGImageRef cowboyHatimgRef = [cowboyHatimg CGImage];
+        [cowboyHat setContents:(__bridge id) cowboyHatimgRef];
+        [cowboy addSublayer:cowboyHat];
+ 
+        
+        CAKeyframeAnimation *cowboyHatTipAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        cowboyHatTipAnim.duration = 5.0f;
+        cowboyHatTipAnim.repeatCount = HUGE_VALF;
+        //cowboyHatTipAnim.calculationMode = kCAAnimationPaced;
+        cowboyHatTipAnim.removedOnCompletion = NO;
+        cowboyHatTipAnim.fillMode = kCAFillModeForwards;
+        
+        cowboyHatTipAnim.values = [NSArray arrayWithObjects:
+                                   [NSNumber numberWithFloat:0 * M_PI],
+                                   [NSNumber numberWithFloat:0.04 * M_PI],
+                                   [NSNumber numberWithFloat:0 * M_PI], nil] ;
+        
+        cowboyHatTipAnim.keyTimes = [NSArray arrayWithObjects:
+                                     [NSNumber numberWithFloat:0.1],
+                                     [NSNumber numberWithFloat:0.15],
+                                     [NSNumber numberWithFloat:0.25], nil] ;
+        
+        [cowboyHat addAnimation:cowboyHatTipAnim forKey:@"transform.rotation.z"];
+        
+        //invisible calayer to animate y translation of arm. embedded on hat, and hand will be embedded on this
+        CALayer *cowboyHandHold = [CALayer layer];
+        cowboyHandHold.bounds = cowboyHat.bounds;
+        cowboyHandHold.position = CGPointMake(110, 42);
+        [cowboyHat addSublayer:cowboyHandHold];
+
+        
+        CAKeyframeAnimation *cowboyHandHoldAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation.y"];
+        cowboyHandHoldAnim.duration = 5.0f;
+        cowboyHandHoldAnim.repeatCount = HUGE_VALF;
+        //cowboyHatTipAnim.calculationMode = kCAAnimationPaced;
+        cowboyHandHoldAnim.removedOnCompletion = NO;
+        cowboyHandHoldAnim.fillMode = kCAFillModeForwards;
+        
+        cowboyHandHoldAnim.values = [NSArray arrayWithObjects:
+                                   [NSNumber numberWithFloat:125],
+                                   [NSNumber numberWithFloat:0],
+                                   [NSNumber numberWithFloat:0],
+                                    [NSNumber numberWithFloat:125],nil] ;
+        
+        cowboyHandHoldAnim.keyTimes = [NSArray arrayWithObjects:
+                                     [NSNumber numberWithFloat:0.0],
+                                     [NSNumber numberWithFloat:0.1],
+                                     [NSNumber numberWithFloat:0.25],
+                                       [NSNumber numberWithFloat:0.35],nil] ;
+        
+        [cowboyHandHold addAnimation:cowboyHandHoldAnim forKey:@"transform.translation.y"];
+
+        
+        CALayer *cowboyHand = [CALayer layer];
+        UIImage *cowboyHandimg = [UIImage imageNamed:@"Dude_hand.png"];
+        cowboyHand.bounds = CGRectMake(0, 0, cowboyHandimg.size.width/2, cowboyHandimg.size.height/2);
+        cowboyHand.anchorPoint = CGPointMake(0.5, 1);
+        cowboyHand.position = CGPointMake(210, 210);
+        CGImageRef cowboyHandimgRef = [cowboyHandimg CGImage];
+        [cowboyHand setContents:(__bridge id) cowboyHandimgRef];
+        [cowboyHandHold addSublayer:cowboyHand];
+        
+        CAKeyframeAnimation *cowboyHandAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        cowboyHandAnim.duration = 5.0f;
+        cowboyHandAnim.repeatCount = HUGE_VALF;
+        //cowboyHatTipAnim.calculationMode = kCAAnimationPaced;
+        cowboyHandAnim.removedOnCompletion = NO;
+        cowboyHandAnim.fillMode = kCAFillModeForwards;
+        
+        cowboyHandAnim.values = [NSArray arrayWithObjects:
+                                   [NSNumber numberWithFloat:0.15 * M_PI],
+                                   [NSNumber numberWithFloat: 0 * M_PI],
+                                 [NSNumber numberWithFloat: 0 * M_PI],
+                                   [NSNumber numberWithFloat:0.15 * M_PI], nil] ;
+        
+        cowboyHandAnim.keyTimes = [NSArray arrayWithObjects:
+                                   [NSNumber numberWithFloat:0.0],
+                                   [NSNumber numberWithFloat:0.1],
+                                   [NSNumber numberWithFloat:0.25],
+                                   [NSNumber numberWithFloat:0.35],nil] ;
+        
+        [cowboyHand addAnimation:cowboyHandAnim forKey:@"transform.rotation.z"];
+        
+        
+    }
+    //-->water tower
+    {
+        CALayer *waterTower = [CALayer layer];
+        UIImage *waterTowerimg = [UIImage imageNamed:@"mapLayer3_waterTower.png"];
+        waterTower.bounds = CGRectMake(0, 0, waterTowerimg.size.width/2, waterTowerimg.size.height/2);
+        waterTower.position = CGPointMake(1478, 105);
+        CGImageRef waterTowerimgref = [waterTowerimg CGImage];
+        [waterTower setContents:(__bridge id)waterTowerimgref];
+        [map2CA addSublayer:waterTower];
+        
     }
     //-->cactus bird animation
     {
@@ -710,7 +874,8 @@
         
         [cactusbird addAnimation:cactusbirdAnimation forKey:@"cactusbird"];
         [(CALayer*)parallaxLayers.lastObject addSublayer:cactusbird];
-        }
+        
+    }
     //-->progress bar animation
     {
         blackPanel = [CALayer layer];
@@ -814,7 +979,7 @@
         CGSize fixedSize = CGSizeMake(116, 74);
         CGImageRef birdImage = [[UIImage imageNamed:@"bird"] CGImage];
         MCSpriteLayer* birdSprite = [MCSpriteLayer layerWithImage:birdImage sampleSize:fixedSize];
-        birdSprite.position = CGPointMake(640*2, scrollView.contentSize.height/6);
+        birdSprite.position = CGPointMake(675*2, scrollView.contentSize.height/6);
         
         CABasicAnimation *birdAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
         birdAnimation.fromValue = [NSNumber numberWithInt:1];
@@ -844,6 +1009,377 @@
         [riverSprite addAnimation:riverAnimation forKey:@"riverWaves"];
         [mapCAView.layer addSublayer:riverSprite];
         //[(CALayer*)[parallaxLayers objectAtIndex:1] addSublayer:riverSprite];
+    }
+    //-->deer eyes animation
+    {
+        CALayer *deereyes = [CALayer layer];
+        UIImage *deereyesimg = [UIImage imageNamed:@"deer_eyes.png"];
+        deereyes.bounds = CGRectMake(0, 0, deereyesimg.size.width/2, deereyesimg.size.height/2);
+        deereyes.position = CGPointMake(3535, 177);
+        CGImageRef deereyesimgref = [deereyesimg CGImage];
+        [deereyes setContents:(__bridge id)deereyesimgref];
+        [map1CA addSublayer:deereyes];
+        
+        CAKeyframeAnimation *deereyesAnimation = [CAKeyframeAnimation animationWithKeyPath:@"opacity"];
+        deereyesAnimation.duration = 5.0f;
+        deereyesAnimation.repeatCount = HUGE_VALF;
+        deereyesAnimation.calculationMode = kCAAnimationDiscrete;
+        deereyesAnimation.removedOnCompletion = NO;
+        deereyesAnimation.fillMode = kCAFillModeForwards;
+        
+        deereyesAnimation.values = [NSArray arrayWithObjects:
+                                [NSNumber numberWithFloat:1.0],
+                                [NSNumber numberWithFloat:0.0],
+                                [NSNumber numberWithFloat:0.0],nil]; //not called
+        
+        deereyesAnimation.keyTimes = [NSArray arrayWithObjects:
+                                  [NSNumber numberWithFloat:0.0],
+                                  [NSNumber numberWithFloat:0.2],
+                                [NSNumber numberWithFloat:0.2], nil]; //not called
+        
+        [deereyes addAnimation:deereyesAnimation forKey:@"deereyeBlink"];
+
+
+    }
+    //-->pumpjacks
+    {
+        CALayer *pumpjackFloor = [CALayer layer];
+        pumpjackFloor.bounds = CGRectMake(0, 0, 30, 5);
+        pumpjackFloor.position = CGPointMake(4100, 118);
+        [map2CA addSublayer:pumpjackFloor];
+        
+        CALayer *pumpjackBase = [CALayer layer];
+        UIImage *pumpjackBaseimg = [UIImage imageNamed:@"[L3]-base_A.png"];
+        pumpjackBase.bounds = CGRectMake(0, 0, pumpjackBaseimg.size.width/2, pumpjackBaseimg.size.height/2);
+        //pumpjackBase.position = CGPointMake(4100, 118);
+        CGImageRef pumpjackBaseimgref = [pumpjackBaseimg CGImage];
+        [pumpjackBase setContents:(__bridge id)pumpjackBaseimgref];
+        [pumpjackFloor addSublayer:pumpjackBase];
+        
+        CALayer *pumpjackTapline = [CALayer layer];
+        UIImage *pumpjackTaplineimg = [UIImage imageNamed:@"[L4]-tapline_A.png"];
+        pumpjackTapline.bounds = CGRectMake(0, 0, pumpjackTaplineimg.size.width/2, pumpjackTaplineimg.size.height/2);
+        pumpjackTapline.position = CGPointMake(209, 36);
+        CGImageRef pumpjackTaplineimgref = [pumpjackTaplineimg CGImage];
+        [pumpjackTapline setContents:(__bridge id)pumpjackTaplineimgref];
+        [pumpjackBase addSublayer:pumpjackTapline];
+        
+        CAKeyframeAnimation *pumpjackTaplineAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation.y"];
+        pumpjackTaplineAnim.duration = 2.5f;
+        pumpjackTaplineAnim.repeatCount = HUGE_VALF;
+        pumpjackTaplineAnim.calculationMode = kCAAnimationPaced;
+        pumpjackTaplineAnim.autoreverses = YES;
+        pumpjackTaplineAnim.removedOnCompletion = NO;
+        pumpjackTaplineAnim.fillMode = kCAFillModeForwards;
+        
+        pumpjackTaplineAnim.values = [NSArray arrayWithObjects:
+                                      [NSNumber numberWithInt:10],
+                                      [NSNumber numberWithInt:0],
+                                       nil] ;
+        
+        pumpjackTaplineAnim.keyTimes = [NSArray arrayWithObjects:
+                                        [NSNumber numberWithFloat:0.0],
+                                        [NSNumber numberWithFloat:0.5],
+                                        nil] ;
+        
+        pumpjackTaplineAnim.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [pumpjackTapline addAnimation:pumpjackTaplineAnim forKey:@"transform.translation.y"];
+        
+        CALayer *pumpjackHandle = [CALayer layer];
+        UIImage *pumpjackHandleimg = [UIImage imageNamed:@"[L2]-handle_knex_A.png"];
+        pumpjackHandle.bounds = CGRectMake(0, 0, pumpjackHandleimg.size.width/2, pumpjackHandleimg.size.height/2);
+        pumpjackHandle.position = CGPointMake(-27, -23);
+        CGImageRef pumpjackHandleimgref = [pumpjackHandleimg CGImage];
+        [pumpjackHandle setContents:(__bridge id)pumpjackHandleimgref];
+        [pumpjackFloor insertSublayer:pumpjackHandle atIndex:0];
+        
+        CAKeyframeAnimation *pumpjackHandleAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation.y"];
+        pumpjackHandleAnim.duration = 2.5f;
+        pumpjackHandleAnim.repeatCount = HUGE_VALF;
+        pumpjackHandleAnim.calculationMode = kCAAnimationPaced;
+        pumpjackHandleAnim.autoreverses = YES;
+        pumpjackHandleAnim.removedOnCompletion = NO;
+        pumpjackHandleAnim.fillMode = kCAFillModeForwards;
+        
+        pumpjackHandleAnim.values = [NSArray arrayWithObjects:
+                                     [NSNumber numberWithInt:0],
+                                     [NSNumber numberWithInt:15],
+                                     nil] ;
+        
+        pumpjackHandleAnim.keyTimes = [NSArray arrayWithObjects:
+                                       [NSNumber numberWithFloat:0.0],
+                                       [NSNumber numberWithFloat:0.5],
+                                       nil] ;
+        
+        pumpjackHandleAnim.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [pumpjackHandle addAnimation:pumpjackHandleAnim forKey:nil];
+
+        
+        CALayer *pumpjackHammer = [CALayer layer];
+        UIImage *pumpjackHammerimg = [UIImage imageNamed:@"[L7]-hammer_A.png"];
+        pumpjackHammer.bounds = CGRectMake(0, 0, pumpjackHammerimg.size.width/2, pumpjackHammerimg.size.height/2);
+        pumpjackHammer.anchorPoint = CGPointMake(0.5, 0.5);
+        pumpjackHammer.position = CGPointMake(145, 6);
+        CGImageRef pumpjackHammerimgref = [pumpjackHammerimg CGImage];
+        [pumpjackHammer setContents:(__bridge id)pumpjackHammerimgref];
+        [pumpjackBase addSublayer:pumpjackHammer];
+        
+        CAKeyframeAnimation *pumpjackHammerAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        pumpjackHammerAnim.duration = 2.5f;
+        pumpjackHammerAnim.repeatCount = HUGE_VALF;
+        pumpjackHammerAnim.calculationMode = kCAAnimationPaced;
+        pumpjackHammerAnim.autoreverses = YES;
+        pumpjackHammerAnim.removedOnCompletion = NO;
+        pumpjackHammerAnim.fillMode = kCAFillModeForwards;
+        
+        pumpjackHammerAnim.values = [NSArray arrayWithObjects:
+                                     [NSNumber numberWithFloat:0.0 * M_PI],
+                                 [NSNumber numberWithFloat:-0.13 * M_PI],
+                                  nil] ;
+        
+        pumpjackHammerAnim.keyTimes = [NSArray arrayWithObjects:
+                                    [NSNumber numberWithFloat:0.0],
+                                   [NSNumber numberWithFloat:0.5],
+                                   nil] ;
+        
+        pumpjackHammerAnim.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [pumpjackHammer addAnimation:pumpjackHammerAnim forKey:@"transform.rotation.z"];
+        
+        CALayer *pumpjackProp2 = [CALayer layer];
+        UIImage *pumpjackProp2img = [UIImage imageNamed:@"[L1]-propeller2_A.png"];
+        pumpjackProp2.bounds = CGRectMake(0, 0, pumpjackProp2img.size.width/2, pumpjackProp2img.size.height/2);
+        pumpjackProp2.position = CGPointMake(-32, 10);
+        CGImageRef pumpjackProp2imgref = [pumpjackProp2img CGImage];
+        [pumpjackProp2 setContents:(__bridge id)pumpjackProp2imgref];
+        [pumpjackFloor insertSublayer:pumpjackProp2 atIndex:0];
+        
+        CAKeyframeAnimation *pumpjackProp2Anim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        pumpjackProp2Anim.duration = 5.0f;
+        pumpjackProp2Anim.repeatCount = HUGE_VALF;
+        pumpjackProp2Anim.calculationMode = kCAAnimationPaced;
+        pumpjackProp2Anim.removedOnCompletion = NO;
+        pumpjackProp2Anim.fillMode = kCAFillModeForwards;
+        
+        pumpjackProp2Anim.values = [NSArray arrayWithObjects:
+                                     [NSNumber numberWithFloat:0.0 * M_PI],
+                                     [NSNumber numberWithFloat:-1 * M_PI],
+                                    [NSNumber numberWithFloat:-2 * M_PI],
+                                     nil] ;
+        
+        pumpjackProp2Anim.keyTimes = [NSArray arrayWithObjects:
+                                       [NSNumber numberWithFloat:0.0],
+                                       [NSNumber numberWithFloat:0.5],
+                                      [NSNumber numberWithFloat:1.0],
+                                       nil] ;
+        
+        [pumpjackProp2 addAnimation:pumpjackProp2Anim forKey:@"transform.rotation.z"];
+        
+        CALayer *pumpjackProp1 = [CALayer layer];
+        UIImage *pumpjackProp1img = [UIImage imageNamed:@"[L5]-propeller1_A.png"];
+        pumpjackProp1.bounds = CGRectMake(0, 0, pumpjackProp1img.size.width/2, pumpjackProp1img.size.height/2);
+        pumpjackProp1.position = CGPointMake(93, 65);
+        CGImageRef pumpjackProp1imgref = [pumpjackProp1img CGImage];
+        [pumpjackProp1 setContents:(__bridge id)pumpjackProp1imgref];
+        [pumpjackBase addSublayer:pumpjackProp1];
+        
+        CAKeyframeAnimation *pumpjackProp1Anim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        pumpjackProp1Anim.duration = 5.0f;
+        pumpjackProp1Anim.repeatCount = HUGE_VALF;
+        pumpjackProp1Anim.calculationMode = kCAAnimationPaced;
+        pumpjackProp1Anim.removedOnCompletion = NO;
+        pumpjackProp1Anim.fillMode = kCAFillModeForwards;
+        
+        pumpjackProp1Anim.values = [NSArray arrayWithObjects:
+                                    [NSNumber numberWithFloat:0.0 * M_PI],
+                                    [NSNumber numberWithFloat:-1 * M_PI],
+                                    [NSNumber numberWithFloat:-2 * M_PI],
+                                    nil] ;
+        
+        pumpjackProp1Anim.keyTimes = [NSArray arrayWithObjects:
+                                      [NSNumber numberWithFloat:0.0],
+                                      [NSNumber numberWithFloat:0.5],
+                                      [NSNumber numberWithFloat:1.0],
+                                      nil] ;
+        
+        [pumpjackProp1 addAnimation:pumpjackProp1Anim forKey:@"transform.rotation.z"];
+        
+        CALayer *pumpjackBox = [CALayer layer];
+        UIImage *pumpjackBoximg = [UIImage imageNamed:@"[L6]-box_A.png"];
+        pumpjackBox.bounds = CGRectMake(0, 0, pumpjackBoximg.size.width/2, pumpjackBoximg.size.height/2);
+        pumpjackBox.position = CGPointMake(93, 65);
+        CGImageRef pumpjackBoximgref = [pumpjackBoximg CGImage];
+        [pumpjackBox setContents:(__bridge id)pumpjackBoximgref];
+        [pumpjackBase addSublayer:pumpjackBox];
+        
+        //--> second one
+        
+        CALayer *pumpjackFloor2 = [CALayer layer];
+        pumpjackFloor2.bounds = CGRectMake(0, 0, 30, 5);
+        pumpjackFloor2.position = CGPointMake(3920, 92);
+        [map1CA addSublayer:pumpjackFloor2];
+        
+        CALayer *pumpjackBase2 = [CALayer layer];
+        UIImage *pumpjackBase2img = [UIImage imageNamed:@"[L3]-base_A.png"];
+        pumpjackBase2.bounds = CGRectMake(0, 0, pumpjackBase2img.size.width/3, pumpjackBase2img.size.height/3);
+        CGImageRef pumpjackBase2imgref = [pumpjackBase2img CGImage];
+        [pumpjackBase2 setContents:(__bridge id)pumpjackBase2imgref];
+        [pumpjackFloor2 addSublayer:pumpjackBase2];
+        
+        CALayer *pumpjackTapline2 = [CALayer layer];
+        UIImage *pumpjackTapline2img = [UIImage imageNamed:@"[L4]-tapline_A.png"];
+        pumpjackTapline2.bounds = CGRectMake(0, 0, pumpjackTapline2img.size.width/3, pumpjackTapline2img.size.height/3);
+        pumpjackTapline2.position = CGPointMake(139, 25);
+        CGImageRef pumpjackTapline2imgref = [pumpjackTapline2img CGImage];
+        [pumpjackTapline2 setContents:(__bridge id)pumpjackTapline2imgref];
+        [pumpjackBase2 addSublayer:pumpjackTapline2];
+        
+        CAKeyframeAnimation *pumpjackTapline2Anim = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation.y"];
+        pumpjackTapline2Anim.duration = 2.5f;
+        pumpjackTapline2Anim.repeatCount = HUGE_VALF;
+        pumpjackTapline2Anim.calculationMode = kCAAnimationPaced;
+        pumpjackTapline2Anim.autoreverses = YES;
+        pumpjackTapline2Anim.removedOnCompletion = NO;
+        pumpjackTapline2Anim.fillMode = kCAFillModeForwards;
+        
+        pumpjackTapline2Anim.values = [NSArray arrayWithObjects:
+                                      [NSNumber numberWithInt:7],
+                                      [NSNumber numberWithInt:0],
+                                      nil] ;
+        
+        pumpjackTapline2Anim.keyTimes = [NSArray arrayWithObjects:
+                                        [NSNumber numberWithFloat:0.0],
+                                        [NSNumber numberWithFloat:0.5],
+                                        nil] ;
+        
+        pumpjackTapline2Anim.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [pumpjackTapline2 addAnimation:pumpjackTapline2Anim forKey:@"transform.translation.y"];
+        
+        CALayer *pumpjackHandle2 = [CALayer layer];
+        UIImage *pumpjackHandle2img = [UIImage imageNamed:@"[L2]-handle_knex_A.png"];
+        pumpjackHandle2.bounds = CGRectMake(0, 0, pumpjackHandle2img.size.width/3, pumpjackHandle2img.size.height/3);
+        pumpjackHandle2.position = CGPointMake(-18, -19);
+        CGImageRef pumpjackHandle2imgref = [pumpjackHandle2img CGImage];
+        [pumpjackHandle2 setContents:(__bridge id)pumpjackHandle2imgref];
+        [pumpjackFloor2 insertSublayer:pumpjackHandle2 atIndex:0];
+        
+        CAKeyframeAnimation *pumpjackHandle2Anim = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation.y"];
+        pumpjackHandle2Anim.duration = 2.5f;
+        pumpjackHandle2Anim.repeatCount = HUGE_VALF;
+        pumpjackHandle2Anim.calculationMode = kCAAnimationPaced;
+        pumpjackHandle2Anim.autoreverses = YES;
+        pumpjackHandle2Anim.removedOnCompletion = NO;
+        pumpjackHandle2Anim.fillMode = kCAFillModeForwards;
+        
+        pumpjackHandle2Anim.values = [NSArray arrayWithObjects:
+                                     [NSNumber numberWithInt:0],
+                                     [NSNumber numberWithInt:10],
+                                     nil] ;
+        
+        pumpjackHandle2Anim.keyTimes = [NSArray arrayWithObjects:
+                                       [NSNumber numberWithFloat:0.0],
+                                       [NSNumber numberWithFloat:0.5],
+                                       nil] ;
+        
+        pumpjackHandle2Anim.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [pumpjackHandle2 addAnimation:pumpjackHandle2Anim forKey:nil];
+        
+        
+        CALayer *pumpjackHammer2 = [CALayer layer];
+        UIImage *pumpjackHammer2img = [UIImage imageNamed:@"[L7]-hammer_A.png"];
+        pumpjackHammer2.bounds = CGRectMake(0, 0, pumpjackHammer2img.size.width/3, pumpjackHammer2img.size.height/3);
+        pumpjackHammer2.anchorPoint = CGPointMake(0.5, 0.5);
+        pumpjackHammer2.position = CGPointMake(97, 4);
+        CGImageRef pumpjackHammer2imgref = [pumpjackHammer2img CGImage];
+        [pumpjackHammer2 setContents:(__bridge id)pumpjackHammer2imgref];
+        [pumpjackBase2 addSublayer:pumpjackHammer2];
+        
+        CAKeyframeAnimation *pumpjackHammer2Anim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        pumpjackHammer2Anim.duration = 2.5f;
+        pumpjackHammer2Anim.repeatCount = HUGE_VALF;
+        pumpjackHammer2Anim.calculationMode = kCAAnimationPaced;
+        pumpjackHammer2Anim.autoreverses = YES;
+        pumpjackHammer2Anim.removedOnCompletion = NO;
+        pumpjackHammer2Anim.fillMode = kCAFillModeForwards;
+        
+        pumpjackHammer2Anim.values = [NSArray arrayWithObjects:
+                                     [NSNumber numberWithFloat:0.0 * M_PI],
+                                     [NSNumber numberWithFloat:-0.09 * M_PI],
+                                     nil] ;
+        
+        pumpjackHammer2Anim.keyTimes = [NSArray arrayWithObjects:
+                                       [NSNumber numberWithFloat:0.0],
+                                       [NSNumber numberWithFloat:0.5],
+                                       nil] ;
+        
+        pumpjackHammer2Anim.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+        [pumpjackHammer2 addAnimation:pumpjackHammer2Anim forKey:@"transform.rotation.z"];
+        
+        CALayer *pumpjack2Prop2 = [CALayer layer];
+        UIImage *pumpjack2Prop2img = [UIImage imageNamed:@"[L1]-propeller2_A.png"];
+        pumpjack2Prop2.bounds = CGRectMake(0, 0, pumpjack2Prop2img.size.width/3, pumpjack2Prop2img.size.height/3);
+        pumpjack2Prop2.position = CGPointMake(-19, 7);
+        CGImageRef pumpjack2Prop2imgref = [pumpjack2Prop2img CGImage];
+        [pumpjack2Prop2 setContents:(__bridge id)pumpjack2Prop2imgref];
+        [pumpjackFloor2 insertSublayer:pumpjack2Prop2 atIndex:0];
+        
+        CAKeyframeAnimation *pumpjack2Prop2Anim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        pumpjack2Prop2Anim.duration = 5.0f;
+        pumpjack2Prop2Anim.repeatCount = HUGE_VALF;
+        pumpjack2Prop2Anim.calculationMode = kCAAnimationPaced;
+        pumpjack2Prop2Anim.removedOnCompletion = NO;
+        pumpjack2Prop2Anim.fillMode = kCAFillModeForwards;
+        
+        pumpjack2Prop2Anim.values = [NSArray arrayWithObjects:
+                                    [NSNumber numberWithFloat:0.0 * M_PI],
+                                    [NSNumber numberWithFloat:-1 * M_PI],
+                                    [NSNumber numberWithFloat:-2 * M_PI],
+                                    nil] ;
+        
+        pumpjack2Prop2Anim.keyTimes = [NSArray arrayWithObjects:
+                                      [NSNumber numberWithFloat:0.0],
+                                      [NSNumber numberWithFloat:0.5],
+                                      [NSNumber numberWithFloat:1.0],
+                                      nil] ;
+        
+        [pumpjack2Prop2 addAnimation:pumpjack2Prop2Anim forKey:@"transform.rotation.z"];
+        
+        CALayer *pumpjack2Prop1 = [CALayer layer];
+        UIImage *pumpjack2Prop1img = [UIImage imageNamed:@"[L5]-propeller1_A.png"];
+        pumpjack2Prop1.bounds = CGRectMake(0, 0, pumpjack2Prop1img.size.width/3, pumpjack2Prop1img.size.height/3);
+        pumpjack2Prop1.position = CGPointMake(63, 42);
+        CGImageRef pumpjack2Prop1imgref = [pumpjack2Prop1img CGImage];
+        [pumpjack2Prop1 setContents:(__bridge id)pumpjack2Prop1imgref];
+        [pumpjackBase2 addSublayer:pumpjack2Prop1];
+        
+        CAKeyframeAnimation *pumpjack2Prop1Anim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        pumpjack2Prop1Anim.duration = 5.0f;
+        pumpjack2Prop1Anim.repeatCount = HUGE_VALF;
+        pumpjack2Prop1Anim.calculationMode = kCAAnimationPaced;
+        pumpjack2Prop1Anim.removedOnCompletion = NO;
+        pumpjack2Prop1Anim.fillMode = kCAFillModeForwards;
+        
+        pumpjack2Prop1Anim.values = [NSArray arrayWithObjects:
+                                    [NSNumber numberWithFloat:0.0 * M_PI],
+                                    [NSNumber numberWithFloat:-1 * M_PI],
+                                    [NSNumber numberWithFloat:-2 * M_PI],
+                                    nil] ;
+        
+        pumpjack2Prop1Anim.keyTimes = [NSArray arrayWithObjects:
+                                      [NSNumber numberWithFloat:0.0],
+                                      [NSNumber numberWithFloat:0.5],
+                                      [NSNumber numberWithFloat:1.0],
+                                      nil] ;
+        
+        [pumpjack2Prop1 addAnimation:pumpjack2Prop1Anim forKey:@"transform.rotation.z"];
+        
+        CALayer *pumpjackBox2 = [CALayer layer];
+        UIImage *pumpjackBox2img = [UIImage imageNamed:@"[L6]-box_A.png"];
+        pumpjackBox2.bounds = CGRectMake(0, 0, pumpjackBox2img.size.width/3, pumpjackBox2img.size.height/3);
+        pumpjackBox2.position = CGPointMake(62, 43);
+        CGImageRef pumpjackBox2imgref = [pumpjackBox2img CGImage];
+        [pumpjackBox2 setContents:(__bridge id)pumpjackBox2imgref];
+        [pumpjackBase2 addSublayer:pumpjackBox2];
+        
     }
     //-->jane avatar
     {

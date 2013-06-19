@@ -33,7 +33,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     
     // analytics
     [Flurry startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
-    [TestFlight takeOff:@"bb371df0e59558721f4be65bc1cd34b2_NTg5NDgyMDEyLTAyLTAyIDA5OjIyOjM0LjM0Nzk3MQ"];
+    [TestFlight takeOff:@"c3fbe14b-2a0f-4be8-903e-efd0f7c622be"];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.

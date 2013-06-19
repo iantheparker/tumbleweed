@@ -66,13 +66,6 @@
 			<key>buttonPosition</key>
 			<string>{1895.78, 80}</string>
 		</dict>
-		<key>dude</key>
-		<dict>
-			<key>img</key>
-			<string>top_lvl4_objs_3.png</string>
-			<key>position</key>
-			<string>{2591.55, 229.25}</string>
-		</dict>
 		<key>town</key>
 		<dict>
 			<key>sceneButtonNumber</key>
@@ -165,12 +158,12 @@
 			<key>position</key>
 			<string>{2150, 246.25}</string>
 		</dict>
-		<key>tires</key>
+		<key>tombstone</key>
 		<dict>
 			<key>img</key>
-			<string>tires.png4</string>
+			<string>mapLayer4_tombstone.png</string>
 			<key>position</key>
-			<string>{6800, 250}</string>
+			<string>{11000, 190}</string>
 		</dict>
 	</dict>
 	<key>mapLayer3</key>
@@ -182,16 +175,30 @@
 		<key>bar</key>
 		<dict>
 			<key>img</key>
-			<string>mapLayer3_Saloon2.png</string>
+			<string>mapLayer2_saloon.png</string>
 			<key>position</key>
-			<string>{2230, 125}</string>
+			<string>{2120, 125}</string>
+		</dict>
+		<key>gasFence</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer2_saloon_fence.png</string>
+			<key>position</key>
+			<string>{2380, 195}</string>
 		</dict>
 		<key>gas</key>
 		<dict>
 			<key>img</key>
-			<string>mapLayer3_Gas_altFlip.png</string>
+			<string>mapLayer2_gas_station.png</string>
 			<key>position</key>
-			<string>{2670, 120}</string>
+			<string>{2705, 115}</string>
+		</dict>
+		<key>truck</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer2_blue_truck.png</string>
+			<key>position</key>
+			<string>{1120, 155}</string>
 		</dict>
 	</dict>
 	<key>mapLayer1B</key>
@@ -240,7 +247,7 @@
 			<key>img</key>
 			<string>mapLayer1B_EntryMTNS_B.png</string>
 			<key>position</key>
-			<string>{1775, 90}</string>
+			<string>{1875, 90}</string>
 		</dict>
 	</dict>
 </dict>
