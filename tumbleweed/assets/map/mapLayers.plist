@@ -158,16 +158,16 @@
 			<key>position</key>
 			<string>{2150, 246.25}</string>
 		</dict>
-		<key>tombstone</key>
-		<dict>
-			<key>img</key>
-			<string>mapLayer4_tombstone.png</string>
-			<key>position</key>
-			<string>{11000, 190}</string>
-		</dict>
 	</dict>
 	<key>mapLayer3</key>
 	<dict>
+		<key>waterTower</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer3_waterTower.png</string>
+			<key>position</key>
+			<string>{1478, 105}</string>
+		</dict>
 		<key>boundsMultiplier</key>
 		<string>{1, 1}</string>
 		<key>zPosition</key>

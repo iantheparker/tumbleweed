@@ -12,7 +12,8 @@
 #import "MCSpriteLayer.h"
 #import <SVProgressHUD.h>
 
-
+#define canvas_w 5762
+#define canvas_h 320
 
 @interface TumbleweedViewController()
 
@@ -27,7 +28,6 @@
 @property (nonatomic, retain) UIView *mapCAView;
 @property (nonatomic, retain) UIButton *buttonContainer;
 @property (nonatomic, retain) CALayer *blackPanel;
-@property (nonatomic, retain) CALayer *progressBarEmpty;
 @property (nonatomic, getter = isLoggedIn) BOOL loggedIn;
 
 -(void) gameSavetNotif: (NSNotification *) notif;
@@ -52,12 +52,14 @@
     int lastContentOffset;
     BOOL walkingForward;
     CATextLayer *progressLabel;
+    CALayer *progressBar;
+    CALayer *progressBarEmpty;
     UIView *hintVC;
 
 }
 
 @synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar;
-@synthesize foursquareConnectButton, buttonContainer, blackPanel, progressBarEmpty;
+@synthesize foursquareConnectButton, buttonContainer, blackPanel;
 
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -128,7 +130,7 @@
     // if woken up and no avatar values, then set them
     //if (!janeAvatar.position.x) janeAvatar.position = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
     
-    //set position
+    //set JANE position
     if ([scrollView contentOffset].x <janeLeftBound - avatar_offset || [scrollView contentOffset].x >janeRightBound - avatar_offset || !moving)
     {
         bounds = [self selectAvatarBounds:-1];        
@@ -145,7 +147,7 @@
     
     [janeAvatar setPosition:center];
     
-    //set direction
+    //set JANE direction
     if (!direction) {
         janeAvatar.transform = CATransform3DScale(CATransform3DMakeRotation(0, 0, 0, 1),
                                                   -1, 1, 1);
@@ -155,10 +157,25 @@
                                                   1, 1, 1);
     }
     
-    //-sky position- CALayer - fix the hardcoded offset here
+    //animate progress bar
+    if (([scrollView contentOffset].x + [[UIScreen mainScreen] bounds].size.width) > (canvas_w - [[UIScreen mainScreen] bounds].size.width))
+    {
+        CGPoint currentpos = progressBar.position;
+        float progbarCoefficient = .001;
+        float edgeOffset = [scrollView contentOffset].x + [[UIScreen mainScreen] bounds].size.width - canvas_w;
+        CGPoint progbarCenter = CGPointMake( currentpos.x , currentpos.y + (edgeOffset * progbarCoefficient) );
+        [progressBar setPosition:progbarCenter];
+        
+    }
+    
+    
+    //MAP LAYER PARALLAX SPEEDS
+    
     CGPoint mapCenter = map1CA.position;
-    float skyCoefficient = .9;
     float janeOffset = mapCenter.x - scrollView.contentOffset.x;
+    
+    //-sky position- CALayer - fix the hardcoded offset here
+    float skyCoefficient = .9;
     CGPoint skyCenter = CGPointMake(avatar_offset+mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
     [map0CA setPosition:skyCenter];
     
@@ -574,10 +591,12 @@
     return layerArray;
 }
 
-
 - (void) animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
 {
-    NSLog(@"2sup");
+    //NSLog(@"2sup");
+    NSString *tag = [anim valueForKey:@"tag"];
+    if ([tag isEqualToString:@"cloud"]) {
+    }
     
 }
 -(int)getRandomNumberBetween:(int)from to:(int)to {
@@ -594,7 +613,7 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    CGSize screenSize = CGSizeMake(5762, 320.0);
+    CGSize screenSize = CGSizeMake(canvas_w, canvas_h);
     scrollView.contentSize = screenSize;    
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.showsVerticalScrollIndicator = NO;
@@ -698,29 +717,32 @@
     }
     //-->cloud animation
     {
-        CALayer *cloud1 = [CALayer layer];
-        UIImage *cloud1img = [UIImage imageNamed:@"cloud_1.png"];
-        cloud1.bounds = CGRectMake(0, 0, cloud1img.size.width/2, cloud1img.size.height/2);
-        cloud1.position = CGPointMake(0, 27);
-        CGImageRef cloud1imgref = [cloud1img CGImage];
-        [cloud1 setContents:(__bridge id)cloud1imgref];
-        [map1BCA addSublayer:cloud1];
-        
-        CABasicAnimation *cloud1anim;
-        cloud1anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.x"];
-        cloud1anim.fromValue = [NSNumber numberWithInt:1000];
-        cloud1anim.toValue = [NSNumber numberWithInt:screenSize.width];
-        cloud1anim.duration = [self getRandomNumberBetween:90 to:300]; //90 - 300?
-        cloud1anim.autoreverses = NO;
-        //cloud1anim.cumulative = YES;
-        //cloud1anim.repeatCount = HUGE_VAL;
-        cloud1anim.removedOnCompletion = YES;
-        //cloud1anim.fillMode = kCAFillModeForwards;
-        //cloud1anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        cloud1anim.delegate = self;
-        [cloud1 addAnimation:cloud1anim forKey:@"transform.translation.x"];
-        //[cloud1anim setValue:@"cloud1anim" forKey:@"id"];
-        
+        for (int i = 1; i<21; i++)
+        {
+            CALayer *cloud1 = [CALayer layer];
+            UIImage *cloud1img = [UIImage imageNamed:[NSString stringWithFormat:@"cloud_%02d.png", i]];
+            cloud1.bounds = CGRectMake(0, 0, cloud1img.size.width/2, cloud1img.size.height/2);
+            cloud1.position = CGPointMake(0, [self getRandomNumberBetween:10 to:32 ]);
+            CGImageRef cloud1imgref = [cloud1img CGImage];
+            [cloud1 setContents:(__bridge id)cloud1imgref];
+            [map1BCA addSublayer:cloud1];
+            
+            CABasicAnimation *cloud1anim;
+            cloud1anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.x"];
+            cloud1anim.fromValue = [NSNumber numberWithInt:[self getRandomNumberBetween:0 to:screenSize.width-300 ]];
+            cloud1anim.toValue = [NSNumber numberWithInt:screenSize.width];
+            cloud1anim.duration = [self getRandomNumberBetween:300 to:400]; //90 - 300?
+            cloud1anim.autoreverses = YES;
+            //cloud1anim.cumulative = YES;
+            cloud1anim.repeatCount = HUGE_VAL;
+            cloud1anim.removedOnCompletion = NO;
+            //cloud1anim.fillMode = kCAFillModeForwards;
+            //cloud1anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            cloud1anim.delegate = self;
+            [cloud1anim setValue:@"cloud" forKey:@"tag"];
+            [cloud1 addAnimation:cloud1anim forKey:[NSString stringWithFormat:@"cloud_%02d", i]];
+            
+        }
         
         //set this up so it pulls from a plist of images with variable speeds assigned and positions in the canvas
         //place them 
@@ -826,16 +848,17 @@
         
         
     }
-    //-->water tower
+   
+    //-->tombstone
     {
-        CALayer *waterTower = [CALayer layer];
-        UIImage *waterTowerimg = [UIImage imageNamed:@"mapLayer3_waterTower.png"];
-        waterTower.bounds = CGRectMake(0, 0, waterTowerimg.size.width/2, waterTowerimg.size.height/2);
-        waterTower.position = CGPointMake(1478, 105);
-        CGImageRef waterTowerimgref = [waterTowerimg CGImage];
-        [waterTower setContents:(__bridge id)waterTowerimgref];
-        [map2CA addSublayer:waterTower];
-        
+        CALayer *tombstone = [CALayer layer];
+        UIImage *tombstoneimg = [UIImage imageNamed:@"mapLayer4_tombstone.png"];
+        tombstone.bounds = CGRectMake(0, 0, tombstoneimg.size.width/2, tombstoneimg.size.height/2);
+        tombstone.position = CGPointMake(4400, screenSize.height - tombstone.bounds.size.height/3);
+        CGImageRef tombstoneimgref = [tombstoneimg CGImage];
+        [tombstone setContents:(__bridge id)tombstoneimgref];
+        tombstone.zPosition = 3;
+        [mapCAView.layer addSublayer:tombstone];
     }
     //-->cactus bird animation
     {
@@ -941,7 +964,7 @@
         [blackPanel addSublayer:eyesSprite];
         
         float padding = 10.0;
-        CALayer *progressBar = [CALayer layer];
+        progressBar = [CALayer layer];
         UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all_ON.jpg"];
         progressBar.bounds = CGRectMake(0, 0, progBarimg.size.width, progBarimg.size.height);
         [progressBar setPosition:CGPointMake(eyesSprite.position.x - padding/2, eyesSprite.position.y * 1.6)];
@@ -955,22 +978,21 @@
         [progressBarEmpty setContents:(__bridge id)[[UIImage imageNamed:@"map_progress_all_OFF.jpg"] CGImage]];
         [progressBar addSublayer:progressBarEmpty];
         
+        progressLabel = [[CATextLayer alloc] init];
+        [progressLabel setFont:@"rockwell"];
+        [progressLabel setFontSize:17];
+        [progressLabel setFrame:CGRectMake(0, 0, progressBar.bounds.size.width, progressBar.bounds.size.height/2)];
+        [progressLabel setPosition:CGPointMake(progressBar.bounds.size.width/2, progressBar.bounds.size.height + padding)];
+        [progressLabel setAlignmentMode:kCAAlignmentCenter];
+        [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
+        [progressBarEmpty addSublayer:progressLabel];
+        
         CALayer *forgotImage = [CALayer layer];
         UIImage *forgotImg = [UIImage imageNamed:@"map_hint-at-end.jpg"];
         forgotImage.bounds = CGRectMake(0, 0, forgotImg.size.width, forgotImg.size.height);
         forgotImage.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/4);
         [forgotImage setContents:(__bridge id)[forgotImg CGImage]];
         [blackPanel addSublayer:forgotImage];
-        
-        progressLabel = [[CATextLayer alloc] init];
-        [progressLabel setFont:@"rockwell"];
-        [progressLabel setFontSize:17];
-        [progressLabel setFrame:CGRectMake(0, 0, progressBar.bounds.size.width, progressBar.bounds.size.height/2)];
-        [progressLabel setPosition:CGPointMake(progressBar.position.x, progressBar.position.y + progressBar.bounds.size.height - padding)];
-        [progressLabel setAlignmentMode:kCAAlignmentCenter];
-        [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
-        [blackPanel addSublayer:progressLabel];
-
         
         
     }
