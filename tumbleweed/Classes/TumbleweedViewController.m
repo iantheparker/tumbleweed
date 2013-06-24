@@ -1492,6 +1492,31 @@
         saloonSkullEyesAnim.repeatCount = HUGE_VALF;
         saloonSkullEyesAnim.removedOnCompletion = NO;
         [saloonSkullEyes addAnimation:saloonSkullEyesAnim forKey:@"opacity"];
+        
+        //saloon insides
+        CALayer *saloonparty1 = [CALayer layer];
+        UIImage *saloonparty1img = [UIImage imageNamed:@"saloon_inteior_action_colr-1.jpg"];
+        saloonparty1.bounds = CGRectMake(0, 0, saloonparty1img.size.width/2, saloonparty1img.size.height/2);
+        saloonparty1.position = CGPointMake(2200, 160);
+        [saloonparty1 setContents:(__bridge id) [saloonparty1img CGImage]];
+        [map1CA addSublayer:saloonparty1];
+        
+        CALayer *saloonparty2 = [CALayer layer];
+        UIImage *saloonparty2img = [UIImage imageNamed:@"saloon_inteior_action_colr-2.jpg"];
+        saloonparty2.bounds = CGRectMake(0, 0, saloonparty2img.size.width/2, saloonparty2img.size.height/2);
+        saloonparty2.position = CGPointMake(saloonparty2.bounds.size.width/2, saloonparty2.bounds.size.height/2);
+        [saloonparty2 setContents:(__bridge id) [saloonparty2img CGImage]];
+        [saloonparty1 addSublayer:saloonparty2];
+        
+        CABasicAnimation *saloonparty2Anim = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        saloonparty2Anim.fromValue = [NSNumber numberWithFloat:.0];
+        saloonparty2Anim.toValue = [NSNumber numberWithFloat: 1.0];
+        saloonparty2Anim.duration = 0.5f;
+        saloonparty2Anim.autoreverses = YES;
+        saloonparty2Anim.repeatCount = HUGE_VALF;
+        saloonparty2Anim.removedOnCompletion = NO;
+        [saloonparty2 addAnimation:saloonparty2Anim forKey:@"opacity"];
+        
 
     }
     //-->CALayer name adds-ons
