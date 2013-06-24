@@ -44,6 +44,8 @@
         UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
         [button setImage:buttonImg3 forState:UIControlStateSelected];
     }
+    button.showsTouchWhenHighlighted = YES;
+    button.adjustsImageWhenHighlighted = YES;
     
     return self;
 }

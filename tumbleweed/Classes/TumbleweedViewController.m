@@ -2,8 +2,8 @@
 //  ViewController.m
 //  tumbleweed
 //
-//  Created by David Cascino on 1/22/12.
-//  Copyright (c) 2012 AI Capital. All rights reserved.
+//  Created by Ian Parker on 1/22/12.
+//  Copyright (c) 2012 Tumbleweed. All rights reserved.
 //
 
 #import "TumbleweedViewController.h"
@@ -24,6 +24,7 @@
 @property (nonatomic, retain) CALayer *map1CCA;
 @property (nonatomic, retain) CALayer *map2CA;
 @property (nonatomic, retain) CALayer *map4CA;
+@property (nonatomic, retain) CALayer *map3CA;
 @property (nonatomic, retain) CALayer *janeAvatar;
 @property (nonatomic, retain) UIView *mapCAView;
 @property (nonatomic, retain) UIButton *buttonContainer;
@@ -32,8 +33,9 @@
 
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) scenePressed:(UIButton*)sender;
--(void) launchHintPopUp:(BOOL) up;
--(void) renderScreen: (BOOL) direction : (BOOL) moving;
+-(void) launchHintPopUp:(BOOL) up : (NSString*) layerTip;
+-(void) launchProgressPopUp:(BOOL) up;
+-(void) renderScreen: (BOOL) direction : (BOOL) moving : (BOOL) tapped;
 -(void) loadAvatarPosition;
 -(CGRect) selectAvatarBounds:(float) position;
 -(void) updateProgressBar: (int) level;
@@ -58,7 +60,7 @@
 
 }
 
-@synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, mapCAView, janeAvatar;
+@synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, map3CA, mapCAView, janeAvatar;
 @synthesize foursquareConnectButton, buttonContainer, blackPanel;
 
 
@@ -66,13 +68,14 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {        
-        map0CA = [[CALayer alloc] init];
-        map1CA = [[CALayer alloc] init];
-        map1BCA = [[CALayer alloc] init];
-        map1CCA = [[CALayer alloc] init];
-        map2CA = [[CALayer alloc] init];
-        map4CA = [[CALayer alloc] init];
-        janeAvatar = [[CALayer alloc] init];
+        map0CA = [CALayer layer];
+        map1CA = [CALayer layer];
+        map1BCA = [CALayer layer];
+        map1CCA = [CALayer layer];
+        map2CA = [CALayer layer];
+        map4CA = [CALayer layer];
+        map3CA = [CALayer layer];
+        janeAvatar = [CALayer layer];
         mapCAView = [[UIView alloc] init];
     }
     return self;
@@ -80,22 +83,28 @@
 #pragma mark -
 #pragma mark screen renders
 
+
+
 - (CGRect) selectAvatarBounds:(float) position
 {
-    static const CGRect sampleRects[7] = {
+    static const CGRect sampleRects[8] = {
         
-        {172, 0, 246, 465},
-        {418, 0, 234, 467},
-        {652, 0, 304, 465},
-        {956, 0, 246, 471},
-        {1202, 0, 234, 467},
-        {1436, 0, 304, 465},
-        {0, 0, 172, 463},       // still
+        {67, 0, 91, 181},
+        {163, 0, 81, 183},
+        {254, 0, 119, 181},
+        {372, 0, 91, 183},
+        {468, 0, 83, 183},
+        {560, 0, 119, 181},
+        {0, 0, 67, 181},       // still state, but first coords in sprite sheet
+        {678, 0, 67, 181},    // crossed arms state, last in coords spreadsheet
     };
     
     //return still state
     if (position == -1)
         return sampleRects[6];
+    if (position == -2)
+        return sampleRects[7];
+    
 
     int frameSize = 20;
     int imageCount = 6;
@@ -116,7 +125,7 @@
     NSLog(@"loading saved center %f", center.x);
     scrollView.contentOffset = center;
 }
-- (void) renderScreen: (BOOL) direction :(BOOL) moving
+- (void) renderScreen: (BOOL) direction :(BOOL) moving :(BOOL) tapped
 {
     double avatar_offset = 220;
     double janeLeftBound = 372;
@@ -137,13 +146,22 @@
         if (janeAvatar.position.x <= janeLeftBound) center = CGPointMake(janeLeftBound, avatar_offset);
         else if (janeAvatar.position.x >= janeRightBound) center = CGPointMake(janeRightBound, avatar_offset);
         else center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
-    }
+    }        
     else {
         center = CGPointMake([scrollView contentOffset].x + avatar_offset, avatar_offset);
         bounds = [self selectAvatarBounds:[scrollView contentOffset].x];
     }
-    janeAvatar.bounds = CGRectMake(0, 0, bounds.size.width/2.5, bounds.size.height/2.5);
-    janeAvatar.contentsRect = CGRectMake(bounds.origin.x/2048.0f, bounds.origin.y/512.0f, bounds.size.width/2048.0f, bounds.size.height/512.0f);
+    
+    if (tapped) {
+        bounds = [self selectAvatarBounds:-2];
+    }
+
+    
+    //--> shouldn't be scaling here. must fix!
+    float janeSpriteSheetW = 799.0;
+    float jandeSpriteSheetH = 200.0;
+    janeAvatar.bounds = CGRectMake(0, 0, bounds.size.width, bounds.size.height);
+    janeAvatar.contentsRect = CGRectMake(bounds.origin.x/janeSpriteSheetW, bounds.origin.y/jandeSpriteSheetH, bounds.size.width/janeSpriteSheetW, bounds.size.height/jandeSpriteSheetH);
     
     [janeAvatar setPosition:center];
     
@@ -176,17 +194,17 @@
     
     //-sky position- CALayer - fix the hardcoded offset here
     float skyCoefficient = .9;
-    CGPoint skyCenter = CGPointMake(avatar_offset+mapCenter.x - (janeOffset * skyCoefficient), [map0CA bounds].size.height/2.0);
+    CGPoint skyCenter = CGPointMake(floorf(avatar_offset+mapCenter.x - (janeOffset * skyCoefficient)), floorf([map0CA bounds].size.height/2.0));
     [map0CA setPosition:skyCenter];
     
     //--> layer1C position
     float layer1CCoefficient = .4;
-    CGPoint layer1CPos = CGPointMake(mapCenter.x - (janeOffset * layer1CCoefficient), map1CCA.position.y);
+    CGPoint layer1CPos = CGPointMake(floorf(mapCenter.x - (janeOffset * layer1CCoefficient)), map1CCA.position.y);
     [map1CCA setPosition:layer1CPos];
     
     //--> layer1B position
     float layer1BCoefficient = .04;
-    CGPoint layer1BPos = CGPointMake(mapCenter.x + (janeOffset * layer1BCoefficient), map1BCA.position.y);
+    CGPoint layer1BPos = CGPointMake(floorf(mapCenter.x + (janeOffset * layer1BCoefficient)), map1BCA.position.y);
     [map1BCA setPosition:layer1BPos];
     
     //--> layer2 position
@@ -196,7 +214,7 @@
     
     //--> top layer position
     float toplayerCoefficient = 1.5;
-    CGPoint toplayerPos = CGPointMake(avatar_offset+mapCenter.x + (janeOffset * toplayerCoefficient), map4CA.position.y);
+    CGPoint toplayerPos = CGPointMake(floorf(avatar_offset+mapCenter.x + (janeOffset * toplayerCoefficient)), map4CA.position.y);
     [map4CA setPosition:toplayerPos];
     
     //--> top layer buttons
@@ -205,7 +223,7 @@
     [CATransaction commit];
     
     
-} 
+}
 #pragma mark -
 #pragma mark scrollView handlers
 
@@ -221,7 +239,7 @@
         walkingForward = YES;    
     }
     lastContentOffset = scrollView.contentOffset.x;
-    [self renderScreen:walkingForward:TRUE];
+    [self renderScreen:walkingForward:TRUE :FALSE];
     
     if( scrollView.contentOffset.x < -scrollView.contentInset.left )
     {
@@ -236,15 +254,15 @@
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)sView
 {
-    [self renderScreen:walkingForward:FALSE];
+    [self renderScreen:walkingForward:FALSE :FALSE];
 }
 - (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    [self renderScreen:walkingForward:FALSE];
+    [self renderScreen:walkingForward:FALSE :FALSE];
 }
 - (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    [self launchHintPopUp:FALSE];
+    [self launchHintPopUp:FALSE:nil];
 }
 
 #pragma mark -
@@ -310,7 +328,8 @@
                      }];
     
 }
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
     if ([touch.view isKindOfClass:[UIButton class]]){
         return NO;
     }
@@ -318,21 +337,38 @@
 }
 - (void) handleSingleTap:(UIGestureRecognizer *)sender
 {
-    BOOL janeHit = NO;
+    BOOL hit = NO;
     CGPoint loc = [sender locationInView:mapCAView];
+    NSString *tipText;
+    
+    for (UIButton *button in mapCAView.layer.sublayers) {
+        /*
+        if ([button.layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:button.layer]]){
+            NSLog(@"button found");
+        }*/
+    }
     for (CALayer *layer in mapCAView.layer.sublayers) {
         if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
-            if ([layer.name isEqualToString:[janeAvatar name]]) {
-                NSLog(@"jane hit");
-                janeHit = YES;
-                [self popBeginSign];
+            if ([layer.name isEqualToString:janeAvatar.name]) {
+                hit = YES;
+                [self renderScreen:walkingForward :FALSE :TRUE];
                 break;
+            }
+            for (CALayer *sublayer in layer.sublayers) {
+                if ([sublayer containsPoint:[mapCAView.layer convertPoint:loc toLayer:sublayer]] && sublayer.name) {
+                    tipText = sublayer.name;
+                    hit = YES;
+                    NSLog(@"asset hit: %@ on %@", sublayer.name, layer.name);
+                    [self renderScreen:walkingForward :FALSE :TRUE];
+                    break;
+                }
             }
         }
     }
-    [self launchHintPopUp:janeHit];
+
+    [self launchHintPopUp:hit:tipText];
 }
-- (void) launchHintPopUp :(BOOL) up
+- (void) launchHintPopUp :(BOOL) up : (NSString*) layerTip
 {
 
     if (up == TRUE && (!CGAffineTransformEqualToTransform(hintVC.transform, CGAffineTransformIdentity))) {
@@ -342,7 +378,8 @@
         }
         
         UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
-        if ([[Tumbleweed sharedClient] tumbleweedId])hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel+1] hintCopy];
+        if (layerTip) hintLabel.text =  layerTip;
+        else if ([[Tumbleweed sharedClient] tumbleweedId])hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel+1] hintCopy];
         else hintLabel.text = [[scenes objectAtIndex:[Tumbleweed sharedClient].tumbleweedLevel] hintCopy];
         UIColor *brownC = [UIColor colorWithRed:62.0/255.0 green:43.0/255.0 blue:26.0/255.0 alpha:1.0];
         hintLabel.textColor = brownC;
@@ -371,8 +408,16 @@
         }];
     }
     
-    
-    
+}
+
+-(void) launchProgressPopUp:(BOOL) up
+{
+    CALayer *forgotImage = [CALayer layer];
+    UIImage *forgotImg = [UIImage imageNamed:@"map_hint-at-end.jpg"];
+    forgotImage.bounds = CGRectMake(0, 0, forgotImg.size.width, forgotImg.size.height);
+    forgotImage.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/4);
+    [forgotImage setContents:(__bridge id)[forgotImg CGImage]];
+    [blackPanel addSublayer:forgotImage];
 }
 #pragma mark -
 #pragma mark game state updates
@@ -491,11 +536,12 @@
         if ([plistObject objectForKey:@"zPosition"]) zPos =  [[plistObject objectForKey:@"zPosition"] integerValue];
         if ([plistObject objectForKey:@"boundsMultiplier"]) boundsMultiplier = [self coordinatePListReader:[plistObject objectForKey:@"boundsMultiplier"]];
     }
-    CGRect mapFrame = CGRectMake(0, 0, screenSize.width * boundsMultiplier.x, screenSize.height * boundsMultiplier.y);
+    CGRect mapFrame = CGRectMake(0, 0, floorf(screenSize.width * boundsMultiplier.x), floorf(screenSize.height * boundsMultiplier.y));
+    
     CALayer *mapLayer = [CALayer layer];
     if (layerName) mapLayer.name = layerName;
     [mapLayer setBounds:mapFrame];
-    [mapLayer setPosition:CGPointMake(screenSize.width/2, screenSize.height/2)];
+    [mapLayer setPosition:CGPointMake(floorf(screenSize.width/2), floorf(screenSize.height/2))];
     [mapLayer setZPosition:zPos];
     [parentLayer addSublayer:mapLayer];
     return mapLayer;
@@ -512,7 +558,7 @@
         if ([[plist objectForKey:key] isKindOfClass:[NSArray class]] )
         {
             NSArray *mapLayerArray = [plist objectForKey:key];
-            //subLayerOriginX is now -200 to compensate for superdrag image width
+            //subLayerOriginX is now -1100 to compensate for superdrag image width
             float subLayerOriginX = -(float)[UIImage imageNamed:[mapLayerArray objectAtIndex:0]].size.width/2.0;
             for (int i=0; i<mapLayerArray.count; i+=2)
             {
@@ -561,6 +607,9 @@
                                           orientation:UIImageOrientationRight].CGImage;
                 CGPoint pos = [self coordinatePListReader:[sceneDict objectForKey:@"position"]];
                 subLayer1.bounds = CGRectMake(0, 0, image1.size.width/2, image1.size.height/2);
+                if ([sceneDict objectForKey:@"name"]) {
+                    subLayer1.name = [sceneDict objectForKey:@"name"];
+                }
                 
                 //for top layers that should be positioned at the bottom of the screen
                 if (bottomAlignment)
@@ -588,17 +637,11 @@
         NSString *second = [(CALayer*)b name];
         return [first compare:second];
     }];
+
     return layerArray;
 }
 
-- (void) animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
-{
-    //NSLog(@"2sup");
-    NSString *tag = [anim valueForKey:@"tag"];
-    if ([tag isEqualToString:@"cloud"]) {
-    }
-    
-}
+
 -(int)getRandomNumberBetween:(int)from to:(int)to {
     
     return (int)from + arc4random() % (to-from+1);
@@ -650,17 +693,27 @@
     map1BCA = [parallaxLayers objectAtIndex:1];
     map1CCA = [parallaxLayers objectAtIndex:2];
     map2CA = [parallaxLayers objectAtIndex:3];
-    map4CA = [parallaxLayers objectAtIndex:4];
+    map3CA = [parallaxLayers objectAtIndex:4];
+    map4CA = [parallaxLayers objectAtIndex:5];
     
-    buttonContainer.bounds = [(CALayer*)parallaxLayers.lastObject bounds];   //set bounds to toplayer
-    buttonContainer.center = CGPointMake([(CALayer*)parallaxLayers.lastObject position].x, 0);
+    buttonContainer.bounds = map4CA.bounds;   //set bounds to toplayer
+    buttonContainer.center = CGPointMake([map4CA position].x, 0);
     [scrollView addSubview:buttonContainer];
     [scrollView addSubview:foursquareConnectButton];
+    
+    //-->jane avatar
+    {
+        CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed.png"] CGImage];
+        [janeAvatar setContents:(__bridge id)avatarImage];
+        [janeAvatar setZPosition:2];
+        janeAvatar.name = @"janeAvatar";
+        [mapCAView.layer addSublayer:janeAvatar];
+    }
 
     //-->sky
     {
         UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
-        CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width/2, skyImage.size.height/2);
+        CGRect skyFrame = CGRectMake(0, 0, skyImage.size.width, skyImage.size.height);
         [map0CA setBounds:skyFrame];
         [map0CA setPosition:CGPointMake(screenSize.width/2, mapCAView.frame.size.height)];
         CGImageRef map0Image = [skyImage CGImage];
@@ -668,28 +721,6 @@
         [map0CA setZPosition:-5];
         map0CA.opaque = YES;
         [mapCAView.layer addSublayer:map0CA];
-    }
-    //-->rock
-    {
-        CALayer *rock = [CALayer layer];
-        UIImage *rockImg = [UIImage imageNamed:@"top_lvl4_objs_11.png"];
-        //rock.bounds = CGRectMake(0, 0, rockImg.size.width, rockImg.size.height);
-        //rock.position = CGPointMake(5275, screenSize.height - rock.bounds.size.height/2);
-        rock.frame = CGRectMake(5100, screenSize.height - rockImg.size.height/2, rockImg.size.width/2, rockImg.size.height/2);
-        CGImageRef rockCGImage = [rockImg CGImage];
-        [rock setContents:(__bridge id)rockCGImage];
-        rock.zPosition = 3;
-        [mapCAView.layer addSublayer:rock];
-    }
-    //-->gas station
-    {
-        CALayer *gasPumps = [CALayer layer];
-        UIImage *pumpImg = [UIImage imageNamed:@"mapLayer2_gas_pumps.png"];
-        gasPumps.frame = CGRectMake(2380, 43, pumpImg.size.width/2, pumpImg.size.height/2);
-        CGImageRef pumpCGImage = [pumpImg CGImage];
-        [gasPumps setContents:(__bridge id)pumpCGImage];
-        gasPumps.zPosition = 3;
-        [mapCAView.layer addSublayer:gasPumps];
     }
     //-->noose animation
     {
@@ -700,7 +731,8 @@
         hangnoose2.anchorPoint = CGPointMake(.5, 0);
         CGImageRef hangnoose2Image = [hangnoose2img CGImage];
         [hangnoose2 setContents:(__bridge id)hangnoose2Image];
-        [(CALayer*)parallaxLayers.lastObject addSublayer:hangnoose2];
+        hangnoose2.name = @"Why do I get the feeling that this noose is meant for me...?";
+        [map4CA addSublayer:hangnoose2];
         
         CABasicAnimation* nooseAnimation;
         nooseAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
@@ -725,6 +757,7 @@
             cloud1.position = CGPointMake(0, [self getRandomNumberBetween:10 to:32 ]);
             CGImageRef cloud1imgref = [cloud1img CGImage];
             [cloud1 setContents:(__bridge id)cloud1imgref];
+            //cloud1.name = @"cloud";
             [map1BCA addSublayer:cloud1];
             
             CABasicAnimation *cloud1anim;
@@ -750,12 +783,13 @@
     //-->cowboy animation
     {
         CALayer *cowboy = [CALayer layer];
-        UIImage *cowboyimg = [UIImage imageNamed:@"Dude_head.png"];
-        cowboy.bounds = CGRectMake(0, 0, cowboyimg.size.width/2, cowboyimg.size.height/2);
+        UIImage *cowboyimg = [UIImage imageNamed:@"Dude_head"];
+        cowboy.frame = CGRectMake(0, 0, floorf(cowboyimg.size.width), floorf(cowboyimg.size.height));
         cowboy.anchorPoint = CGPointMake(0.5, 0.5);
-        cowboy.position = CGPointMake(2591.55, screenSize.height - cowboy.bounds.size.height/2);
-        CGImageRef cowboyimgref = [cowboyimg CGImage];
-        [cowboy setContents:(__bridge id)cowboyimgref];
+        cowboy.position = CGPointMake(2590, ceilf(screenSize.height - cowboy.bounds.size.height/2));
+        //CGImageRef cowboyimgref = [cowboyimg CGImage];
+        [cowboy setContents:(__bridge id)[cowboyimg CGImage]];
+        cowboy.name = @"That dude is a dick.";
         [map4CA addSublayer:cowboy];
         
         CALayer *cowboyHat = [CALayer layer];
@@ -848,24 +882,13 @@
         
         
     }
-   
-    //-->tombstone
-    {
-        CALayer *tombstone = [CALayer layer];
-        UIImage *tombstoneimg = [UIImage imageNamed:@"mapLayer4_tombstone.png"];
-        tombstone.bounds = CGRectMake(0, 0, tombstoneimg.size.width/2, tombstoneimg.size.height/2);
-        tombstone.position = CGPointMake(4400, screenSize.height - tombstone.bounds.size.height/3);
-        CGImageRef tombstoneimgref = [tombstoneimg CGImage];
-        [tombstone setContents:(__bridge id)tombstoneimgref];
-        tombstone.zPosition = 3;
-        [mapCAView.layer addSublayer:tombstone];
-    }
     //-->cactus bird animation
     {
         CGSize fixedSize = CGSizeMake(264, 253);
         CGImageRef cactusbirdimg = [[UIImage imageNamed:@"cactusbird"] CGImage];
         MCSpriteLayer* cactusbird = [MCSpriteLayer layerWithImage:cactusbirdimg sampleSize:fixedSize];
         cactusbird.position = CGPointMake(10444, 86);
+        cactusbird.name = @"That is a bird on a cactus. Henceforth I will call it Cactusbird.";
         
         CAKeyframeAnimation *cactusbirdAnimation = [CAKeyframeAnimation animationWithKeyPath:@"sampleIndex"];
         cactusbirdAnimation.duration = 5.0f;
@@ -896,7 +919,7 @@
                                   [NSNumber numberWithFloat:0], nil]; //not called
         
         [cactusbird addAnimation:cactusbirdAnimation forKey:@"cactusbird"];
-        [(CALayer*)parallaxLayers.lastObject addSublayer:cactusbird];
+        [map4CA addSublayer:cactusbird];
         
     }
     //-->progress bar animation
@@ -906,6 +929,7 @@
         [blackPanel setPosition:CGPointMake(screenSize.width - 200, screenSize.height/2)];
         blackPanel.backgroundColor = [UIColor blackColor].CGColor;
         blackPanel.zPosition = 3;
+        blackPanel.name = @"blackpanel";
         [mapCAView.layer addSublayer:blackPanel];
         
         CALayer *blackPanelExtension = [CALayer layer];
@@ -932,8 +956,9 @@
         
         CGSize fixedSize = CGSizeMake(619, 152);
         CGImageRef eyesImage = [[UIImage imageNamed:@"eyeBlink"] CGImage];
-        MCSpriteLayer* eyesSprite = [MCSpriteLayer layerWithImage:eyesImage sampleSize:fixedSize];
+        MCSpriteLayer *eyesSprite = [MCSpriteLayer layerWithImage:eyesImage sampleSize:fixedSize];
         eyesSprite.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/2);
+        eyesSprite.name = @"eyesSprite";
     
         CAKeyframeAnimation *eyesAnimation = [CAKeyframeAnimation animationWithKeyPath:@"sampleIndex"];
         eyesAnimation.duration = 3.0f;
@@ -987,12 +1012,7 @@
         [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
         [progressBarEmpty addSublayer:progressLabel];
         
-        CALayer *forgotImage = [CALayer layer];
-        UIImage *forgotImg = [UIImage imageNamed:@"map_hint-at-end.jpg"];
-        forgotImage.bounds = CGRectMake(0, 0, forgotImg.size.width, forgotImg.size.height);
-        forgotImage.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/4);
-        [forgotImage setContents:(__bridge id)[forgotImg CGImage]];
-        [blackPanel addSublayer:forgotImage];
+        
         
         
     }
@@ -1002,6 +1022,7 @@
         CGImageRef birdImage = [[UIImage imageNamed:@"bird"] CGImage];
         MCSpriteLayer* birdSprite = [MCSpriteLayer layerWithImage:birdImage sampleSize:fixedSize];
         birdSprite.position = CGPointMake(675*2, scrollView.contentSize.height/6);
+        birdSprite.name = @"Vultures can smell death from 5 miles away. Or a day early.";
         
         CABasicAnimation *birdAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
         birdAnimation.fromValue = [NSNumber numberWithInt:1];
@@ -1011,7 +1032,7 @@
         birdAnimation.removedOnCompletion = NO;
         
         [birdSprite addAnimation:birdAnimation forKey:@"birdCircle"];
-        [mapCAView.layer addSublayer:birdSprite];
+        [map1BCA addSublayer:birdSprite];
         //[(CALayer*)[parallaxLayers objectAtIndex:1] addSublayer:birdSprite];
     }
     //-->riverWaves animation
@@ -1020,6 +1041,7 @@
         CGImageRef riverImage = [[UIImage imageNamed:@"riverWaves"] CGImage];
         MCSpriteLayer* riverSprite = [MCSpriteLayer layerWithImage:riverImage sampleSize:fixedSize];
         riverSprite.position = CGPointMake(640*4 + 423, scrollView.contentSize.height/2 +3);
+        riverSprite.name = @"What's with those skanks always prancing in the river?";
         
         CABasicAnimation *riverAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
         riverAnimation.fromValue = [NSNumber numberWithInt:1];
@@ -1029,8 +1051,7 @@
         riverAnimation.removedOnCompletion = NO;
         
         [riverSprite addAnimation:riverAnimation forKey:@"riverWaves"];
-        [mapCAView.layer addSublayer:riverSprite];
-        //[(CALayer*)[parallaxLayers objectAtIndex:1] addSublayer:riverSprite];
+        [map1CA addSublayer:riverSprite];
     }
     //-->deer eyes animation
     {
@@ -1060,15 +1081,22 @@
                                 [NSNumber numberWithFloat:0.2], nil]; //not called
         
         [deereyes addAnimation:deereyesAnimation forKey:@"deereyeBlink"];
+        
+        //double hit area of eyes
+        CALayer *deerEyesHitArea = [CALayer layer];
+        deerEyesHitArea.frame = CGRectMake(deereyes.frame.origin.x, deereyes.frame.origin.y, deereyes.frame.size.width*3, deereyes.frame.size.height*3);
+        deerEyesHitArea.name = @"I live in a world where bones have eyes. I'm hungry now.";
+        [map1CA addSublayer:deerEyesHitArea];
+
 
 
     }
-    //-->pumpjacks
+    //-->pumpjacks animations
     {
         CALayer *pumpjackFloor = [CALayer layer];
         pumpjackFloor.bounds = CGRectMake(0, 0, 30, 5);
         pumpjackFloor.position = CGPointMake(4100, 118);
-        [map2CA addSublayer:pumpjackFloor];
+        [map1CA addSublayer:pumpjackFloor];
         
         CALayer *pumpjackBase = [CALayer layer];
         UIImage *pumpjackBaseimg = [UIImage imageNamed:@"[L3]-base_A.png"];
@@ -1403,16 +1431,87 @@
         [pumpjackBase2 addSublayer:pumpjackBox2];
         
     }
-    //-->jane avatar
+    //-->saloon animation
     {
-        CGImageRef avatarImage = [[UIImage imageNamed:@"janeFixed"] CGImage];
-        [janeAvatar setContents:(__bridge id)avatarImage];
-        [janeAvatar setZPosition:2];
-        janeAvatar.name = @"janeAvatar";
-        [mapCAView.layer addSublayer:janeAvatar];
-        [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE];
+        CALayer *saloonbase = [CALayer layer];
+        UIImage *saloonimg = [UIImage imageNamed:@"saloon_base"];
+        saloonbase.bounds = CGRectMake(0, 0, floorf(saloonimg.size.width/2), floorf(saloonimg.size.height/2));
+        saloonbase.position = CGPointMake(2150, 125);
+        saloonbase.name = @"The only place to quench your thirst in this town.";
+        [map2CA addSublayer:saloonbase];
+        
+        CALayer *saloon = [CALayer layer];
+        saloon.bounds = saloonbase.bounds;
+        saloon.anchorPoint = CGPointMake(1, 0);
+        saloon.position = CGPointMake(580, 0);
+        [saloon setContents:(__bridge id)[saloonimg CGImage]];
+        [saloonbase addSublayer:saloon];
+        
+        CALayer *saloonDrunkArm = [CALayer layer];
+        UIImage *saloonDrunkArmimg = [UIImage imageNamed:@"saloon_drunkARM"];
+        saloonDrunkArm.bounds = CGRectMake(0, 0, saloonDrunkArmimg.size.width/2, saloonDrunkArmimg.size.height/2);
+        saloonDrunkArm.anchorPoint = CGPointMake(0.5, .5);
+        saloonDrunkArm.position = CGPointMake(158, 205);
+        CGImageRef saloonDrunkArmimgRef = [saloonDrunkArmimg CGImage];
+        [saloonDrunkArm setContents:(__bridge id) saloonDrunkArmimgRef];
+        [saloon addSublayer:saloonDrunkArm];
+        
+        CAKeyframeAnimation *saloonDrunkArmAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+        saloonDrunkArmAnim.duration = 5.0f;
+        saloonDrunkArmAnim.repeatCount = HUGE_VALF;
+        //cowboyHatTipAnim.calculationMode = kCAAnimationPaced;
+        saloonDrunkArmAnim.removedOnCompletion = NO;
+        saloonDrunkArmAnim.fillMode = kCAFillModeForwards;
+        
+        saloonDrunkArmAnim.values = [NSArray arrayWithObjects:
+                                 [NSNumber numberWithFloat: 0 * M_PI],
+                                 [NSNumber numberWithFloat: -0.30 * M_PI],
+                                 [NSNumber numberWithFloat: -0.34 * M_PI],
+                                 [NSNumber numberWithFloat: 0 * M_PI], nil] ;
+        
+        saloonDrunkArmAnim.keyTimes = [NSArray arrayWithObjects:
+                                   [NSNumber numberWithFloat:0.0],
+                                   [NSNumber numberWithFloat:0.1],
+                                   [NSNumber numberWithFloat:0.25],
+                                   [NSNumber numberWithFloat:0.35],nil] ;
+        
+        [saloonDrunkArm addAnimation:saloonDrunkArmAnim forKey:@"transform.rotation.z"];
+        
+        CALayer *saloonSkullEyes = [CALayer layer];
+        UIImage *saloonSkullEyesimg = [UIImage imageNamed:@"saloon_skull-eyes"];
+        saloonSkullEyes.bounds = CGRectMake(0, 0, saloonSkullEyesimg.size.width/2, saloonSkullEyesimg.size.height/2);
+        saloonSkullEyes.position = CGPointMake(248, 28);
+        [saloonSkullEyes setContents:(__bridge id) [saloonSkullEyesimg CGImage]];
+        [saloon addSublayer:saloonSkullEyes];
+        
+        CABasicAnimation *saloonSkullEyesAnim = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        saloonSkullEyesAnim.fromValue = [NSNumber numberWithFloat:.3];
+        saloonSkullEyesAnim.toValue = [NSNumber numberWithFloat: 1.0];
+        saloonSkullEyesAnim.duration = 0.5f;
+        saloonSkullEyesAnim.autoreverses = YES;
+        saloonSkullEyesAnim.repeatCount = HUGE_VALF;
+        saloonSkullEyesAnim.removedOnCompletion = NO;
+        [saloonSkullEyes addAnimation:saloonSkullEyesAnim forKey:@"opacity"];
 
     }
+    //-->CALayer name adds-ons
+    {
+        //welcome sign
+        CALayer *welcomesign = [CALayer layer];
+        [welcomesign setFrame:CGRectMake(135, 50, 210, 185)];
+        //welcomesign.backgroundColor = [UIColor blackColor].CGColor;
+        welcomesign.name = @"Welcome! Go play!";
+        [map1CA addSublayer:welcomesign];
+        
+        //graveyard
+        CALayer *graveyard = [CALayer layer];
+        [graveyard setFrame:CGRectMake(4380, 50, 350, 185)];
+        //graveyard.backgroundColor = [UIColor blackColor].CGColor;
+        graveyard.name = @"That's a lotta tombstones. That's what you get for drinking the oil.";
+        [map1CA addSublayer:graveyard];
+    }
+    
+    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE :TRUE];
     
     [CATransaction commit];
 

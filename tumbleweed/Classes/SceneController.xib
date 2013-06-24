@@ -38,7 +38,7 @@
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 			</object>
 			<object class="IBUIScrollView" id="479888410">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">295</int>
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="IBUIView" id="191373211">
@@ -296,6 +296,7 @@
 					</object>
 				</array>
 				<string key="NSFrameSize">{480, 540}</string>
+				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="191373211"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
@@ -562,9 +563,10 @@
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 			</object>
 			<object class="IBUILabel" id="955901078">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">301</int>
 				<string key="NSFrameSize">{297, 41}</string>
+				<reference key="NSSuperview"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<bool key="IBUIOpaque">NO</bool>
 				<bool key="IBUIClipsSubviews">YES</bool>
@@ -587,7 +589,7 @@
 				<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 			</object>
 			<object class="IBUIView" id="955953367">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">293</int>
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="IBUIImageView" id="666661738">
@@ -918,6 +920,7 @@
 					</object>
 				</array>
 				<string key="NSFrameSize">{428, 287}</string>
+				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="666661738"/>
 				<reference key="IBUIBackgroundColor" ref="804710088"/>
 				<bool key="IBUIAutoresizesSubviews">NO</bool>
@@ -930,7 +933,7 @@
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 			</object>
 			<object class="IBUIView" id="238874707">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">293</int>
 				<array class="NSMutableArray" key="NSSubviews">
 					<object class="IBUIImageView" id="1044130203">
@@ -1249,6 +1252,7 @@
 					</object>
 				</array>
 				<string key="NSFrameSize">{428, 217}</string>
+				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="1038498140"/>
 				<reference key="IBUIBackgroundColor" ref="804710088"/>
 				<bool key="IBUIAutoresizesSubviews">NO</bool>

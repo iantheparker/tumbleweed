@@ -62,9 +62,9 @@
 			<key>img</key>
 			<string>top_lvl4_objs_2.png</string>
 			<key>position</key>
-			<string>{1895.78, 165.75}</string>
+			<string>{1895, 165}</string>
 			<key>buttonPosition</key>
-			<string>{1895.78, 80}</string>
+			<string>{1895, 80}</string>
 		</dict>
 		<key>town</key>
 		<dict>
@@ -73,9 +73,9 @@
 			<key>img</key>
 			<string>top_lvl4_objs_4.png</string>
 			<key>position</key>
-			<string>{3887.33, 182.5}</string>
+			<string>{3887, 182}</string>
 			<key>buttonPosition</key>
-			<string>{3887.33, 105}</string>
+			<string>{3887, 105}</string>
 		</dict>
 		<key>bar</key>
 		<dict>
@@ -84,9 +84,11 @@
 			<key>img</key>
 			<string>top_lvl4_objs_5.png</string>
 			<key>position</key>
-			<string>{5183.1, 182.5}</string>
+			<string>{5183, 182}</string>
 			<key>buttonPosition</key>
 			<string>{5170, 160}</string>
+			<key>name</key>
+			<string>Are these barrels full of...whiskey?</string>
 		</dict>
 		<key>gas</key>
 		<dict>
@@ -95,9 +97,9 @@
 			<key>img</key>
 			<string>top_lvl4_objs_6.png</string>
 			<key>position</key>
-			<string>{6478.88, 160}</string>
+			<string>{6478, 160}</string>
 			<key>buttonPosition</key>
-			<string>{6478.88, 123}</string>
+			<string>{6478, 123}</string>
 		</dict>
 		<key>riverbed1</key>
 		<dict>
@@ -106,7 +108,7 @@
 			<key>img</key>
 			<string>top_lvl4_objs_7.png</string>
 			<key>position</key>
-			<string>{8174.65, 183.25}</string>
+			<string>{8174, 183}</string>
 			<key>buttonPosition</key>
 			<string>{8167, 93}</string>
 			<key>buttonAccessible</key>
@@ -123,9 +125,11 @@
 			<key>img</key>
 			<string>top_lvl4_objs_8.png</string>
 			<key>position</key>
-			<string>{9370.42, 160}</string>
+			<string>{9370, 160}</string>
 			<key>buttonPosition</key>
 			<string>{9420, 102}</string>
+			<key>name</key>
+			<string>Wanted? Me? Pfffft.</string>
 		</dict>
 		<key>chase-cactus</key>
 		<dict>
@@ -134,9 +138,11 @@
 			<key>img</key>
 			<string>top_lvl4_objs_9.png</string>
 			<key>position</key>
-			<string>{10366.2, 160}</string>
+			<string>{10366, 160}</string>
 			<key>buttonPosition</key>
 			<string>{10300, 115}</string>
+			<key>name</key>
+			<string>OWCH!! PRICKLY BASTARD!</string>
 		</dict>
 		<key>lynch-noose</key>
 		<dict>
@@ -148,41 +154,113 @@
 			<string>{11662, 160}</string>
 			<key>buttonPosition</key>
 			<string>{11720, 105}</string>
+			<key>name</key>
+			<string>Who wants to play hangman?</string>
 		</dict>
 		<key>campfire</key>
 		<dict/>
-		<key>fence</key>
-		<dict>
-			<key>img</key>
-			<string>top_lvl4_objs_1.png</string>
-			<key>position</key>
-			<string>{2150, 246.25}</string>
-		</dict>
 	</dict>
 	<key>mapLayer3</key>
 	<dict>
-		<key>waterTower</key>
+		<key>boundsMultiplier</key>
+		<string>{1, 1}</string>
+		<key>zPosition</key>
+		<integer>3</integer>
+		<key>stump posts</key>
 		<dict>
 			<key>img</key>
-			<string>mapLayer3_waterTower.png</string>
+			<string>stump_posts_front.png2</string>
 			<key>position</key>
-			<string>{1478, 105}</string>
+			<string>{3970, 290}</string>
 		</dict>
+		<key>oil gate bush</key>
+		<dict>
+			<key>img</key>
+			<string>cactus_bush.png2</string>
+			<key>position</key>
+			<string>{4150, 280}</string>
+			<key>name</key>
+			<string>Just a bush. So what?</string>
+		</dict>
+		<key>oil gate bush - 2</key>
+		<dict>
+			<key>img</key>
+			<string>cactus_bush.png</string>
+			<key>position</key>
+			<string>{3600, 310}</string>
+			<key>name</key>
+			<string>You&apos;ve got a thing for bush, huh?</string>
+		</dict>
+		<key>fence</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer4_fence.png</string>
+			<key>position</key>
+			<string>{850, 248}</string>
+		</dict>
+		<key>tombstone</key>
+		<dict>
+			<key>img</key>
+			<string>tombStone_cacti.png</string>
+			<key>position</key>
+			<string>{4250, 280}</string>
+			<key>name</key>
+			<string>Rest in peace, my ass.</string>
+		</dict>
+		<key>rock_end</key>
+		<dict>
+			<key>img</key>
+			<string>top_lvl4_objs_11.png</string>
+			<key>position</key>
+			<string>{5300, 195}</string>
+			<key>name</key>
+			<string>This is a mighty fine looking rock.</string>
+		</dict>
+		<key>gas station front</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer2_gas_pumps.png</string>
+			<key>position</key>
+			<string>{2556, 182}</string>
+			<key>name</key>
+			<string>Fill er&apos; up. God I love the smell of gas. </string>
+		</dict>
+		<key>riverbed rocks</key>
+		<dict>
+			<key>img</key>
+			<string>river_rocks_1.png</string>
+			<key>position</key>
+			<string>{3270, 265}</string>
+			<key>name</key>
+			<string>Don&apos;t trip, homie!</string>
+		</dict>
+	</dict>
+	<key>mapLayer2</key>
+	<dict>
 		<key>boundsMultiplier</key>
 		<string>{1, 1}</string>
 		<key>zPosition</key>
 		<integer>1</integer>
+		<key>stump posts</key>
+		<dict>
+			<key>img</key>
+			<string>stump_posts_back.png2</string>
+			<key>position</key>
+			<string>{3860, 220}</string>
+		</dict>
 		<key>bar</key>
 		<dict>
 			<key>img</key>
-			<string>mapLayer2_saloon.png</string>
+			<string>saloon_base.png2</string>
 			<key>position</key>
-			<string>{2120, 125}</string>
+			<string>{2150, 125}</string>
+			<key>name</key>
+			<string>They only place to get a drink around here.</string>
 		</dict>
-		<key>gasFence</key>
+		<key>barFence</key>
 		<dict>
 			<key>img</key>
-			<string>mapLayer2_saloon_fence.png</string>
+			<string>mapLayer2_saloon_fence.png2</string>
 			<key>position</key>
 			<string>{2380, 195}</string>
 		</dict>
@@ -192,13 +270,44 @@
 			<string>mapLayer2_gas_station.png</string>
 			<key>position</key>
 			<string>{2705, 115}</string>
+			<key>name</key>
+			<string>Let&apos;s sniff fumes!</string>
 		</dict>
 		<key>truck</key>
 		<dict>
 			<key>img</key>
 			<string>mapLayer2_blue_truck.png</string>
 			<key>position</key>
-			<string>{1120, 155}</string>
+			<string>{1140, 160}</string>
+			<key>name</key>
+			<string>The sherriff&apos;s in town, scoping out stuff.</string>
+		</dict>
+		<key>property sale fence</key>
+		<dict>
+			<key>img</key>
+			<string>property_sale_fence.png</string>
+			<key>position</key>
+			<string>{950, 190}</string>
+			<key>name</key>
+			<string>Land for sale!? No one better sell to that Seersucker fucker!</string>
+		</dict>
+		<key>oil gate</key>
+		<dict>
+			<key>img</key>
+			<string>front_oil_gate.png</string>
+			<key>position</key>
+			<string>{3950, 116}</string>
+			<key>name</key>
+			<string>Douchebag industries. Smoke up, Johnny!</string>
+		</dict>
+		<key>waterTower</key>
+		<dict>
+			<key>img</key>
+			<string>mapLayer3_waterTower.png</string>
+			<key>position</key>
+			<string>{1478, 105}</string>
+			<key>name</key>
+			<string>Hold on tight to that water, fucksticks.</string>
 		</dict>
 	</dict>
 	<key>mapLayer1B</key>
@@ -213,6 +322,8 @@
 			<string>mapLayer1B_TownAFAR.png</string>
 			<key>position</key>
 			<string>{1625, 115}</string>
+			<key>name</key>
+			<string>There&apos;re some people I don&apos;t want to see in there.</string>
 		</dict>
 	</dict>
 	<key>mapLayer1C</key>

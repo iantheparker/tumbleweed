@@ -514,7 +514,7 @@ typedef enum {
             NSDictionary *ven = [items objectAtIndex:i];
             NSString *vID = [ven objectForKey:@"id"];
             NSString *vName = [ven objectForKey:@"name"];
-            NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
+            //NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
             CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
             CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
             NSArray *venCats = [ven objectForKey:@"categories"];
