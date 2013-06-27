@@ -169,9 +169,9 @@
 		<key>stump posts</key>
 		<dict>
 			<key>img</key>
-			<string>stump_posts_front.png2</string>
+			<string>stupid_looking_hill.png</string>
 			<key>position</key>
-			<string>{3970, 290}</string>
+			<string>{1750, 304}</string>
 		</dict>
 		<key>oil gate bush</key>
 		<dict>

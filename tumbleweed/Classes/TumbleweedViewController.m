@@ -320,12 +320,21 @@
 - (void) scenePressed:(UIButton *)sender
 {
     //[self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
-    [UIView animateWithDuration:0.50
-                     animations:^{
-                         [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
-                         [self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:NO];
-                         [UIView setAnimationTransition:UIViewAnimationTransitionCurlDown forView:self.navigationController.view cache:NO];
-                     }];
+    if (sender.selected)
+    {
+        [self renderScreen:walkingForward :FALSE :TRUE];
+        [self launchHintPopUp:YES:@"It's locked. Come back later."];
+    }
+    else
+    {
+        [UIView animateWithDuration:0.50
+                         animations:^{
+                             [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+                             [self.navigationController pushViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:NO];
+                             [UIView setAnimationTransition:UIViewAnimationTransitionCurlDown forView:self.navigationController.view cache:NO];
+                         }];
+    }
+    
     
 }
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
@@ -335,20 +344,40 @@
     }
     return YES;
 }
+
 - (void) handleSingleTap:(UIGestureRecognizer *)sender
 {
     BOOL hit = NO;
     CGPoint loc = [sender locationInView:mapCAView];
     NSString *tipText;
-    
-    for (UIButton *button in mapCAView.layer.sublayers) {
-        /*
-        if ([button.layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:button.layer]]){
-            NSLog(@"button found");
-        }*/
+
+    for (int i = parallaxLayers.count-1; i>=0; i--) {
+        CALayer *layer = (CALayer *)[parallaxLayers objectAtIndex:i];
+        //if past the first two top layers and it's jane hit
+        if (i<parallaxLayers.count-2 &&  [janeAvatar containsPoint:[mapCAView.layer convertPoint:loc toLayer:janeAvatar]]) {
+            hit = YES;
+            [self renderScreen:walkingForward :FALSE :TRUE];
+            break;
+        }
+        if (!hit && [layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
+            //AND NON-TRANSPARENT PIXELS
+            
+            for (CALayer *sublayer in layer.sublayers) {
+                if ([sublayer containsPoint:[mapCAView.layer convertPoint:loc toLayer:sublayer]] && sublayer.name) {
+                    tipText = sublayer.name;
+                    hit = YES;
+                    NSLog(@"asset hit: %@ on %@", sublayer.name, layer.name);
+                    [self renderScreen:walkingForward :FALSE :TRUE];
+                    break;
+                }
+            }
+        }
     }
+    
+/*
     for (CALayer *layer in mapCAView.layer.sublayers) {
         if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
+            NSLog(@"asset hit: on %@", layer.name);
             if ([layer.name isEqualToString:janeAvatar.name]) {
                 hit = YES;
                 [self renderScreen:walkingForward :FALSE :TRUE];
@@ -364,7 +393,7 @@
                 }
             }
         }
-    }
+    }*/
 
     [self launchHintPopUp:hit:tipText];
 }
@@ -479,16 +508,16 @@
     for (int i = 1; i < scenes.count; i++)
     {
         if (![[Tumbleweed sharedClient] tumbleweedId]) {
-            [[scenes objectAtIndex:i] button].enabled = NO;
+            [[scenes objectAtIndex:i] button].selected = YES;
         }
         else if (([[scenes objectAtIndex:i] level] > [Tumbleweed sharedClient].tumbleweedLevel)) {
-            [[scenes objectAtIndex:i] button].enabled = NO;
+            [[scenes objectAtIndex:i] button].selected = YES;
         }
         else if ([[scenes objectAtIndex:i] level] == [Tumbleweed sharedClient].tumbleweedLevel) {
-            [[scenes objectAtIndex:i] button].enabled = YES;
+            [[scenes objectAtIndex:i] button].selected = NO;
         }
         else if ([[scenes objectAtIndex:i] level] < [Tumbleweed sharedClient].tumbleweedLevel){
-            [[scenes objectAtIndex:i] button].selected = YES;
+            [[scenes objectAtIndex:i] button].highlighted = YES;
         }
     }
 }
@@ -640,7 +669,6 @@
 
     return layerArray;
 }
-
 
 -(int)getRandomNumberBetween:(int)from to:(int)to {
     
@@ -1024,14 +1052,14 @@
         birdSprite.position = CGPointMake(675*2, scrollView.contentSize.height/6);
         birdSprite.name = @"Vultures can smell death from 5 miles away. Or a day early.";
         
-        CABasicAnimation *birdAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
-        birdAnimation.fromValue = [NSNumber numberWithInt:1];
-        birdAnimation.toValue = [NSNumber numberWithInt:15];
-        birdAnimation.duration = 2.0f;
-        birdAnimation.repeatCount = HUGE_VALF;
-        birdAnimation.removedOnCompletion = NO;
+        CABasicAnimation *birdAnim = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
+        birdAnim.fromValue = [NSNumber numberWithInt:1];
+        birdAnim.toValue = [NSNumber numberWithInt:15];
+        birdAnim.duration = 2.0f;
+        birdAnim.repeatCount = HUGE_VALF;
+        birdAnim.removedOnCompletion = NO;
         
-        [birdSprite addAnimation:birdAnimation forKey:@"birdCircle"];
+        [birdSprite addAnimation:birdAnim forKey:@"birdCircle"];
         [map1BCA addSublayer:birdSprite];
         //[(CALayer*)[parallaxLayers objectAtIndex:1] addSublayer:birdSprite];
     }

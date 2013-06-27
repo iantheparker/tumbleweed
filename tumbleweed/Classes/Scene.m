@@ -34,18 +34,22 @@
     NSString *imgName1 =[plistDict objectForKey:@"buttonAccessible"];
     UIImage *buttonImg = [UIImage imageNamed:imgName1];
     [button setImage:buttonImg forState:UIControlStateNormal];
+    //[button setImage:buttonImg forState:UIControlStateNormal];
+    
     if ([plistDict objectForKey:@"buttonLocked"]) {
         NSString *imgName2 =[plistDict objectForKey:@"buttonLocked"];
         UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
-        [button setImage:buttonImg2 forState:UIControlStateDisabled];
+        [button setImage:buttonImg2 forState:UIControlStateSelected];
     }
     if ([plistDict objectForKey:@"buttonUnlocked"]) {
         NSString *imgName3 =[plistDict objectForKey:@"buttonUnlocked"];
         UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
-        [button setImage:buttonImg3 forState:UIControlStateSelected];
+        [button setImage:buttonImg3 forState:UIControlStateHighlighted];
+        //[button setImage:buttonImg3 forState:UIControlStateHighlighted & !UIControlStateSelected];
     }
-    button.showsTouchWhenHighlighted = YES;
+    //button.showsTouchWhenHighlighted = YES;
     button.adjustsImageWhenHighlighted = YES;
+    
     
     return self;
 }
