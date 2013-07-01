@@ -111,7 +111,7 @@
                 NSString *checkInId = [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"];
                 [Foursquare addPhoto:[photoButton imageForState:UIControlStateSelected] checkin:checkInId broadcast:_broadcastType];
             }
-            [sceneControllerId animateRewards:1];
+            [sceneControllerId animateRewards:1:YES];
             //NSLog(@"foursquare checkinresponse %@", checkInResponse);
             
         }

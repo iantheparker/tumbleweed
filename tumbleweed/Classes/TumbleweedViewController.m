@@ -11,6 +11,7 @@
 //#import "FoursquareAuthViewController.h"
 #import "MCSpriteLayer.h"
 #import <SVProgressHUD.h>
+#import "PagedScrollViewController.h"
 
 #define canvas_w 5762
 #define canvas_h 320
@@ -57,6 +58,8 @@
     CALayer *progressBar;
     CALayer *progressBarEmpty;
     UIView *hintVC;
+    UIImageView *forgotImage;
+    UIScrollView *walkthroughSV;
 
 }
 
@@ -157,7 +160,6 @@
     }
 
     
-    //--> shouldn't be scaling here. must fix!
     float janeSpriteSheetW = 799.0;
     float jandeSpriteSheetH = 200.0;
     janeAvatar.bounds = CGRectMake(0, 0, bounds.size.width, bounds.size.height);
@@ -175,13 +177,15 @@
                                                   1, 1, 1);
     }
     
-    //animate progress bar
-    if (([scrollView contentOffset].x + [[UIScreen mainScreen] bounds].size.width) > (canvas_w - [[UIScreen mainScreen] bounds].size.width))
+    //animate progress bar    
+    int eyeBuffer = 200; //pixels until the bar starts to overtake the eyes. this prevents clipping
+    if ((([scrollView contentOffset].x + [[UIScreen mainScreen] bounds].size.height) > canvas_w - [[UIScreen mainScreen] bounds].size.height)
+        && ([scrollView contentOffset].x + [[UIScreen mainScreen] bounds].size.height) <= canvas_w + eyeBuffer )
     {
         CGPoint currentpos = progressBar.position;
-        float progbarCoefficient = .001;
-        float edgeOffset = [scrollView contentOffset].x + [[UIScreen mainScreen] bounds].size.width - canvas_w;
-        CGPoint progbarCenter = CGPointMake( currentpos.x , currentpos.y + (edgeOffset * progbarCoefficient) );
+        //float progbarCoefficient = .001;
+        float edgeOffset = canvas_w - [[UIScreen mainScreen] bounds].size.height;
+        CGPoint progbarCenter = CGPointMake( currentpos.x , 4*blackPanel.bounds.size.height/5 + (edgeOffset - scrollView.contentOffset.x)/4 );
         [progressBar setPosition:progbarCenter];
         
     }
@@ -263,6 +267,7 @@
 - (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     [self launchHintPopUp:FALSE:nil];
+    [self launchProgressPopUp:false];
 }
 
 #pragma mark -
@@ -322,8 +327,10 @@
     //[self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
     if (sender.selected)
     {
+        NSString *hintCopy = @"It's locked. Come back later.";
         [self renderScreen:walkingForward :FALSE :TRUE];
-        [self launchHintPopUp:YES:@"It's locked. Come back later."];
+        if (![[Tumbleweed sharedClient] tumbleweedId]) hintCopy = @"You've got to connect to Foursquare first. Hit the button all the way to the left.";
+        [self launchHintPopUp:YES:hintCopy];
     }
     else
     {
@@ -344,16 +351,33 @@
     }
     return YES;
 }
-
 - (void) handleSingleTap:(UIGestureRecognizer *)sender
 {
     BOOL hit = NO;
     CGPoint loc = [sender locationInView:mapCAView];
     NSString *tipText;
+    //NSLog(@"scrollview point %0f, screenWidth %0f, combined %0f =/ canvas_w %d", scrollView.contentOffset.x, [[UIScreen mainScreen] bounds].size.height, [[UIScreen mainScreen] bounds].size.height + scrollView.contentOffset.x, canvas_w);
+    
+    // make sure they don't get a tip near the end of the map
+    if (loc.x > canvas_w - [[UIScreen mainScreen] bounds].size.height) {
+        hit = YES;
+        [self launchProgressPopUp:hit];
+        return;
+    }
+    
+    //if not logged in throw the same hint for all touches
+    if (![[Tumbleweed sharedClient] tumbleweedId])
+    {
+        tipText = @"Connect to Foursquare first! Hit the button all the way to your left.";
+        hit = YES;
+        [self renderScreen:walkingForward :FALSE :TRUE];
+        [self launchHintPopUp:hit:tipText];
+        return;
+    }
 
     for (int i = parallaxLayers.count-1; i>=0; i--) {
         CALayer *layer = (CALayer *)[parallaxLayers objectAtIndex:i];
-        //if past the first two top layers and it's jane hit
+        //if past the first two top layers then checkif they tapped it's jane hit
         if (i<parallaxLayers.count-2 &&  [janeAvatar containsPoint:[mapCAView.layer convertPoint:loc toLayer:janeAvatar]]) {
             hit = YES;
             [self renderScreen:walkingForward :FALSE :TRUE];
@@ -374,26 +398,6 @@
         }
     }
     
-/*
-    for (CALayer *layer in mapCAView.layer.sublayers) {
-        if ([layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
-            NSLog(@"asset hit: on %@", layer.name);
-            if ([layer.name isEqualToString:janeAvatar.name]) {
-                hit = YES;
-                [self renderScreen:walkingForward :FALSE :TRUE];
-                break;
-            }
-            for (CALayer *sublayer in layer.sublayers) {
-                if ([sublayer containsPoint:[mapCAView.layer convertPoint:loc toLayer:sublayer]] && sublayer.name) {
-                    tipText = sublayer.name;
-                    hit = YES;
-                    NSLog(@"asset hit: %@ on %@", sublayer.name, layer.name);
-                    [self renderScreen:walkingForward :FALSE :TRUE];
-                    break;
-                }
-            }
-        }
-    }*/
 
     [self launchHintPopUp:hit:tipText];
 }
@@ -438,15 +442,36 @@
     }
     
 }
-
 -(void) launchProgressPopUp:(BOOL) up
 {
-    CALayer *forgotImage = [CALayer layer];
-    UIImage *forgotImg = [UIImage imageNamed:@"map_hint-at-end.jpg"];
-    forgotImage.bounds = CGRectMake(0, 0, forgotImg.size.width, forgotImg.size.height);
-    forgotImage.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/4);
-    [forgotImage setContents:(__bridge id)[forgotImg CGImage]];
-    [blackPanel addSublayer:forgotImage];
+    float posPanel =  blackPanel.bounds.size.width/2 - 22;
+    if (up == TRUE && (!CGAffineTransformEqualToTransform(forgotImage.transform, CGAffineTransformIdentity))) {
+        if (!forgotImage) {
+            UIImage *forgotImg = [UIImage imageNamed:@"map_hint-at-end.jpg"];
+            forgotImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, forgotImg.size.width, forgotImg.size.height)];
+            forgotImage.image = forgotImg;
+        }
+        
+        //float posPanel = blackPanel.position.x - 10;
+        
+        forgotImage.center = CGPointMake(posPanel, -100);
+        forgotImage.transform = CGAffineTransformMakeScale(1, 10);
+        [blackPanel addSublayer:forgotImage.layer];
+        [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            forgotImage.transform = CGAffineTransformIdentity;
+            forgotImage.center = CGPointMake(posPanel, floorf(forgotImage.bounds.size.height * 2.5));
+        } completion:^(BOOL finished) {}];
+        
+    }
+    else{
+        forgotImage.transform = CGAffineTransformIdentity;
+        [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            forgotImage.transform = CGAffineTransformMakeScale(1, 10);
+            forgotImage.center = CGPointMake(posPanel, -100);
+        } completion:^(BOOL finished) {
+            [forgotImage removeFromSuperview];
+        }];
+    }
 }
 #pragma mark -
 #pragma mark game state updates
@@ -1508,7 +1533,7 @@
         CALayer *saloonSkullEyes = [CALayer layer];
         UIImage *saloonSkullEyesimg = [UIImage imageNamed:@"saloon_skull-eyes"];
         saloonSkullEyes.bounds = CGRectMake(0, 0, saloonSkullEyesimg.size.width/2, saloonSkullEyesimg.size.height/2);
-        saloonSkullEyes.position = CGPointMake(248, 28);
+        saloonSkullEyes.position = CGPointMake(249, 28);
         [saloonSkullEyes setContents:(__bridge id) [saloonSkullEyesimg CGImage]];
         [saloon addSublayer:saloonSkullEyes];
         
@@ -1525,7 +1550,7 @@
         CALayer *saloonparty1 = [CALayer layer];
         UIImage *saloonparty1img = [UIImage imageNamed:@"saloon_inteior_action_colr-1.jpg"];
         saloonparty1.bounds = CGRectMake(0, 0, saloonparty1img.size.width/2, saloonparty1img.size.height/2);
-        saloonparty1.position = CGPointMake(2200, 160);
+        saloonparty1.position = CGPointMake(2200, 163);
         [saloonparty1 setContents:(__bridge id) [saloonparty1img CGImage]];
         [map1CA addSublayer:saloonparty1];
         
@@ -1567,6 +1592,33 @@
     [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE :TRUE];
     
     [CATransaction commit];
+    /*
+    walkthroughSV = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.height, [[UIScreen mainScreen] bounds].size.width)];
+    walkthroughSV.showsHorizontalScrollIndicator = NO;
+    walkthroughSV.showsVerticalScrollIndicator = NO;
+    walkthroughSV.alwaysBounceHorizontal = NO;
+    walkthroughSV.alwaysBounceVertical = NO;
+    walkthroughSV.bounces = NO;
+    UIImage *skyBGWTimg = [UIImage imageNamed:@"intro_sky_base.jpg"];
+    UIImageView *skyBGWT = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, skyBGWTimg.size.width/2, skyBGWTimg.size.height/2)];
+    skyBGWT.image = skyBGWTimg;
+    walkthroughSV.contentSize = CGSizeMake(skyBGWT.frame.size.width, skyBGWT.frame.size.height);
+
+    [skyBGWT setContentMode:UIViewContentModeScaleAspectFill];
+    [walkthroughSV addSubview:skyBGWT];
+    [walkthroughSV setDelegate:self];
+    walkthroughSV.pagingEnabled = YES;
+    walkthroughSV.userInteractionEnabled = YES;
+    [scrollView addSubview:walkthroughSV];
+     */
+    
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
+    {
+        PagedScrollViewController *tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
+        [self presentViewController:tutorial animated:NO completion:^{}];
+        //[self.navigationController pushViewController:tutorial animated:NO];
+         
+    }
 
 }
 

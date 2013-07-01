@@ -2,10 +2,10 @@
 <archive type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="8.00">
 	<data>
 		<int key="IBDocument.SystemTarget">1552</int>
-		<string key="IBDocument.SystemVersion">12C2034</string>
+		<string key="IBDocument.SystemVersion">12E55</string>
 		<string key="IBDocument.InterfaceBuilderVersion">3084</string>
-		<string key="IBDocument.AppKitVersion">1187.34</string>
-		<string key="IBDocument.HIToolboxVersion">625.00</string>
+		<string key="IBDocument.AppKitVersion">1187.39</string>
+		<string key="IBDocument.HIToolboxVersion">626.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 			<string key="NS.object.0">2083</string>
@@ -38,10 +38,9 @@
 					<object class="IBUIButton" id="892021974">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{5, 12.5}, {304, 36}}</string>
+						<string key="NSFrame">{{10, 12}, {384, 36}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<object class="NSColor" key="IBUIBackgroundColor" id="241439860">
 							<int key="NSColorSpace">3</int>
@@ -86,7 +85,7 @@
 						</object>
 					</object>
 				</array>
-				<string key="NSFrameSize">{315, 60}</string>
+				<string key="NSFrameSize">{405, 60}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="892021974"/>
@@ -208,6 +207,7 @@
 						<string key="leftScroll">UIButton</string>
 						<string key="movieThumbnailButton">UIButton</string>
 						<string key="mvFoursquare">MKMapView</string>
+						<string key="pageControl">UIPageControl</string>
 						<string key="refreshButton">UIButton</string>
 						<string key="rightScroll">UIButton</string>
 						<string key="sceneSVView">UIView</string>
@@ -250,6 +250,10 @@
 						<object class="IBToOneOutletInfo" key="mvFoursquare">
 							<string key="name">mvFoursquare</string>
 							<string key="candidateClassName">MKMapView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="pageControl">
+							<string key="name">pageControl</string>
+							<string key="candidateClassName">UIPageControl</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="refreshButton">
 							<string key="name">refreshButton</string>

@@ -143,7 +143,7 @@ typedef enum {
     [self presentViewController:bonusView animated:YES completion:^{}];
     
 }
-- (IBAction) playVideo:(id)sender
+- (IBAction) playVideo:(id)sender 
 {
     NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:movieName
                                                                              ofType:@"mp4"]];
@@ -201,6 +201,10 @@ typedef enum {
         }
     }
     NSLog(@"venuesvpos = %i", venueSVPos);
+    
+    //update pagecontrol
+    pageControl.currentPage = venueSVPos;
+
 }
 #pragma mark -
 #pragma mark -  CoreLocation delegate methods
@@ -514,7 +518,7 @@ typedef enum {
             NSDictionary *ven = [items objectAtIndex:i];
             NSString *vID = [ven objectForKey:@"id"];
             NSString *vName = [ven objectForKey:@"name"];
-            //NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
+            NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
             CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
             CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
             NSArray *venCats = [ven objectForKey:@"categories"];
@@ -562,9 +566,9 @@ typedef enum {
             
             // set all properties with the necessary details
             [foursquareAnnotation setCoordinate: region.center];
-            //[foursquareAnnotation setTitle: vName];
-            [foursquareAnnotation setTitle: [NSString stringWithFormat:@"%d", i+1]];
-            //[foursquareAnnotation setSubtitle: address];
+            [foursquareAnnotation setTitle: vName];
+            //[foursquareAnnotation setTitle: [NSString stringWithFormat:@"%d", i+1]];
+            [foursquareAnnotation setSubtitle: address];
             [foursquareAnnotation setVenueId: vID];
             [foursquareAnnotation setIconUrl:iconURL];
             [foursquareAnnotation setArrayPos:((unsigned int) i)];
@@ -577,6 +581,9 @@ typedef enum {
     }
     [venueScrollView.subviews makeObjectsPerformSelector:@selector(setNeedsDisplay)];
     self.venueSVPos = 0;
+    //update pagecontrol
+    pageControl.numberOfPages = [allVenues count];
+
 }
 - (IBAction)refreshSearch:(id)sender
 {
@@ -605,7 +612,7 @@ typedef enum {
     currentTime -= 1 ;
     if(currentTime <=0){
         [countDownTimer invalidate];
-        [self animateRewards:1];
+        [self animateRewards:1:YES];
         [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
     }else
         [self populateLabelwithTime:currentTime];
@@ -658,7 +665,7 @@ typedef enum {
                 NSLog(@"Exit from region %@", region);
                 [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
                 [[RCLocationManager sharedManager] stopMonitoringAllRegions];
-                [self animateRewards:1];
+                [self animateRewards:1:YES];
             }
             
         } errorBlock:^(CLLocationManager *manager, CLRegion *region, NSError *error) {
@@ -678,7 +685,7 @@ typedef enum {
             [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
             [[RCLocationManager sharedManager] stopMonitoringAllRegions];
             [[RCLocationManager sharedManager] stopUpdatingLocation];
-            [self animateRewards:1];
+            [self animateRewards:1:YES];
         }
         timerLabel.text = [NSString stringWithFormat:@"%.f meters to go", distance];
     } errorBlock:^(CLLocationManager *manager, NSError *error) {
@@ -688,7 +695,7 @@ typedef enum {
 }
 #pragma mark -
 #pragma mark - Load/Unload methods
-- (void) animateRewards : (NSTimeInterval) duration
+- (void) animateRewards : (NSTimeInterval) duration : (BOOL) withVideo
 {
     extrasView.hidden = NO;
     [UIView animateWithDuration:duration animations:^{
@@ -700,13 +707,16 @@ typedef enum {
         [contentView removeFromSuperview];
         [checkInIntructions removeFromSuperview];
         [UIView transitionWithView:movieThumbnailButton
-                          duration:0.2f
+                          duration:0.4f
                            options:UIViewAnimationOptionTransitionCrossDissolve
                         animations:^{
                             movieThumbnailButton.enabled = YES;
                             extrasView.alpha = 1.0;
                             
-                        } completion:NULL];
+                        } completion:^(BOOL finished){
+                            if (withVideo)[self playVideo:nil];
+                        }];
+        
     }];
     
 }
@@ -765,13 +775,13 @@ typedef enum {
         }
         else if ([movieName isEqualToString:@"campfire"])
         {
-            [self animateRewards:0];
+            [self animateRewards:0:NO];
         }
         
     }
     else
     {
-        if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards:0];
+        if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards:1:NO];
         else
         {
             if ([sceneTypeName isEqualToString:@"FSQsearch"])

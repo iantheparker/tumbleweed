@@ -37,6 +37,8 @@
     IBOutlet UILabel *timerLabel;
     IBOutlet UIView *introView;
     IBOutlet UIView *contentView;
+    IBOutlet UIPageControl *pageControl;
+
     CLLocationManager *locationManager;
     MPMoviePlayerViewController *moviePlayer;
     UIView *venueView;
@@ -67,12 +69,12 @@
 
 // touch events
 - (IBAction) dismissModal:(id)sender;
-- (IBAction) playVideo:(id)sender;
+- (IBAction) playVideo:(id)sender ;
 - (IBAction)refreshSearch:(id)sender;
 - (IBAction)leftScroll :(id)sender;
 - (IBAction)rightScroll :(id)sender;
 
-- (void) animateRewards : (NSTimeInterval) duration;
+- (void) animateRewards : (NSTimeInterval) duration :(BOOL) withVideo;
 
 
 

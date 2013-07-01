@@ -173,7 +173,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    [[Tumbleweed sharedClient] getUserUpdates];
+    if([[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])[[Tumbleweed sharedClient] getUserUpdates];
     [UIApplication sharedApplication].applicationIconBadgeNumber=0;
     NSLog(@"appwill become active");
 

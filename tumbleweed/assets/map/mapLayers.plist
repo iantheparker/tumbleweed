@@ -213,8 +213,6 @@
 			<string>top_lvl4_objs_11.png</string>
 			<key>position</key>
 			<string>{5300, 195}</string>
-			<key>name</key>
-			<string>This is a mighty fine looking rock.</string>
 		</dict>
 		<key>gas station front</key>
 		<dict>
@@ -280,7 +278,7 @@
 			<key>position</key>
 			<string>{1140, 160}</string>
 			<key>name</key>
-			<string>The sherriff&apos;s in town, scoping out stuff.</string>
+			<string>That&apos;s the sherriff&apos;s truck. He must be burying some bodies again.</string>
 		</dict>
 		<key>property sale fence</key>
 		<dict>
