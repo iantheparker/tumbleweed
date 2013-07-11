@@ -61,6 +61,7 @@
     UIView *bubbleContainer;
     UIImageView *forgotImage;
     UIScrollView *walkthroughSV;
+    PagedScrollViewController *tutorial;
 
 }
 
@@ -865,7 +866,7 @@
             
             CABasicAnimation *cloud1anim;
             cloud1anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.x"];
-            cloud1anim.fromValue = [NSNumber numberWithInt:[self getRandomNumberBetween:0 to:screenSize.width-300 ]];
+            cloud1anim.fromValue = [NSNumber numberWithInt:[self getRandomNumberBetween:[[UIScreen mainScreen] bounds].size.height to:screenSize.width-300 ]];
             cloud1anim.toValue = [NSNumber numberWithInt:screenSize.width];
             cloud1anim.duration = [self getRandomNumberBetween:300 to:400]; //90 - 300?
             cloud1anim.autoreverses = YES;
@@ -1664,11 +1665,11 @@
     
     if([[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
     {
-        //PagedScrollViewController *tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
+        tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
         //scrollView.contentSize = CGSizeMake(canvas_w, canvas_h*2);
         //scrollView.alwaysBounceVertical = NO;
 
-        //[self presentViewController:tutorial animated:NO completion:^{}];
+        [self presentViewController:tutorial animated:NO completion:^{}];
         //[self.navigationController pushViewController:tutorial animated:NO];
          
     }

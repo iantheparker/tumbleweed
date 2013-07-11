@@ -12,6 +12,10 @@
 
 @property (nonatomic, strong) IBOutlet UIScrollView *scrollView;
 @property (nonatomic, strong) IBOutlet UIImageView *bgImage;
+@property (nonatomic, strong) IBOutlet UIView *containerView;
+
+-(int) getRandomNumberBetween:(int)from to:(int)to;
+-(void) renderParallax;
 
 
 @end
