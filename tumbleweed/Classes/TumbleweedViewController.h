@@ -37,6 +37,7 @@
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;
 - (void) handleSingleTap:(UIGestureRecognizer *)sender;
+- (void) handleDoubleTap:(UIGestureRecognizer *)sender;
 
 
 

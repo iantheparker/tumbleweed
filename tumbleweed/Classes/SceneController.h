@@ -40,7 +40,7 @@
     IBOutlet UIPageControl *pageControl;
 
     CLLocationManager *locationManager;
-    MPMoviePlayerViewController *moviePlayer;
+    //MPMoviePlayerController *moviePlayer;
     UIView *venueView;
     
 }
@@ -75,6 +75,11 @@
 - (IBAction)rightScroll :(id)sender;
 
 - (void) animateRewards : (NSTimeInterval) duration :(BOOL) withVideo;
+- (void) videoPlayBackDidFinish:(NSNotification *) notification;
+- (void) movieFinishedCallback:(NSNotification*) aNotification;
+- (void) movieExitFullscreen:(NSNotification*) aNotification;
+
+
 
 
 

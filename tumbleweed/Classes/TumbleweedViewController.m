@@ -58,6 +58,7 @@
     CALayer *progressBar;
     CALayer *progressBarEmpty;
     UIView *hintVC;
+    UIView *bubbleContainer;
     UIImageView *forgotImage;
     UIScrollView *walkthroughSV;
 
@@ -370,7 +371,6 @@
     {
         tipText = @"Connect to Foursquare first! Hit the button all the way to your left.";
         hit = YES;
-        [self renderScreen:walkingForward :FALSE :TRUE];
         [self launchHintPopUp:hit:tipText];
         return;
     }
@@ -380,7 +380,7 @@
         //if past the first two top layers then checkif they tapped it's jane hit
         if (i<parallaxLayers.count-2 &&  [janeAvatar containsPoint:[mapCAView.layer convertPoint:loc toLayer:janeAvatar]]) {
             hit = YES;
-            [self renderScreen:walkingForward :FALSE :TRUE];
+            //[self renderScreen:walkingForward :FALSE :TRUE];
             break;
         }
         if (!hit && [layer containsPoint:[mapCAView.layer convertPoint:loc toLayer:layer]]) {
@@ -391,7 +391,7 @@
                     tipText = sublayer.name;
                     hit = YES;
                     NSLog(@"asset hit: %@ on %@", sublayer.name, layer.name);
-                    [self renderScreen:walkingForward :FALSE :TRUE];
+                    //[self renderScreen:walkingForward :FALSE :TRUE];
                     break;
                 }
             }
@@ -401,14 +401,55 @@
 
     [self launchHintPopUp:hit:tipText];
 }
+- (void) handleDoubleTap:(UIGestureRecognizer *)sender
+{
+    NSLog(@"ignoring this double-tap");
+    [self launchHintPopUp:YES :@"Did you seriously just double-tap? Are you 137 years old?"];
+}
 - (void) launchHintPopUp :(BOOL) up : (NSString*) layerTip
 {
 
     if (up == TRUE && (!CGAffineTransformEqualToTransform(hintVC.transform, CGAffineTransformIdentity))) {
-        if (!hintVC) {
-            hintVC = [[[NSBundle mainBundle] loadNibNamed:@"HintPopUp" owner:self options:nil] objectAtIndex:0];
-            [hintVC viewWithTag:2].layer.cornerRadius = 5.0;
+        if (!hintVC || !bubbleContainer) {
+            bubbleContainer = [[[NSBundle mainBundle] loadNibNamed:@"HintPopUp" owner:self options:nil] objectAtIndex:0];
+            hintVC = (UIView*)[bubbleContainer viewWithTag:-1];
+            //[hintVC viewWithTag:2].layer.cornerRadius = 5.0;
         }
+        hintVC.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, hintVC.bounds.size.height/2);
+        bubbleContainer.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, bubbleContainer.bounds.size.height/2);;
+
+
+        UIImageView *bubble1 = (UIImageView*) [bubbleContainer viewWithTag:3];
+        UIImageView *bubble2 = (UIImageView*) [bubbleContainer viewWithTag:4];
+        UIImageView *bubble3 = (UIImageView*) [bubbleContainer viewWithTag:5];
+        UIImageView *bubble4 = (UIImageView*) [bubbleContainer viewWithTag:6];
+        bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        bubble4.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        [self.view addSubview:bubbleContainer];
+
+        
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
+            bubble1.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
+        [UIView animateWithDuration:0.2 delay:0.1 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
+            bubble2.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
+        [UIView animateWithDuration:0.2 delay:0.25 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
+            bubble3.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
+        [UIView animateWithDuration:0.2 delay:0.4 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
+            bubble4.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {bubble4.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
+        
+        
+        hintVC.transform = CGAffineTransformMakeScale(0.001, 0.001);
+        [self.view addSubview:hintVC];
+        [UIView animateWithDuration:0.2 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            hintVC.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {}];
+        
         
         UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
         if (layerTip) hintLabel.text =  layerTip;
@@ -418,15 +459,14 @@
         hintLabel.textColor = brownC;
         hintLabel.font = [UIFont fontWithName:@"rockwell" size:20];
         
-        hintVC.center = CGPointMake(janeAvatar.position.x, janeAvatar.position.y - janeAvatar.bounds.size.height/3);
+        //hintVC.center = CGPointMake(janeAvatar.position.x, janeAvatar.position.y - janeAvatar.bounds.size.height/3);
+        //hintVC.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, hintVC.bounds.size.height/2);
+
         //hintVC.layer.transform = CATransform3DIdentity;
-        hintVC.transform = CGAffineTransformMakeScale(0.01, 0.01);
-        [self.view addSubview:hintVC];
-        [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-            hintVC.transform = CGAffineTransformIdentity;
-            hintVC.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, hintVC.bounds.size.height/2);
-        } completion:^(BOOL finished) {}];
-         
+        
+        [self renderScreen:walkingForward :FALSE :TRUE];
+
+        
     }
     else{
         hintVC.transform = CGAffineTransformIdentity;
@@ -438,6 +478,7 @@
             //hintVC.center = janeAvatar.position;
         } completion:^(BOOL finished) {
             [hintVC removeFromSuperview];
+            [bubbleContainer removeFromSuperview];
         }];
     }
     
@@ -714,12 +755,21 @@
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.alwaysBounceHorizontal = YES;
+    scrollView.alwaysBounceVertical = NO;
+    scrollView.directionalLockEnabled = YES;
     scrollView.decelerationRate = UIScrollViewDecelerationRateFast;
     [scrollView setDelegate:self];
     
     UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-    [scrollView addGestureRecognizer:tapHandler];
+    tapHandler.numberOfTapsRequired = 1;
     [tapHandler setDelegate:self];
+    [scrollView addGestureRecognizer:tapHandler];
+
+    //ignore double-tap
+    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget: self action:@selector(handleDoubleTap:)] ;
+    doubleTap.numberOfTapsRequired = 2;
+    [scrollView addGestureRecognizer:doubleTap];
+    [tapHandler requireGestureRecognizerToFail:doubleTap];
     
     mapCAView.frame = CGRectMake(0, 0, screenSize.width, screenSize.height);
     [scrollView addSubview:mapCAView];
@@ -1564,7 +1614,7 @@
         CABasicAnimation *saloonparty2Anim = [CABasicAnimation animationWithKeyPath:@"opacity"];
         saloonparty2Anim.fromValue = [NSNumber numberWithFloat:.0];
         saloonparty2Anim.toValue = [NSNumber numberWithFloat: 1.0];
-        saloonparty2Anim.duration = 0.5f;
+        saloonparty2Anim.duration = 0.25f;
         saloonparty2Anim.autoreverses = YES;
         saloonparty2Anim.repeatCount = HUGE_VALF;
         saloonparty2Anim.removedOnCompletion = NO;
@@ -1612,10 +1662,13 @@
     [scrollView addSubview:walkthroughSV];
      */
     
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
+    if([[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
     {
-        PagedScrollViewController *tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
-        [self presentViewController:tutorial animated:NO completion:^{}];
+        //PagedScrollViewController *tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
+        //scrollView.contentSize = CGSizeMake(canvas_w, canvas_h*2);
+        //scrollView.alwaysBounceVertical = NO;
+
+        //[self presentViewController:tutorial animated:NO completion:^{}];
         //[self.navigationController pushViewController:tutorial animated:NO];
          
     }

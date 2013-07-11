@@ -41,13 +41,13 @@ typedef enum {
 
 @property (nonatomic) unsigned int venueSVPos;
 
--(void)zoomMapViewToFitAnnotations:(MKMapView *)mapView animated:(BOOL)animated;
+-(void) zoomMapViewToFitAnnotations:(MKMapView *)mapView animated:(BOOL)animated;
 -(void) gameSavetNotif: (NSNotification *) notif;
 -(void) refreshView;
 -(void) launchCheckinVC: (id)sender : (NSDictionary*) dict;
 -(IBAction) launchBonusWebView;
 -(void) willPresentError:(NSError *)error;
--(void)updateTimer:(NSTimer *)timer;
+-(void) updateTimer:(NSTimer *)timer;
 -(void) killTimer;
 - (void) processVenues: (NSInteger) searchType : (NSArray *) items : (NSError*) err;
 - (void) searchSetup : (NSInteger) searchType;
@@ -75,7 +75,7 @@ typedef enum {
 //checkin properties
 @synthesize venueScrollView, venueDetailNib, venueView, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
 //generic properties
-@synthesize sceneScrollView, sceneTitle, checkInIntructions, movieThumbnailButton, moviePlayer, extrasView;
+@synthesize sceneScrollView, sceneTitle, checkInIntructions, movieThumbnailButton, extrasView, moviePlayer;
 
 
 - (id) initWithScene:(Scene *) scn
@@ -145,13 +145,137 @@ typedef enum {
 }
 - (IBAction) playVideo:(id)sender 
 {
+    
     NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:movieName
                                                                              ofType:@"mp4"]];
     moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+
+    /*
+    moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+    
+    [[moviePlayer view] setFrame:[[self view] bounds]];
+    [[self view] addSubview: [moviePlayer view]];
+    
+    moviePlayer.scalingMode = MPMovieScalingModeAspectFit;
+    //moviePlayer.controlStyle =  MPMovieControlStyleEmbedded;
+    [moviePlayer setFullscreen:YES animated:YES];
+    //[moviePlayer prepareToPlay];
+    [moviePlayer setShouldAutoplay:YES];
+    [moviePlayer play];
+     
+    
+    //[[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer];
+     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(MPMoviePlayerPlaybackDidFinish:) name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer];
+    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(MPMoviePlayerPlaybackDidFinish:) name:MPMoviePlayerDidExitFullscreenNotification object:self.moviePlayer];
+
+    
+    
     // prevent mute switch from switching off audio from movie player
     NSError *_error = nil;
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
-    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
+    
+    //[self presentMoviePlayerViewControllerAnimated:moviePlayer];
+     
+    [[moviePlayer moviePlayer] prepareToPlay];
+    [[moviePlayer moviePlayer] setUseApplicationAudioSession:YES];
+    [[moviePlayer moviePlayer] setShouldAutoplay:YES];
+    [[moviePlayer moviePlayer] setControlStyle:2];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoPlayBackDidFinish:) name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer.moviePlayer];
+    [self presentMoviePlayerViewControllerAnimated:moviePlayer];*/
+    
+    // Initialize the movie player view controller with a video URL string
+    MPMoviePlayerViewController *playerVC = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    
+    // Remove the movie player view controller from the "playback did finish" notification observers
+    [[NSNotificationCenter defaultCenter] removeObserver:playerVC
+                                                    name:MPMoviePlayerPlaybackDidFinishNotification
+                                                  object:playerVC.moviePlayer];
+    
+    // Register this class as an observer instead
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(movieFinishedCallback:)
+                                                 name:MPMoviePlayerPlaybackDidFinishNotification
+                                               object:playerVC.moviePlayer];
+    // Register for the “Done” button notification.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(movieExitFullscreen:)
+                                                 name:MPMoviePlayerDidExitFullscreenNotification
+                                               object:playerVC.moviePlayer];
+    
+    // Set the modal transition style of your choice
+    playerVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    
+    // Present the movie player view controller
+    [self presentModalViewController:playerVC animated:YES];
+    
+    // Start playback
+    [playerVC.moviePlayer prepareToPlay];
+    [playerVC.moviePlayer play];
+
+}
+- (void)movieExitFullscreen:(NSNotification*)aNotification
+{
+    NSLog(@"inside of movieExitFullscreen");
+
+}
+
+- (void)movieFinishedCallback:(NSNotification*)aNotification
+{
+    NSLog(@"inside of moviefinishedcallback");
+    // Obtain the reason why the movie playback finished
+    NSNumber *finishReason = [[aNotification userInfo] objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+    
+    // Dismiss the view controller ONLY when the reason is not "playback ended"
+    if ([finishReason intValue] != MPMovieFinishReasonPlaybackEnded)
+    {
+        MPMoviePlayerController *moviePlayer1 = [aNotification object];
+        
+        // Remove this class from the observers
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:MPMoviePlayerPlaybackDidFinishNotification
+                                                      object:moviePlayer1];
+        
+        // Dismiss the view controller
+        [self dismissModalViewControllerAnimated:YES];
+    }
+}
+- (void) videoPlayBackDidFinish: (NSNotification*) notification {
+    /*
+    if ([[notification userInfo] objectForKey:MPMoviePlayerDidExitFullscreenNotification]) {
+        
+        NSLog(@"stopping");
+        //return;
+    }
+    [moviePlayer setFullscreen:NO animated:YES];
+    [moviePlayer stop];
+    [self dismissMoviePlayerViewControllerAnimated]; 
+    [moviePlayer.view removeFromSuperview];
+    moviePlayer = nil;
+    
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer];
+    */
+    NSLog(@"notif received in moviefinish");
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+    
+    [moviePlayer.moviePlayer stop];
+    moviePlayer = nil;
+    [self dismissMoviePlayerViewControllerAnimated];
+    
+    
+    int reason = [[[notification userInfo] valueForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey] intValue];
+    if (reason == MPMovieFinishReasonPlaybackEnded) {
+        //movie finished playin
+        NSLog(@"finished");
+    }else if (reason == MPMovieFinishReasonUserExited) {
+        //user hit the done button
+        NSLog(@"hit done");
+    }else if (reason == MPMovieFinishReasonPlaybackError) {
+        //error
+        NSLog(@"error");
+    }
+
 }
 - (IBAction)rightScroll:(id)sender
 {
