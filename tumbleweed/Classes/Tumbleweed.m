@@ -153,7 +153,7 @@
 {
     if (!tumbleweedId) return NO;
     __block BOOL update = NO;
-    [SVProgressHUD showWithStatus:@"Checking Foursquare" maskType:SVProgressHUDMaskTypeNone];
+    //[SVProgressHUD showWithStatus:@"Checking Foursquare" maskType:SVProgressHUDMaskTypeNone];
     NSString *userPath = [NSString stringWithFormat:@"users/%@", tumbleweedId];
     [[AFTumbleweedClient sharedClient] getPath:userPath parameters:nil
                                        success:^(AFHTTPRequestOperation *operation, id JSON) {

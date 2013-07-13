@@ -166,12 +166,12 @@
 		<string>{1, 1}</string>
 		<key>zPosition</key>
 		<integer>3</integer>
-		<key>stump posts</key>
+		<key>hill</key>
 		<dict>
 			<key>img</key>
-			<string>stupid_looking_hill.png</string>
+			<string>hill.png</string>
 			<key>position</key>
-			<string>{1750, 304}</string>
+			<string>{1725, 304}</string>
 		</dict>
 		<key>oil gate bush</key>
 		<dict>

@@ -10,7 +10,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 
-#define canvas_h 640
+#define canvas_h 960
 
 
 @implementation PagedScrollViewController{
@@ -37,20 +37,22 @@
     //MAP LAYER PARALLAX SPEEDS
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    /*
-    CGPoint mapCenter = map1CA.position;
-    float janeOffset = mapCenter.x - scrollView.contentOffset.x;
+    
+    CGPoint mapCenter = self.scrollView.center;
+    float janeOffset = mapCenter.y - self.scrollView.contentOffset.y;
     
     //-sky position- CALayer - fix the hardcoded offset here
-    float skyCoefficient = .9;
-    CGPoint skyCenter = CGPointMake(floorf(avatar_offset+mapCenter.x - (janeOffset * skyCoefficient)), floorf([map0CA bounds].size.height/2.0));
-    [map0CA setPosition:skyCenter];
+    float skyCoefficient = 1.5;
+    CGPoint cloud1Center = cloud1Layer.position;
+    cloud1Center = CGPointMake(cloud1Center.x, floorf((janeOffset * skyCoefficient)-mapCenter.y));
+    [cloud1Layer setPosition:cloud1Center];
     
     //--> layer1C position
-    float layer1CCoefficient = .4;
-    CGPoint layer1CPos = CGPointMake(floorf(mapCenter.x - (janeOffset * layer1CCoefficient)), map1CCA.position.y);
-    [map1CCA setPosition:layer1CPos];
-    
+    float cloud2Coefficient = 0.5;
+    CGPoint cloud2Center = cloud2Layer.position;
+    cloud2Center = CGPointMake(cloud2Center.x, floorf((janeOffset * cloud2Coefficient)-mapCenter.y));
+    [cloud2Layer setPosition:cloud2Center];
+    /*
     //--> layer1B position
     float layer1BCoefficient = .04;
     CGPoint layer1BPos = CGPointMake(floorf(mapCenter.x + (janeOffset * layer1BCoefficient)), map1BCA.position.y);

@@ -63,7 +63,7 @@ respective headers for the terms of their individual licenses.
 
 ## TestFlightSDK
 
-All text and design is copyright © 2010-2012 TestFlight App, Inc.
+All text and design is copyright © 2010-2013 TestFlight App, Inc.
 
 All rights reserved.
 
