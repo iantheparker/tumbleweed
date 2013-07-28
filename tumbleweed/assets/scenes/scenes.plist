@@ -8,7 +8,7 @@
 			<key>name</key>
 			<string>No Man&apos;s Land</string>
 			<key>movieName</key>
-			<string>intro</string>
+			<string>01_Intro</string>
 			<key>hintCopy</key>
 			<string>Legend has it that great adventures start by connecting to Foursquare. Walk on back.</string>
 			<key>checkInCopy</key>
@@ -33,7 +33,7 @@
 			<key>level</key>
 			<integer>0</integer>
 			<key>movieName</key>
-			<string>deal</string>
+			<string>02_TheDeal</string>
 			<key>sceneType</key>
 			<dict>
 				<key>type</key>
@@ -68,7 +68,7 @@
 			<key>level</key>
 			<integer>1</integer>
 			<key>movieName</key>
-			<string>bar</string>
+			<string>03_Bar</string>
 			<key>categoryId</key>
 			<string>4d4b7105d754a06376d81259</string>
 			<key>hintCopy</key>
@@ -105,7 +105,7 @@
 			<key>level</key>
 			<integer>2</integer>
 			<key>movieName</key>
-			<string>gasStation</string>
+			<string>04_GasStation</string>
 			<key>hintCopy</key>
 			<string>Leaving town? Strangers always stop here on their way out.</string>
 			<key>checkInCopy</key>
@@ -140,7 +140,7 @@
 			<key>level</key>
 			<integer>3</integer>
 			<key>movieName</key>
-			<string>riverbed1</string>
+			<string>05_Riverbed</string>
 			<key>hintCopy</key>
 			<string>Fools always take their clothes off first. Stupid.</string>
 			<key>checkInCopy</key>
@@ -173,7 +173,7 @@
 			<key>name</key>
 			<string>The Body</string>
 			<key>movieName</key>
-			<string>riverbed2</string>
+			<string>06_Rivernight</string>
 			<key>level</key>
 			<integer>4</integer>
 			<key>hintCopy</key>
@@ -204,7 +204,7 @@
 			<key>name</key>
 			<string>The Chase</string>
 			<key>movieName</key>
-			<string>chase</string>
+			<string>07_DesertChase</string>
 			<key>level</key>
 			<integer>5</integer>
 			<key>hintCopy</key>
@@ -241,7 +241,7 @@
 			<key>name</key>
 			<string>Dead Heat</string>
 			<key>movieName</key>
-			<string>lynch</string>
+			<string>08_DesertLynch</string>
 			<key>level</key>
 			<integer>6</integer>
 			<key>categoryId</key>
@@ -274,7 +274,7 @@
 			<key>name</key>
 			<string>The End</string>
 			<key>movieName</key>
-			<string>campfire</string>
+			<string>09_Campfire</string>
 			<key>level</key>
 			<integer>7</integer>
 			<key>hintCopy</key>
