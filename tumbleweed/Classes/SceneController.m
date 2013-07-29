@@ -13,6 +13,7 @@
 #import <UIImageView+AFNetworking.h>
 #import "RegionAnnotation.h"
 #import "RegionAnnotationView.h"
+#import <AudioToolbox/AudioToolbox.h>
 
 #define MINIMUM_ZOOM_ARC 0.008 //approximately 1 miles (1 degree of arc ~= 69 miles)
 #define ANNOTATION_REGION_PAD_FACTOR 1.0
@@ -65,6 +66,7 @@ typedef enum {
     UIColor *brownC;
     UIColor *beigeC;
     NSMutableArray *allVenues;
+    SystemSoundID checkinSound;
     
 }
 //plist properties
@@ -821,6 +823,12 @@ typedef enum {
 #pragma mark - Load/Unload methods
 - (void) animateRewards : (NSTimeInterval) duration : (BOOL) withVideo
 {
+
+    NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"Good 3" ofType:@"mp3"];
+    NSURL *soundUrl = [NSURL fileURLWithPath:soundPath];
+    AudioServicesCreateSystemSoundID ((__bridge CFURLRef)soundUrl, &checkinSound);
+    AudioServicesPlaySystemSound(checkinSound);
+
     extrasView.hidden = NO;
     [UIView animateWithDuration:duration animations:^{
         CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, 320);

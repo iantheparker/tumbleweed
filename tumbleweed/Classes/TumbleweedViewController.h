@@ -10,10 +10,11 @@
 #import <CoreLocation/CoreLocation.h>
 #import "Scene.h"
 #import <QuartzCore/QuartzCore.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 
 
-@interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, UIGestureRecognizerDelegate, CLLocationManagerDelegate>
+@interface TumbleweedViewController : UIViewController <UIScrollViewDelegate, UIGestureRecognizerDelegate, CLLocationManagerDelegate, AVAudioPlayerDelegate>
 {
     NSMutableArray *parallaxLayers;
     UIView *mapCAView;
@@ -23,12 +24,22 @@
     IBOutlet UIButton *buttonContainer;
     NSMutableArray *scenes;
     IBOutlet UIButton *foursquareConnectButton;
+    
+    //audio
+    //SystemSoundID systemSound;
+    //AVAudioPlayer *_backgroundMusicPlayer;
+    BOOL _backgroundMusicPlaying;
+	BOOL _backgroundMusicInterrupted;
+	UInt32 _otherMusicIsPlaying;
  
 }
 
 
 //-- buttons
 @property (nonatomic, retain) UIButton *foursquareConnectButton;
+@property (nonatomic) SystemSoundID systemSound;
+@property (nonatomic, retain) AVAudioPlayer *_backgroundMusicPlayer;
+
 
 //-- instance methods
 - (void) gameState;
@@ -39,6 +50,10 @@
 - (void) handleSingleTap:(UIGestureRecognizer *)sender;
 - (void) handleDoubleTap:(UIGestureRecognizer *)sender;
 
+
+//audio
+- (void) tryPlayMusic;
+- (void) playSystemSound: (NSString*) name;
 
 
 @end

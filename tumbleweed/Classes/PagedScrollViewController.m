@@ -36,7 +36,10 @@
 
 - (void) handleSingleTap:(UIGestureRecognizer *)sender
 {
-    NSLog(@"just got tapped");
+    //NSLog(@"just got tapped");
+    float loc = self.scrollView.contentOffset.y;
+    //self.scrollView.contentOffset = CGPointMake(0, loc+10);
+    [self.scrollView setContentOffset:CGPointMake(0, loc+50) animated:YES];
 }
 
 
@@ -223,7 +226,7 @@
 }
 - (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-    //if (scrollView.contentOffset.y >= canvas_h - [[UIScreen mainScreen] bounds].size.width)
+    if (scrollView.contentOffset.y >= canvas_h - [[UIScreen mainScreen] bounds].size.width)
     {
         [self dismissViewControllerAnimated:NO completion:^{}];
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasSeenTutorial"];

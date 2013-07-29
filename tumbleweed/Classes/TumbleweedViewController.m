@@ -62,11 +62,13 @@
     UIImageView *forgotImage;
     UIScrollView *walkthroughSV;
     PagedScrollViewController *tutorial;
+    
 
 }
 
 @synthesize scrollView, map0CA, map1CA, map1BCA, map1CCA, map2CA, map4CA, map3CA, mapCAView, janeAvatar;
 @synthesize foursquareConnectButton, buttonContainer, blackPanel;
+@synthesize _backgroundMusicPlayer, systemSound;
 
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -327,15 +329,23 @@
 - (void) scenePressed:(UIButton *)sender
 {
     //[self presentViewController:[[scenes objectAtIndex:sender.tag] sceneVC] animated:YES completion:^{}];
+    NSString *soundName;
+    
     if (sender.selected)
     {
         NSString *hintCopy = @"It's locked. Come back later.";
         [self renderScreen:walkingForward :FALSE :TRUE];
         if (![[Tumbleweed sharedClient] tumbleweedId]) hintCopy = @"You've got to connect to Foursquare first. Hit the button all the way to the left.";
         [self launchHintPopUp:YES:hintCopy];
+        
+        //audio error sound
+        soundName = @"Btn 3";
     }
     else
     {
+        //audio success sound
+        soundName = @"Good 1";
+        
         [UIView animateWithDuration:0.50
                          animations:^{
                              [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
@@ -344,7 +354,17 @@
                          }];
     }
     
+    [self playSystemSound:soundName];
     
+}
+- (void) playSystemSound: (NSString*) name;
+{
+    NSString *soundPath = [[NSBundle mainBundle] pathForResource:name ofType:@"mp3"];
+    NSURL *soundUrl = [NSURL fileURLWithPath:soundPath];
+    AudioServicesCreateSystemSoundID ((__bridge CFURLRef)soundUrl, &systemSound);
+    AudioServicesPlaySystemSound(systemSound);
+    NSLog(@"system sound");
+
 }
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
@@ -401,6 +421,7 @@
     
 
     [self launchHintPopUp:hit:tipText];
+    if (hit) [self playSystemSound:@"Btn 1"];
 }
 - (void) handleDoubleTap:(UIGestureRecognizer *)sender
 {
@@ -417,32 +438,52 @@
             //[hintVC viewWithTag:2].layer.cornerRadius = 5.0;
         }
         hintVC.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, hintVC.bounds.size.height/2);
-        bubbleContainer.center = CGPointMake([[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x, bubbleContainer.bounds.size.height/2);;
+        bubbleContainer.center = CGPointMake(janeAvatar.position.x + janeAvatar.bounds.size.width, bubbleContainer.bounds.size.height/2);
+        //[[UIScreen mainScreen] applicationFrame].size.height/2 + scrollView.contentOffset.x
 
 
+        [self.view addSubview:bubbleContainer];
         UIImageView *bubble1 = (UIImageView*) [bubbleContainer viewWithTag:3];
         UIImageView *bubble2 = (UIImageView*) [bubbleContainer viewWithTag:4];
         UIImageView *bubble3 = (UIImageView*) [bubbleContainer viewWithTag:5];
         UIImageView *bubble4 = (UIImageView*) [bubbleContainer viewWithTag:6];
+        bubble1.transform = CGAffineTransformIdentity;
+        bubble2.transform = CGAffineTransformIdentity;
+        bubble3.transform = CGAffineTransformIdentity;
+        bubble4.transform = CGAffineTransformIdentity;
+
         bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);
         bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);
         bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);
         bubble4.transform = CGAffineTransformMakeScale(0.01, 0.01);
-        [self.view addSubview:bubbleContainer];
+        bubble1.alpha = 1;
+        bubble2.alpha = 0;
+        bubble3.alpha = 0;
+        bubble4.alpha = 0;
 
         
-        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
-            bubble1.transform = CGAffineTransformIdentity;
-        } completion:^(BOOL finished) {bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
-        [UIView animateWithDuration:0.2 delay:0.1 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
-            bubble2.transform = CGAffineTransformIdentity;
-        } completion:^(BOOL finished) {bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
-        [UIView animateWithDuration:0.2 delay:0.25 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
-            bubble3.transform = CGAffineTransformIdentity;
-        } completion:^(BOOL finished) {bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
-        [UIView animateWithDuration:0.2 delay:0.4 options:UIViewAnimationCurveEaseOut|UIViewAnimationOptionAutoreverse animations:^{
-            bubble4.transform = CGAffineTransformIdentity;
-        } completion:^(BOOL finished) {bubble4.transform = CGAffineTransformMakeScale(0.01, 0.01);}];
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bubble2.alpha = 1;
+            bubble1.transform = CGAffineTransformMakeScale(1, 1);
+        } completion:^(BOOL finished) {}];
+        [UIView animateWithDuration:0.2 delay:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bubble3.alpha = 1;
+            bubble2.transform = CGAffineTransformMakeScale(1, 1);
+            bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        } completion:^(BOOL finished) {}];
+        [UIView animateWithDuration:0.2 delay:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bubble4.alpha = 1;
+            bubble3.transform = CGAffineTransformMakeScale(1, 1);
+            bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        } completion:^(BOOL finished) {}];
+        [UIView animateWithDuration:0.2 delay:0.3 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            //bubble4.alpha = 1;
+            bubble4.transform = CGAffineTransformMakeScale(1, 1);
+            bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        } completion:^(BOOL finished) {}];
+        [UIView animateWithDuration:0.2 delay:0.4 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bubble4.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        } completion:^(BOOL finished) {}];
         
         
         hintVC.transform = CGAffineTransformMakeScale(0.001, 0.001);
@@ -466,6 +507,8 @@
         //hintVC.layer.transform = CATransform3DIdentity;
         
         [self renderScreen:walkingForward :FALSE :TRUE];
+        
+        
 
         
     }
@@ -608,6 +651,35 @@
     progressBarEmpty.contentsRect = CGRectMake(progressBarEmpty.bounds.origin.x/imageWidth, progressBarEmpty.bounds.origin.y/imageHeight, progressBarEmpty.bounds.size.width/imageWidth, progressBarEmpty.bounds.size.height/imageHeight);
     [progressLabel setString:[NSString stringWithFormat:@"%d more until the jig is up", 8-level]];
 
+}
+
+#pragma mark -
+#pragma mark audio
+
+- (void) audioPlayerBeginInterruption: (AVAudioPlayer *) player {
+	_backgroundMusicInterrupted = YES;
+	_backgroundMusicPlaying = NO;
+}
+
+- (void) audioPlayerEndInterruption: (AVAudioPlayer *) player {
+	if (_backgroundMusicInterrupted) {
+		[self tryPlayMusic];
+		_backgroundMusicInterrupted = NO;
+	}
+}
+
+- (void) tryPlayMusic {
+	
+	// Check to see if iPod music is already playing
+	UInt32 propertySize = sizeof(_otherMusicIsPlaying);
+	AudioSessionGetProperty(kAudioSessionProperty_OtherAudioIsPlaying, &propertySize, &_otherMusicIsPlaying);
+	
+	// Play the music if no other music is playing and we aren't playing already
+	if (_otherMusicIsPlaying != 1 && !_backgroundMusicPlaying) {
+		[_backgroundMusicPlayer prepareToPlay];
+		[_backgroundMusicPlayer play];
+		_backgroundMusicPlaying = YES;
+	}
 }
 
 #pragma mark -
@@ -1674,6 +1746,19 @@
          
     }
 
+    
+    NSError *setCategoryError = nil;
+	[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&setCategoryError];
+	
+	// Create audio player with background music
+	NSString *backgroundMusicPath = [[NSBundle mainBundle] pathForResource:@"Cobra Western BG 60" ofType:@"mp3"];
+	NSURL *backgroundMusicURL = [NSURL fileURLWithPath:backgroundMusicPath];
+	NSError *error;
+	_backgroundMusicPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:backgroundMusicURL error:&error];
+	[_backgroundMusicPlayer setDelegate:self];  // We need this so we can restart after interruptions
+	[_backgroundMusicPlayer setNumberOfLoops:-1];
+    [self tryPlayMusic];
+
 }
 
 
@@ -1689,6 +1774,7 @@
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"loggedIn" object:nil];
     [self gameState];
+    [self tryPlayMusic];
 
 }
 
