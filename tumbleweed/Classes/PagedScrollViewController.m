@@ -11,7 +11,7 @@
 #import <math.h>
 
 
-#define canvas_h 960
+#define canvas_h 640
 
 
 @implementation PagedScrollViewController{
@@ -20,11 +20,14 @@
     CALayer *cloud1Layer;
     CALayer *cloud2Layer;
     CALayer *tumbleweedLogo;
+    CADisplayLink *displayLink;
+    int middleWidth;
+    
 
 }
 
 @synthesize scrollView = _scrollView;
-@synthesize containerView, textContainer, text1, text2, text3;
+@synthesize containerView, textContainer, text1, text2, text3, text4;
 
 
 #pragma mark -
@@ -37,11 +40,29 @@
 - (void) handleSingleTap:(UIGestureRecognizer *)sender
 {
     //NSLog(@"just got tapped");
-    float loc = self.scrollView.contentOffset.y;
+    //float loc = self.scrollView.contentOffset.y;
     //self.scrollView.contentOffset = CGPointMake(0, loc+10);
-    [self.scrollView setContentOffset:CGPointMake(0, loc+50) animated:YES];
-}
+    //[self.scrollView setContentOffset:CGPointMake(0, loc+50) animated:YES];
+    [self.scrollView setContentOffset:CGPointMake(0, canvas_h/2) animated:YES];
+    
+    [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+        //self.scrollView.contentOffset = CGPointMake(0, canvas_h);
+        
+    } completion:^(BOOL finished) {
+        //
+    }];
 
+}
+-(void) updateScrollDisplay : (NSTimer*) timer
+{
+    float loc = self.scrollView.contentOffset.y;
+    if (loc <= 150 )
+        self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
+    else if ( loc >= 300 && loc <= 320)
+        self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
+    else
+        self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
+}
 
 -(void) renderParallax
 {
@@ -53,53 +74,111 @@
     CGPoint mapCenter = self.scrollView.center;
     //float offset = self.scrollView.contentOffset.y - mapCenter.y;
     float offset =  - self.scrollView.contentOffset.y;
-    float middleWidth = [[UIScreen mainScreen] bounds].size.height/2;
+    float middleHeight = ([[UIScreen mainScreen] bounds].size.width/2) - offset;
+    
+    text1.layer.speed = 4;
+    text2.layer.speed = 3;
+    text3.layer.speed = 2;
+    text4.layer.speed = 1;
+    float slowspeed = 0.2;
     
     tumbleweedLogo.transform = CATransform3DMakeRotation(offset*-M_PI_4*.2, 0, 0, 1);
 
-    //-sky position- CALayer - fix the hardcoded offset here
-    //float textCoefficient = 5.0;
-    //CGPoint cloud1Center = cloud1Layer.position;
-
-    CGPoint textCenter = CGPointMake(middleWidth, mapCenter.y - (pow(offset,7/3)) );
+    CGPoint textCenter = CGPointMake(middleWidth, mapCenter.y + (offset * 3) );
     [tWLogoLayer setPosition:textCenter];
-
     
     //-sky position- CALayer - fix the hardcoded offset here
-    float cloud1Coefficient = 1.8;
-    //CGPoint cloud1Center = cloud1Layer.position;
-    CGPoint cloud1Center = CGPointMake(middleWidth, mapCenter.y +(offset * cloud1Coefficient));
+    CGPoint cloud1Center = CGPointMake(middleWidth, mapCenter.y +(offset * cloud1Layer.speed));
     [cloud1Layer setPosition:cloud1Center];
     
     //--> layer1C position
-    //float cloud2Coefficient = 2.5;
     CGPoint cloud2Center = CGPointMake(middleWidth, mapCenter.y +(offset * cloud2Layer.speed));
     [cloud2Layer setPosition:cloud2Center];
     
+    CGPoint text1WindowPoint = [text1 convertPoint:self.scrollView.bounds.origin toView:self.view];
+    text1.alpha = pow(M_E, -pow((middleHeight - text1WindowPoint.y)/100, 4));
+    float text1speed = text1.layer.speed - (text1.layer.speed - slowspeed) * text1.alpha;
+    CGPoint text1Center = CGPointMake(middleWidth, text1.center.y + (offset * text1speed/20));
+    text1.center = text1Center;
+    //NSLog(@"windowpointY %f, text1CenterY %f, text1speed %f, text1alpha %f", middleHeight - text1WindowPoint.y, text1Center.y, text1speed, text1.alpha);
+
+
+    CGPoint text2WindowPoint = [text2 convertPoint:self.scrollView.bounds.origin toView:self.view];
+    text2.alpha = pow(M_E, -pow((middleHeight - text2WindowPoint.y)/100, 4));
+    float text2speed = text2.layer.speed - (text2.layer.speed - slowspeed) * text2.alpha;
+    CGPoint text2Center = CGPointMake(middleWidth, text2.center.y + (offset * text2speed/30));
+    text2.center = text2Center;
+    
+    CGPoint text3WindowPoint = [text3 convertPoint:self.scrollView.bounds.origin toView:self.view];
+    text3.alpha = pow(M_E, -pow((middleHeight - text3WindowPoint.y)/100, 4));
+    float text3speed = text3.layer.speed - (text3.layer.speed - slowspeed) * text3.alpha;
+    CGPoint text3Center = CGPointMake(middleWidth, text3.center.y + (offset * text3speed/30));
+    text3.center = text3Center;
+    
+    /*
+    CGPoint text4WindowPoint = [text4 convertPoint:self.scrollView.bounds.origin toView:self.view];
+    text4.alpha = pow(M_E, -pow((middleHeight - text4WindowPoint.y)/100, 4));
+    float text4speed = text4.layer.speed - (text4.layer.speed - slowspeed) * text4.alpha;
+    CGPoint text4Center = CGPointMake(middleWidth, text4.center.y + (offset * text4speed/50));
+    text4.center = text4Center;
+
+    
+    
+    basespeed = 100;
+    slowspeed = 40;
+    diffspeed = basespeed - slowspeed;
+    textspeed(y) = basespeed - diffspeed * alpha(y);
+    
+     e^-y
+     y = x-100  means it will peak at x = 100
+     
+     */
+    
+    
     [CATransaction commit];
     
-    //NSLog(@"rendering parallax");
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.title = @"Paged";
+    middleWidth = [[UIScreen mainScreen] bounds].size.height/2;
+
+    // Set up the content size of the scroll view
+    self.scrollView.decelerationRate = UIScrollViewDecelerationRateFast;
+    //CGSize pagesScrollViewSize = self.scrollView.frame.size;
+    self.scrollView.contentSize = CGSizeMake([[UIScreen mainScreen] bounds].size.width, canvas_h);
+    //bgImage.bounds = CGRectMake(0, 0, bgImage.image.size.width, bgImage.image.size.height);
+    CALayer *skyLayer = [CALayer layer];
+    UIImage *skybg = [UIImage imageNamed:@"intro_sky_texture_1280.jpg"];
+    skyLayer.anchorPoint = CGPointMake(0, 0);
+    
+    skyLayer.frame = CGRectMake(0, 0, skybg.size.width, skybg.size.height);
+    //set for iphone 4 size too
+    //skyLayer.position = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, canvas_h/2);
+    skyLayer.contents = (__bridge id)(skybg.CGImage);
+    //skyLayer.contentsGravity = kCAGravityBottomLeft;
+    [self.scrollView.layer insertSublayer:skyLayer atIndex:0];
     
     tWLogoLayer = [CALayer layer];
     tWLogoLayer.zPosition = 0;
     tWLogoLayer.frame = CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.height, [[UIScreen mainScreen] bounds].size.width);
-    [containerView.layer addSublayer:tWLogoLayer];
+    [self.view.layer addSublayer:tWLogoLayer];
     cloud1Layer = [CALayer layer];
     cloud1Layer.zPosition = 1;
+    cloud1Layer.speed = 1.8;
     cloud1Layer.frame = tWLogoLayer.frame;
-    [containerView.layer addSublayer:cloud1Layer];
+    [self.view.layer addSublayer:cloud1Layer];
     cloud2Layer = [CALayer layer];
     cloud2Layer.zPosition = 2;
     cloud2Layer.speed = 2.5;
     cloud2Layer.frame = tWLogoLayer.frame; //CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.height, [[UIScreen mainScreen] bounds].size.width);;
-    [containerView.layer addSublayer:cloud2Layer];
-    textContainer.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width*1.5);
+    [self.view.layer addSublayer:cloud2Layer];
+    
+    text1.center = CGPointMake(middleWidth, canvas_h/2);
+    text2.center = CGPointMake(middleWidth, canvas_h);
+    text3.center = CGPointMake(middleWidth, canvas_h*1.5);
+    //text4.center = CGPointMake(middleWidth, mapCenter.y +250);
     
     NSLog(@"cloud2 pos %f,%f", cloud2Layer.position.x, cloud2Layer.position.y);
     
@@ -119,12 +198,36 @@
     tumbleweedLogo.contents = (__bridge id)tumbleweedLogoImg.CGImage;
     [tumbleweedLogoType addSublayer:tumbleweedLogo];
     
-    for (int i = 1; i<=12; i++)
+    static const int cloudTotal = 12;
+    static const CGPoint cloudPos[cloudTotal] = {
+        
+        {103, 64},
+        {51, 370},
+        {457, 54},
+        {184, 129},
+        {340, 400},
+        {224, 263},
+        {392, 255},
+        {176, 70},
+        {295, 200},
+        {440, 30},
+        {95, 110},
+        {78, 223}
+    };
+    
+    
+    for (int i = 1; i<=cloudTotal; i++)
     {
+        //int randomPosX = [self getRandomNumberBetween:0 to:[[UIScreen mainScreen] bounds].size.height -100];
+        //int randomPosY = [self getRandomNumberBetween:0 to:[[UIScreen mainScreen] bounds].size.width ];
+        
+        //NSLog(@"{%d, %d}", randomPosX, randomPosY);
+        
         CALayer *cloud1 = [CALayer layer];
         UIImage *cloud1img = [UIImage imageNamed:[NSString stringWithFormat:@"cloud_%02d.png", i]];
         cloud1.bounds = CGRectMake(0, 0, cloud1img.size.width/2, cloud1img.size.height/2);
-        cloud1.position = CGPointMake(0, [self getRandomNumberBetween:0 to:[[UIScreen mainScreen] bounds].size.width *2 ]);
+        //cloud1.position = CGPointMake(0, (canvas_h / cloudTotal) * i);
+        cloud1.position = CGPointMake(0, cloudPos[i].y);
         CGImageRef cloud1imgref = [cloud1img CGImage];
         [cloud1 setContents:(__bridge id)cloud1imgref];
         //cloud1.name = @"cloud";
@@ -133,7 +236,8 @@
         
         CABasicAnimation *cloud1anim;
         cloud1anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.x"];
-        cloud1anim.fromValue = [NSNumber numberWithInt:[self getRandomNumberBetween:0 to:[[UIScreen mainScreen] bounds].size.height -100]];
+        //cloud1anim.fromValue = [NSNumber numberWithInt:([[UIScreen mainScreen] bounds].size.height/cloudTotal) * i];
+        cloud1anim.fromValue = [NSNumber numberWithInt:cloudPos[i].x];
         cloud1anim.toValue = [NSNumber numberWithInt:[[UIScreen mainScreen] bounds].size.height];
         cloud1anim.duration = [self getRandomNumberBetween:70 to:150]; //90 - 300?
         cloud1anim.autoreverses = YES;
@@ -146,39 +250,26 @@
         [cloud1anim setValue:@"cloud" forKey:@"tag"];
         [cloud1 addAnimation:cloud1anim forKey:[NSString stringWithFormat:@"cloud_%02d", i]];
         
+        
+        
     }
     [self renderParallax];
 
-    
-    [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
-        //[self.scrollView setContentOffset:CGPointMake(0, canvas_h) animated:NO];
-        //self.scrollView.contentOffset = CGPointMake(0, canvas_h);
-        
-    } completion:^(BOOL finished) {
-        //
-    }];
      
     UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
     tapHandler.numberOfTapsRequired = 1;
     [tapHandler setDelegate:self];
-    [self.scrollView addGestureRecognizer:tapHandler];
+    //[self.scrollView addGestureRecognizer:tapHandler];
     
+    displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateScrollDisplay:)];
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    // Set up the content size of the scroll view
-    self.scrollView.decelerationRate = UIScrollViewDecelerationRateFast;
-    //CGSize pagesScrollViewSize = self.scrollView.frame.size;
-    self.scrollView.contentSize = CGSizeMake([[UIScreen mainScreen] bounds].size.width, canvas_h);
-    //bgImage.bounds = CGRectMake(0, 0, bgImage.image.size.width, bgImage.image.size.height);
-    CALayer *skyLayer = [CALayer layer];
-    UIImage *skybg = [UIImage imageNamed:@"intro_sky_texture.jpg"];
-    skyLayer.bounds = CGRectMake(0, 0, skybg.size.width, skybg.size.height);
-    skyLayer.position = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, canvas_h/2);
-    skyLayer.contents = (__bridge id)(skybg.CGImage);
-    [self.scrollView.layer insertSublayer:skyLayer atIndex:0];
+
 
     
 }
@@ -199,38 +290,20 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     // Load the pages which are now on screen
-    [self renderParallax];
     
-    if (scrollView.contentOffset.y >= canvas_h - [[UIScreen mainScreen] bounds].size.width)
+    
+    if (scrollView.contentOffset.y == canvas_h - [[UIScreen mainScreen] bounds].size.width)
     {
         NSLog(@"over 960");
+        //self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         [self dismissViewControllerAnimated:NO completion:^{}];
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasSeenTutorial"];
+        [displayLink removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     }
-    else if (scrollView.contentOffset.y >= [[UIScreen mainScreen] bounds].size.width)
-    {
-        [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-            //[self.scrollView setContentOffset:CGPointMake(0, canvas_h) animated:YES];
-            //text1.center = CGPointZero;
-            
-        } completion:^(BOOL finished) {
-            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                //text2.center = CGPointZero;
-                
-            } completion:^(BOOL finished) {
-                //
-            }];
-        }];
-    }
+
     
-}
-- (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
-    if (scrollView.contentOffset.y >= canvas_h - [[UIScreen mainScreen] bounds].size.width)
-    {
-        [self dismissViewControllerAnimated:NO completion:^{}];
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasSeenTutorial"];
-    }
+    [self renderParallax];
+    
 }
 
 

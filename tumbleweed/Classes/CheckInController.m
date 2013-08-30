@@ -112,6 +112,7 @@
                 [Foursquare addPhoto:[photoButton imageForState:UIControlStateSelected] checkin:checkInId broadcast:_broadcastType];
             }
             [sceneControllerId animateRewards:1:YES];
+            sceneControllerId.successfulVenueName = venueNameLabel.text;
             //NSLog(@"foursquare checkinresponse %@", checkInResponse);
             
         }

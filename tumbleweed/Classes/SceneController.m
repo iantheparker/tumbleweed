@@ -14,6 +14,7 @@
 #import "RegionAnnotation.h"
 #import "RegionAnnotationView.h"
 #import <AudioToolbox/AudioToolbox.h>
+#import "MCSpriteLayer.h"
 
 #define MINIMUM_ZOOM_ARC 0.008 //approximately 1 miles (1 degree of arc ~= 69 miles)
 #define ANNOTATION_REGION_PAD_FACTOR 1.0
@@ -48,11 +49,11 @@ typedef enum {
 -(void) launchCheckinVC: (id)sender : (NSDictionary*) dict;
 -(IBAction) launchBonusWebView;
 -(void) willPresentError:(NSError *)error;
--(void) updateTimer:(NSTimer *)timer;
--(void) killTimer;
 - (void) processVenues: (NSInteger) searchType : (NSArray *) items : (NSError*) err;
-- (void) searchSetup : (NSInteger) searchType;
-- (void) addDistanceMonitoringRegion : (CLLocation*) toLocation;
+- (void) searchSetup;
+- (void) tapSpriteLoader;
+- (void) tapSpriteAdvancer: (unsigned int) tapNum;
+- (void) removeTapView;
 
 @end
 
@@ -60,13 +61,16 @@ typedef enum {
 @implementation SceneController {
 @private
     CLLocationCoordinate2D userCoordinate;
-    NSTimer *countDownTimer;
-    int currentTime;
     UIColor *redC;
     UIColor *brownC;
     UIColor *beigeC;
     NSMutableArray *allVenues;
     SystemSoundID checkinSound;
+    unsigned int tapNumber;
+    BOOL tappedOut;
+    UITapGestureRecognizer *tapHandler;
+    UIView *tapView;
+    UIView *tapSubView;
     
 }
 //plist properties
@@ -77,7 +81,7 @@ typedef enum {
 //checkin properties
 @synthesize venueScrollView, venueDetailNib, venueView, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
 //generic properties
-@synthesize sceneScrollView, sceneTitle, checkInIntructions, movieThumbnailButton, extrasView, moviePlayer;
+@synthesize sceneScrollView, sceneTitle, unlockCopy, movieThumbnailButton, extrasView, moviePlayer, movieView, checkinButton, successfulVenueName, checkinInstructions, sceneTitleIV, playButton;
 
 
 - (id) initWithScene:(Scene *) scn
@@ -111,32 +115,21 @@ typedef enum {
                          [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp forView:self.navigationController.view cache:NO];
                      } completion:^(BOOL finished) {}];
     [self.navigationController popViewControllerAnimated:NO];
+    NSLog(@"dismissing view");
 }
 - (void) launchCheckinVC: (id)sender : (NSDictionary*) dict
 {
-    NSDictionary *launchDict;
-    if ([sender isKindOfClass:[UIButton class]]) {
-        [(UIButton*)sender setSelected:YES];
-        [(UIButton*)sender setBackgroundColor:redC];
-        launchDict = [NSDictionary dictionaryWithDictionary:[allVenues objectAtIndex:[(UIButton*)sender tag]]];
-    }
-    else
-    {
-        launchDict = [NSDictionary dictionaryWithDictionary:dict];
-    }
+    NSDictionary *launchDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                ((FoursquareAnnotation*)[[mvFoursquare selectedAnnotations] objectAtIndex:0]).venueId, @"id",
+                                ((FoursquareAnnotation*)[[mvFoursquare selectedAnnotations] objectAtIndex:0]).title, @"name", nil];
     NSLog(@"venue name %@ : id %@", [launchDict objectForKey:@"name"], [launchDict objectForKey:@"id"]);
     CheckInController *checkIn = [[CheckInController alloc] initWithSenderId:self];
     [checkIn setVenueDetails:launchDict];
-    //[self presentViewController:checkIn animated:YES completion:^{}];
     [UIView animateWithDuration:0.50
                      animations:^{
                          [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
                          [self.navigationController pushViewController:checkIn animated:YES];
-                         //[UIView setAnimationTransition:UIViewAnimationTransitionNone forView:self.navigationController.view cache:NO];
-                     } completion:^(BOOL finished) {
-                         [(UIButton*)sender setSelected:NO];
-                         [(UIButton*)sender setBackgroundColor:[UIColor clearColor]];
-                     }];
+                     } completion:^(BOOL finished) {}];
 }
 - (void) launchBonusWebView
 {
@@ -151,6 +144,12 @@ typedef enum {
     NSURL *movieURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:movieName
                                                                              ofType:@"mp4"]];
     moviePlayer = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
+    
+    // prevent mute switch from switching off audio from movie player
+    NSError *_error = nil;
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
+    
+    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
 
     /*
     moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
@@ -173,18 +172,14 @@ typedef enum {
 
     
     
-    // prevent mute switch from switching off audio from movie player
-    NSError *_error = nil;
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
     
-    //[self presentMoviePlayerViewControllerAnimated:moviePlayer];
      
     [[moviePlayer moviePlayer] prepareToPlay];
     [[moviePlayer moviePlayer] setUseApplicationAudioSession:YES];
     [[moviePlayer moviePlayer] setShouldAutoplay:YES];
     [[moviePlayer moviePlayer] setControlStyle:2];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoPlayBackDidFinish:) name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer.moviePlayer];
-    [self presentMoviePlayerViewControllerAnimated:moviePlayer];*/
+    [self presentMoviePlayerViewControllerAnimated:moviePlayer];
     
     // Initialize the movie player view controller with a video URL string
     MPMoviePlayerViewController *playerVC = [[MPMoviePlayerViewController alloc] initWithContentURL:movieURL];
@@ -214,6 +209,7 @@ typedef enum {
     // Start playback
     [playerVC.moviePlayer prepareToPlay];
     [playerVC.moviePlayer play];
+     */
 
 }
 - (void)movieExitFullscreen:(NSNotification*)aNotification
@@ -221,7 +217,6 @@ typedef enum {
     NSLog(@"inside of movieExitFullscreen");
 
 }
-
 - (void)movieFinishedCallback:(NSNotification*)aNotification
 {
     NSLog(@"inside of moviefinishedcallback");
@@ -242,7 +237,8 @@ typedef enum {
         [self dismissModalViewControllerAnimated:YES];
     }
 }
-- (void) videoPlayBackDidFinish: (NSNotification*) notification {
+- (void) videoPlayBackDidFinish: (NSNotification*) notification
+{
     /*
     if ([[notification userInfo] objectForKey:MPMoviePlayerDidExitFullscreenNotification]) {
         
@@ -287,7 +283,7 @@ typedef enum {
 {
     self.venueSVPos -= 1;
 }
--(void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+- (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     self.venueSVPos = venueScrollView.contentOffset.x / venueScrollView.frame.size.width;
 }
@@ -327,9 +323,6 @@ typedef enum {
         }
     }
     NSLog(@"venuesvpos = %i", venueSVPos);
-    
-    //update pagecontrol
-    pageControl.currentPage = venueSVPos;
 
 }
 #pragma mark -
@@ -413,6 +406,7 @@ typedef enum {
 		
 		if (!regionView) {
 			regionView = [[RegionAnnotationView alloc] initWithAnnotation:annotation];
+            
 			regionView.map = mapView;
             
 			
@@ -526,22 +520,11 @@ typedef enum {
     region.center.latitude += MAP_LATITUDE_OFFSET;
     [mapView setRegion:region animated:animated];
 }
-- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay {
-	if([overlay isKindOfClass:[MKCircle class]]) {
-		// Create the view for the radius overlay.
-		MKCircleView *circleView = [[MKCircleView alloc] initWithOverlay:overlay];
-		circleView.strokeColor = [UIColor purpleColor];
-		circleView.fillColor = [[UIColor purpleColor] colorWithAlphaComponent:0.4];
-		
-		return circleView;
-	}
-	
-	return nil;
-}
+
 
 #pragma mark -
 #pragma mark - SearchView methods
-- (void) searchSetup  : (NSInteger) searchType
+- (void) searchSetup
 {
     NSLog(@"search setup");
     
@@ -567,25 +550,25 @@ typedef enum {
     [locationManagerRC retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
         userCoordinate = [newLocation coordinate];
 
-        if (searchType == kExplore) {
+        if ([sceneTypeName isEqualToString:@"FSQexplorenew"]) {
             [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId WithBlock:^(NSArray *venues, NSError *error) {
                 if (error) {
                     NSLog(@"error %@", error);
                 }
-                [self processVenues:searchType:venues :error];
+                [self processVenues:kExplore:venues :error];
             }];
         }
-        else if (searchType == kSearch) {
+        else if ([sceneTypeName isEqualToString:@"FSQsearch"]) {
             [Foursquare searchVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude categoryId:categoryId WithBlock:^(NSArray *venues, NSError *error) {
                 if (error) {
                     NSLog(@"error %@", error);
                 }
-                [self processVenues:searchType:venues :error];
+                [self processVenues:kSearch:venues :error];
             }];
         }
         
     } errorBlock:^(CLLocationManager *manager, NSError *error) {
-        [self processVenues:searchType:nil :error];
+        [self processVenues:0:nil :error];
     }];
     
     
@@ -707,8 +690,7 @@ typedef enum {
     }
     [venueScrollView.subviews makeObjectsPerformSelector:@selector(setNeedsDisplay)];
     self.venueSVPos = 0;
-    //update pagecontrol
-    pageControl.numberOfPages = [allVenues count];
+
 
 }
 - (IBAction)refreshSearch:(id)sender
@@ -727,123 +709,241 @@ typedef enum {
                      }];
     
 }
-#pragma mark -
-#pragma mark - Timer methods
--(void) killTimer
-{
-    [countDownTimer invalidate];
-}
--(void)updateTimer:(NSTimer *)timer
-{
-    currentTime -= 1 ;
-    if(currentTime <=0){
-        [countDownTimer invalidate];
-        [self animateRewards:1:YES];
-        [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
-    }else
-        [self populateLabelwithTime:currentTime];
 
-}
-- (void)populateLabelwithTime:(int)seconds
-{
-    if ([activityIndicator isAnimating]) {
-        [activityIndicator stopAnimating];
-    }
-    
-    int minutes = seconds / 60;
-    int hours = minutes / 60;
-    
-    seconds -= minutes * 60;
-    minutes -= hours * 60;
-    
-    NSString * result1 = [NSString stringWithFormat:@"%02d:%02d:%02d", hours, minutes, seconds];
-    timerLabel.text = result1;
-    
-}
-#pragma mark - 
-#pragma mark - Distance methods
-- (void) addDistanceMonitoringRegion : (CLLocation*) toLocation
-{
-    [activityIndicator stopAnimating];
-    if ([RCLocationManager regionMonitoringAvailable]) {    
-        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(toLocation.coordinate.latitude, toLocation.coordinate.longitude);
-        CLRegion *newRegion = [[CLRegion alloc] initCircularRegionWithCenter:coord
-                                                                      radius:DISTANCE_UNLOCK_RADIUS
-                                                                  identifier:[NSString stringWithFormat:@"%f, %f", toLocation.coordinate.latitude, toLocation.coordinate.longitude]];
-        
-        // Create an annotation to show where the region is located on the map.
-        RegionAnnotation *myRegionAnnotation = [[RegionAnnotation alloc] initWithCLRegion:newRegion];
-        myRegionAnnotation.coordinate = newRegion.center;
-        myRegionAnnotation.radius = newRegion.radius;
-        [mvFoursquare addAnnotation:myRegionAnnotation];
-        
-        MKCoordinateRegion userLocation = MKCoordinateRegionMakeWithDistance(toLocation.coordinate, 2.5 * DISTANCE_UNLOCK_RADIUS, 2.5 * DISTANCE_UNLOCK_RADIUS);
-        [mvFoursquare setRegion:userLocation animated:YES];
-        mvFoursquare.showsUserLocation = YES;
-        mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
-        
-        // Start monitoring the newly created region.
-        [[RCLocationManager sharedManager] addRegionForMonitoring:newRegion desiredAccuracy:kCLLocationAccuracyBest updateBlock:^(CLLocationManager *manager, CLRegion *region, BOOL enter) {
-            if (enter) {
-                NSLog(@"Enter to region %@", region);
-                
-            } else {
-                NSLog(@"Exit from region %@", region);
-                [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
-                [[RCLocationManager sharedManager] stopMonitoringAllRegions];
-                [self animateRewards:1:YES];
-            }
-            
-        } errorBlock:^(CLLocationManager *manager, CLRegion *region, NSError *error) {
-            NSLog(@"Error: %@", [error localizedDescription]);
-            [self processVenues:0 :nil :error];
-        }];
-        
-	}
-	else {
-		NSLog(@"Region monitoring is not available.");
-	}
-    
-    [[RCLocationManager sharedManager] startUpdatingLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
-        [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-        float distance = DISTANCE_UNLOCK_RADIUS-[[[Tumbleweed sharedClient] lastKnownLocation] distanceFromLocation:newLocation];
-        if (distance <= 0) {
-            [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
-            [[RCLocationManager sharedManager] stopMonitoringAllRegions];
-            [[RCLocationManager sharedManager] stopUpdatingLocation];
-            [self animateRewards:1:YES];
-        }
-        timerLabel.text = [NSString stringWithFormat:@"%.f meters to go", distance];
-    } errorBlock:^(CLLocationManager *manager, NSError *error) {
-        [self processVenues:0 :nil :error];
-    }];
-
-}
 #pragma mark -
 #pragma mark - Load/Unload methods
+- (void) removeTapView
+{
+    [tapView removeFromSuperview];
+    [sceneScrollView removeGestureRecognizer:tapHandler];
+    tappedOut = YES;
+    [self refreshView];
+}
+- (void) tapSpriteLoader
+{
+    tapView = [[[NSBundle mainBundle] loadNibNamed:@"03_Bar" owner:self options:nil] objectAtIndex:0];
+    [sceneSVView addSubview:tapView];
+    tapView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2);
+}
+- (void) tapSpriteAdvancer: (unsigned int) tapNum
+{
+    
+    if ([movieName isEqualToString:@"03_Bar"])
+    {
+        //NSLog(@"hiih");
+        CGPoint screencenter = CGPointMake([UIScreen mainScreen].bounds.size.height/2, [UIScreen mainScreen].bounds.size.width/2);
+
+        switch (tapNum) {
+            case 1:
+            {
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:1];
+                tapLabelPrevious.text = @"so tell me";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.minimumFontSize = 50;
+                tapLabelPrevious.adjustsFontSizeToFitWidth = YES;
+                tapLabelPrevious.adjustsLetterSpacingToFitWidth = YES;
+                tapLabelPrevious.textAlignment = NSTextAlignmentCenter;
+                [tapLabelPrevious setTextColor:redC];
+                tapLabelPrevious.center = CGPointMake(tapLabelPrevious.center.x, tapLabelPrevious.center.y-30);
+            }
+                break;
+                
+            case 2:
+            {
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:3];
+                tapLabelPrevious.text = @"have you ever had to";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.textAlignment = NSTextAlignmentLeft;
+                tapLabelPrevious.center = CGPointMake(tapLabelPrevious.center.x,[tapView viewWithTag:1].center.y + 70);
+                [tapLabelPrevious setTextColor:redC];
+
+            }
+                break;
+            case 3:
+            {
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:4];
+                tapLabelPrevious.text = @"sell your soul?";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.textAlignment = NSTextAlignmentRight;
+                tapLabelPrevious.center = CGPointMake(tapLabelPrevious.center.x,[tapView viewWithTag:3].center.y - 1.6);
+                [tapLabelPrevious setTextColor:redC];
+                
+            }
+                break;
+            case 4:
+            {
+                [tapView viewWithTag:4].hidden = YES;
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:1];
+                tapLabelPrevious.text = @"what's it";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.textAlignment = NSTextAlignmentLeft;
+                tapLabelPrevious.center = CGPointMake(tapLabelPrevious.center.x+84,[UIScreen mainScreen].bounds.size.width-40);
+                [tapLabelPrevious setTextColor:redC];
+                
+                UILabel *tapLabelCurrent = (UILabel*)[tapView viewWithTag:3];
+                tapLabelCurrent.text = @"worth";
+                [tapLabelCurrent setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                tapLabelCurrent.numberOfLines = 1;
+                tapLabelCurrent.textAlignment = NSTextAlignmentCenter;
+                tapLabelCurrent.center = CGPointMake(tapLabelCurrent.center.x,tapLabelPrevious.center.y-1.6);
+
+                
+            }
+                break;
+            case 5:
+            {
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:4];
+                tapLabelPrevious.hidden = NO;
+                tapLabelPrevious.text = @"to you?";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.textAlignment = NSTextAlignmentRight;
+                tapLabelPrevious.center = CGPointMake(tapLabelPrevious.center.x-94,[tapView viewWithTag:1].center.y);
+                [tapLabelPrevious setTextColor:redC];
+                
+            }
+                break;
+            
+            case 6:
+            {
+                [tapView viewWithTag:4].hidden = YES;
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:1];
+                tapLabelPrevious.text = @"would you strike a";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.textAlignment = NSTextAlignmentLeft;
+                tapLabelPrevious.center = CGPointMake(screencenter.x,screencenter.y);
+                [tapLabelPrevious setTextColor:redC];
+                
+                UILabel *tapLabelCurrent = (UILabel*)[tapView viewWithTag:3];
+                tapLabelCurrent.text = @"deal?";
+                [tapLabelCurrent setFont:[UIFont fontWithName:@"Rockwell-bold" size:40]];
+                tapLabelCurrent.numberOfLines = 1;
+                tapLabelCurrent.textAlignment = NSTextAlignmentRight;
+                tapLabelCurrent.center = CGPointMake(tapLabelPrevious.center.x-27,tapLabelPrevious.center.y+4.3);
+                
+                
+            }
+                break;
+                /*
+            case 7:
+            {
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:4];
+                tapLabelPrevious.hidden = NO;
+                tapLabelPrevious.text = @"?";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.textAlignment = NSTextAlignmentRight;
+                tapLabelPrevious.center = CGPointMake([tapView viewWithTag:1].center.x,[tapView viewWithTag:1].center.y);
+                [tapLabelPrevious setTextColor:redC];
+                
+            }
+                break;
+            */
+            case 7:
+            {
+                [tapView viewWithTag:3].hidden = YES;
+                [tapView viewWithTag:4].hidden = YES;
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:1];
+                tapLabelPrevious.text = @"IF YOU DO";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.minimumFontSize = 50;
+                tapLabelPrevious.adjustsFontSizeToFitWidth = YES;
+                tapLabelPrevious.adjustsLetterSpacingToFitWidth = YES;
+                tapLabelPrevious.textAlignment = NSTextAlignmentCenter;
+                [tapLabelPrevious setTextColor:redC];
+                tapLabelPrevious.center = CGPointMake(screencenter.x, screencenter.y-30);
+            }
+                break;
+                
+            case 8:
+            {
+                UILabel *tapLabelPrevious = (UILabel *)[tapView viewWithTag:3];
+                tapLabelPrevious.hidden = NO;
+                tapLabelPrevious.text = @"you better be damn sure to get a receipt";
+                [tapLabelPrevious setFont:[UIFont fontWithName:@"Rockwell" size:25]];
+                tapLabelPrevious.numberOfLines = 1;
+                tapLabelPrevious.minimumFontSize = 50;
+                tapLabelPrevious.adjustsFontSizeToFitWidth = YES;
+                tapLabelPrevious.adjustsLetterSpacingToFitWidth = YES;
+                tapLabelPrevious.textAlignment = NSTextAlignmentCenter;
+                [tapLabelPrevious setTextColor:redC];
+                tapLabelPrevious.center = CGPointMake([tapView viewWithTag:1].center.x, [tapView viewWithTag:1].center.y + 70);
+            }
+                break;
+                
+            case 9:
+            {
+                [self removeTapView];
+            }
+                break;
+        }
+    }
+    
+    
+    
+}
+
+- (void) handleSingleTap:(UIGestureRecognizer *)sender
+{
+    tapNumber++;
+    NSLog(@"tapnumber = %d", tapNumber);
+    switch (tapNumber) {
+        case 1:
+        {
+            [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                movieView.alpha = 0;
+            } completion:^(BOOL finished) {
+                [movieView removeFromSuperview];
+                [self tapSpriteLoader];
+                [self tapSpriteAdvancer:tapNumber];
+            }];
+        }
+            break;
+        default:
+        {
+            [self tapSpriteAdvancer:tapNumber];
+        }
+            break;
+            
+        
+    }
+}
 - (void) animateRewards : (NSTimeInterval) duration : (BOOL) withVideo
 {
+    NSLog(@"hitting animate rewards");
 
-    NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"Good 3" ofType:@"mp3"];
-    NSURL *soundUrl = [NSURL fileURLWithPath:soundPath];
-    AudioServicesCreateSystemSoundID ((__bridge CFURLRef)soundUrl, &checkinSound);
-    AudioServicesPlaySystemSound(checkinSound);
+    //check if it's already unlocked - it's playing twice at the moment
+    if (duration ==1 ) {
+        NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"Good 3" ofType:@"mp3"];
+        NSURL *soundUrl = [NSURL fileURLWithPath:soundPath];
+        AudioServicesCreateSystemSoundID ((__bridge CFURLRef)soundUrl, &checkinSound);
+        AudioServicesPlaySystemSound(checkinSound);
+    }
+    
 
-    extrasView.hidden = NO;
+    unlockCopy.hidden = NO;
+    sceneTitleIV.hidden = NO;
+    movieThumbnailButton.enabled = YES;
+    playButton.enabled = YES;
+    [self.view addSubview:movieView];
     [UIView animateWithDuration:duration animations:^{
-        CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, 320);
-        sceneScrollView.contentSize = screenSize;
-        checkInIntructions.alpha = 0.0;
-        contentView.layer.opacity = 0.0;
+        searchView.alpha = 0;
+        movieView.alpha = 1;
+        unlockCopy.text = [NSString stringWithFormat:@"unlocked at: %@", successfulVenueName];
     } completion:^(BOOL finished) {
-        [contentView removeFromSuperview];
-        [checkInIntructions removeFromSuperview];
+        [searchView removeFromSuperview];
+        [self.view addSubview:movieView];
         [UIView transitionWithView:movieThumbnailButton
-                          duration:0.4f
+                          duration:0.7f
                            options:UIViewAnimationOptionTransitionCrossDissolve
                         animations:^{
-                            movieThumbnailButton.enabled = YES;
-                            extrasView.alpha = 1.0;
+                            
                             
                         } completion:^(BOOL finished){
                             if (withVideo)[self playVideo:nil];
@@ -892,92 +992,41 @@ typedef enum {
 - (void) refreshView
 {
     NSLog(@"refreshing view");
+    tapNumber = 0;
+    
     if ([sceneTypeName isEqualToString:@"Empty"])
     {
-        movieThumbnailButton.enabled = YES;
-        if ([movieName isEqualToString:@"intro"]) {
-            [contentView addSubview:introView];
-            introView.center = CGPointMake(contentView.bounds.size.width/2, introView.center.y);
-            for (UILabel *loopLabel in introView.subviews) {
-                if ([loopLabel isKindOfClass:[UILabel class]]) {
-                    loopLabel.font = [UIFont fontWithName:@"rockwell" size:loopLabel.font.pointSize];
-                    loopLabel.textColor = brownC;
-                }
-            }
+        
+        if ([movieName isEqualToString:@"intro"])
+        {
+            if (!tappedOut) return;
+            [self animateRewards:0:NO];
+
         }
         else if ([movieName isEqualToString:@"campfire"])
         {
+            if (!tappedOut) return;
             [self animateRewards:0:NO];
+            extrasView.hidden = NO;
+
         }
-        
     }
     else
     {
-        if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards:1:NO];
-        else
+        if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards:0:NO];
+        else if ([sceneTypeName isEqualToString:@"Timer"] || [sceneTypeName isEqualToString:@"FSQdistance"])
         {
-            if ([sceneTypeName isEqualToString:@"FSQsearch"])
-            {
-                [contentView addSubview:searchView];
-                searchView.center = CGPointMake(contentView.bounds.size.width/2, searchView.center.y);
-                venueScrollView.delegate = self;
-                [self searchSetup:kSearch];
-            }
-            else if ([sceneTypeName isEqualToString:@"Timer"])
-            {
-                [activityIndicator startAnimating];
-                [contentView addSubview:timerLabel];
-                timerLabel.center = CGPointMake(contentView.bounds.size.width/2, timerLabel.center.y);
-                [contentView addSubview:activityIndicator];
-                sceneScrollView.contentSize = CGSizeMake(sceneScrollView.contentSize.width, 320);
-
-                if (![[Tumbleweed sharedClient] lastLevelUpdate]) {
-                    [[Tumbleweed sharedClient] setLastLevelUpdate:[NSDate date]];
-                }
-                currentTime = 1000 + (int)[[[Tumbleweed sharedClient] lastLevelUpdate] timeIntervalSinceNow];
-                [countDownTimer invalidate];
-                countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
-                
-            }
-            else if ([sceneTypeName isEqualToString:@"FSQexplorenew"])
-            {
-                [contentView addSubview:searchView];
-                searchView.center = CGPointMake(contentView.bounds.size.width/2, searchView.center.y);
-                venueScrollView.delegate = self;
-                [self searchSetup:kExplore];
-
-            }
-            else if ([sceneTypeName isEqualToString:@"FSQdistance"])
-            {
-                [contentView addSubview:searchView];
-                searchView.center = CGPointMake(contentView.bounds.size.width/2, searchView.center.y);
-                [contentView addSubview:timerLabel];
-                timerLabel.center = CGPointMake(contentView.bounds.size.width/2, timerLabel.center.y);
-                [activityIndicator startAnimating];
-                [leftScroll removeFromSuperview];
-                [rightScroll removeFromSuperview];
-                [[RCLocationManager sharedManager] stopMonitoringAllRegions];
-                
-                if ([[Tumbleweed sharedClient] lastKnownLocation]) {
-                    [self addDistanceMonitoringRegion: [[Tumbleweed sharedClient] lastKnownLocation]];
-                }
-                else{
-                    [[RCLocationManager sharedManager] retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
-                        [[Tumbleweed sharedClient] setLastKnownLocation:newLocation];
-                        [self addDistanceMonitoringRegion:newLocation];
-                        NSLog(@"retriveloc for add region");
-                    } errorBlock:^(CLLocationManager *manager, NSError *error) {
-                        NSLog(@"addregion error 1");
-                        [self processVenues:0 :nil :error];
-                    }];
-                }
-                
-                
-            }
+            if (!tappedOut) return;
+            [self animateRewards:0:NO];
+            [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
+        }
+        else {
+            if (!tappedOut) return;
+            [self.view addSubview:searchView];
+            searchView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2);
+            [self searchSetup];
         }
     }
-    
-    
 }
 
 #pragma mark -
@@ -992,14 +1041,17 @@ typedef enum {
     redC = [UIColor colorWithRed:212.0/255.0 green:83.0/255.0 blue:88.0/255.0 alpha:1.0];
     beigeC = beigeC = [UIColor colorWithRed:163.0/255.0 green:151.0/255.0 blue:128.0/255.0 alpha:1.0];
         
-    sceneTitle.text = name;
-    sceneTitle.font = [UIFont fontWithName:@"rockwell-bold" size:30];
-    [sceneTitle setTextColor:brownC];
-    checkInIntructions.font = [UIFont fontWithName:@"rockwell" size:18];
-    [checkInIntructions setTextColor:brownC];
-    checkInIntructions.text = checkInCopy;
-    [timerLabel setFont:[UIFont fontWithName:@"rockwell" size:26]];
-    [timerLabel setTextColor:beigeC];
+    unlockCopy.font = [UIFont fontWithName:@"rockwell" size:16];
+    [unlockCopy setTextColor:beigeC];
+    checkinInstructions.font = [UIFont fontWithName:@"rockwell-bold" size:25];
+    checkinInstructions.text = checkInCopy;
+    [checkinInstructions setTextColor:brownC];
+    sceneTitleIV.image = [UIImage imageNamed:[_scene.pListDetails objectForKey:@"movieTextOn"]];
+    if ([_scene.pListDetails objectForKey:@"movieTextOff"]) {
+        [playButton setImage:[UIImage imageNamed:[_scene.pListDetails objectForKey:@"movieTextOff"]] forState:UIControlStateDisabled];
+    }
+    [playButton addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchDown];
+
     
     //movieButton settings
     {
@@ -1007,15 +1059,13 @@ typedef enum {
         UIImage *buttonImg = [UIImage imageNamed:imgName1];
         [movieThumbnailButton setImage:buttonImg forState:UIControlStateNormal];
         
-        NSString *imgName2 =[_scene.pListDetails objectForKey:@"movieButtonPressed"];
-        UIImage *buttonImg2 = [UIImage imageNamed:imgName2];
-        [movieThumbnailButton setImage:buttonImg2 forState:UIControlStateHighlighted];
-        
         if ([_scene.pListDetails objectForKey:@"movieButtonOff"]) {
             NSString *imgName3 =[_scene.pListDetails objectForKey:@"movieButtonOff"];
             UIImage *buttonImg3 = [UIImage imageNamed:imgName3];
             [movieThumbnailButton setImage:buttonImg3 forState:UIControlStateDisabled];
         }
+        
+        movieThumbnailButton.imageView.layer.cornerRadius = 15.0;
     }
     
     [sceneSVView.layer setContents:(__bridge id)[[UIImage imageNamed:@"check-in_bg.jpg"] CGImage]];
@@ -1024,7 +1074,14 @@ typedef enum {
     if ([sceneSVView.subviews containsObject:contentView]) sceneScrollView.contentSize = screenSize;
     [sceneScrollView addSubview:sceneSVView];
     
+    tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
+    tapHandler.numberOfTapsRequired = 1;
+    [tapHandler setDelegate:self];
+    [sceneSVView addGestureRecognizer:tapHandler];
+    
     mvFoursquare.layer.cornerRadius = 10.0;
+    
+    [checkinButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchDown];
     
     [self refreshView];
 }
@@ -1045,9 +1102,7 @@ typedef enum {
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[RCLocationManager sharedManager] stopUpdatingLocation];
-    [[RCLocationManager sharedManager] stopMonitoringAllRegions];
     [Foursquare cancelSearchVenues];
-    [self killTimer];
     
     [locationManager stopUpdatingLocation];
     

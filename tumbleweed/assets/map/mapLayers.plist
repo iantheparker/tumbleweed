@@ -155,7 +155,7 @@
 			<key>buttonPosition</key>
 			<string>{11720, 105}</string>
 			<key>name</key>
-			<string>Who wants to play hangman?</string>
+			<string>Who wants to play hangman? Not it.</string>
 		</dict>
 		<key>campfire</key>
 		<dict/>
@@ -176,20 +176,11 @@
 		<key>oil gate bush</key>
 		<dict>
 			<key>img</key>
-			<string>cactus_bush.png2</string>
-			<key>position</key>
-			<string>{4150, 280}</string>
-			<key>name</key>
-			<string>Just a bush. So what?</string>
-		</dict>
-		<key>oil gate bush - 2</key>
-		<dict>
-			<key>img</key>
 			<string>cactus_bush.png</string>
 			<key>position</key>
 			<string>{3600, 310}</string>
 			<key>name</key>
-			<string>You&apos;ve got a thing for bush, huh?</string>
+			<string>A bird in the hand is worth two in the...</string>
 		</dict>
 		<key>fence</key>
 		<dict>
@@ -205,7 +196,7 @@
 			<key>position</key>
 			<string>{4250, 280}</string>
 			<key>name</key>
-			<string>Rest in peace, my ass.</string>
+			<string>I&apos;ve got a lot of family buried here. They&apos;ve been haunting me a bit too much lately.</string>
 		</dict>
 		<key>rock_end</key>
 		<dict>
@@ -230,7 +221,7 @@
 			<key>position</key>
 			<string>{3270, 265}</string>
 			<key>name</key>
-			<string>Don&apos;t trip, homie!</string>
+			<string>Wet rocks. Don&apos;t slip, homie!</string>
 		</dict>
 	</dict>
 	<key>mapLayer2</key>
@@ -239,13 +230,6 @@
 		<string>{1, 1}</string>
 		<key>zPosition</key>
 		<integer>1</integer>
-		<key>stump posts</key>
-		<dict>
-			<key>img</key>
-			<string>stump_posts_back.png2</string>
-			<key>position</key>
-			<string>{3860, 220}</string>
-		</dict>
 		<key>bar</key>
 		<dict>
 			<key>img</key>
@@ -269,7 +253,7 @@
 			<key>position</key>
 			<string>{2705, 115}</string>
 			<key>name</key>
-			<string>Let&apos;s sniff fumes!</string>
+			<string>Nothing like grabbing some shade and people-watching at the pumps.</string>
 		</dict>
 		<key>truck</key>
 		<dict>
@@ -278,7 +262,7 @@
 			<key>position</key>
 			<string>{1140, 160}</string>
 			<key>name</key>
-			<string>That&apos;s the sherriff&apos;s truck. He must be burying some bodies again.</string>
+			<string>That&apos;s the sherriff&apos;s truck. He must be burying some bodies again. Naahhh.</string>
 		</dict>
 		<key>property sale fence</key>
 		<dict>
@@ -287,7 +271,7 @@
 			<key>position</key>
 			<string>{950, 190}</string>
 			<key>name</key>
-			<string>Land for sale!? No one better sell to that Seersucker fucker!</string>
+			<string>Land for sale!? I wonder who owns the deed to that beauty...</string>
 		</dict>
 		<key>oil gate</key>
 		<dict>
@@ -296,7 +280,7 @@
 			<key>position</key>
 			<string>{3950, 116}</string>
 			<key>name</key>
-			<string>Douchebag industries. Smoke up, Johnny!</string>
+			<string>Can&apos;t say that I enjoy having these monsters around. What happened to the almond trees?</string>
 		</dict>
 		<key>waterTower</key>
 		<dict>
@@ -305,7 +289,7 @@
 			<key>position</key>
 			<string>{1478, 105}</string>
 			<key>name</key>
-			<string>Hold on tight to that water, fucksticks.</string>
+			<string>Out here, water is almost as valuable as the land that it comes from.</string>
 		</dict>
 	</dict>
 	<key>mapLayer1B</key>
@@ -321,7 +305,7 @@
 			<key>position</key>
 			<string>{1625, 115}</string>
 			<key>name</key>
-			<string>There&apos;re some people I don&apos;t want to see in there.</string>
+			<string>There&apos;re some people I don&apos;t want to see in there. Civilization is overrated.</string>
 		</dict>
 	</dict>
 	<key>mapLayer1C</key>

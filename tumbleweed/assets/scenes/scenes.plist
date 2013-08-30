@@ -21,9 +21,13 @@
 				<string>Empty</string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S1-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S1-onPRESS.jpg</string>
+			<string>S1_unlocked_Default.jpg</string>
+			<key>movieButtonOff</key>
+			<string>S1_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S1_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S1_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_2_ICON-on.png</string>
 		</dict>
@@ -44,17 +48,19 @@
 				<string>4d4b7105d754a06378d81259</string>
 			</dict>
 			<key>hintCopy</key>
-			<string>Start exploring town - or the outskirts. See what&apos;s new.</string>
+			<string>Start exploring town - or the outskirts. There could be some shady deals going down.</string>
 			<key>checkInCopy</key>
-			<string>watch the deal going down at:</string>
+			<string>go to where the deals are:</string>
 			<key>bonus</key>
 			<string></string>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S2-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S2-onPRESS.jpg</string>
+			<string>S2_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
-			<string>video_thumbnail_S2-OFF.jpg</string>
+			<string>S2_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S2_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S2_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_3_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -74,7 +80,7 @@
 			<key>hintCopy</key>
 			<string> Let’s find a stool with the best vantage point. I hate being thirsty. </string>
 			<key>checkInCopy</key>
-			<string>take a seat and grab a drink at:</string>
+			<string>grab a stool at a saloon:</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
@@ -87,11 +93,13 @@
 				<string>4d4b7105d754a06378d81259</string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S3-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S3-onPRESS.jpg</string>
+			<string>S3_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
-			<string>video_thumbnail_S3-OFF.jpg</string>
+			<string>S3_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S3_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S3_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_4_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -109,7 +117,7 @@
 			<key>hintCopy</key>
 			<string>Leaving town? Strangers always stop here on their way out.</string>
 			<key>checkInCopy</key>
-			<string>wait around until he shows up at:</string>
+			<string>catch him on his way:</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
@@ -122,11 +130,13 @@
 				<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S4-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S4-onPRESS.jpg</string>
+			<string>S4_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
-			<string>video_thumbnail_S4-OFF.jpg</string>
+			<string>S4_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S4_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S4_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_5_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -142,9 +152,9 @@
 			<key>movieName</key>
 			<string>05_Riverbed</string>
 			<key>hintCopy</key>
-			<string>Fools always take their clothes off first. Stupid.</string>
+			<string>It&apos;s a hot day. Perfect for a dunk, a dip, and baptism...</string>
 			<key>checkInCopy</key>
-			<string>show him what nature&apos;s about at:</string>
+			<string>take him outside:</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
@@ -157,11 +167,13 @@
 				<string></string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S5-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S5-onPRESS.jpg</string>
+			<string>S5_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
-			<string>video_thumbnail_S5-OFF.jpg</string>
+			<string>S5_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S5_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S5_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_6_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -177,7 +189,7 @@
 			<key>level</key>
 			<integer>4</integer>
 			<key>hintCopy</key>
-			<string>It&apos;s only a matter of time before everyone finds out...</string>
+			<string>What was that all about? I need some time to think...</string>
 			<key>checkInCopy</key>
 			<string>news travels fast. this fast.</string>
 			<key>bonus</key>
@@ -188,11 +200,13 @@
 				<string>Timer</string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S6-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S6-onPRESS.jpg</string>
+			<string>S6_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
-			<string>video_thumbnail_S6-OFF.jpg</string>
+			<string>S6_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S6_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S6_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_7_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -208,9 +222,9 @@
 			<key>level</key>
 			<integer>5</integer>
 			<key>hintCopy</key>
-			<string>Uh oh. Where can I go where no one will find me? Somewhere I&apos;ve never been before...</string>
+			<string>Uh oh. Where can I go where no one will find me? </string>
 			<key>checkInCopy</key>
-			<string>find a new place to hide</string>
+			<string>go where you haven&apos;t been before:</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
@@ -225,11 +239,13 @@
 				<string></string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S7-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S7-onPRESS.jpg</string>
+			<string>S7_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
-			<string>video_thumbnail_S7-OFF.jpg</string>
+			<string>S7_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S7_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S7_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_8_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -247,7 +263,7 @@
 			<key>categoryId</key>
 			<string>4d4b7105d754a06378d81259</string>
 			<key>hintCopy</key>
-			<string>Get up, keep moving, and don&apos;t look back!</string>
+			<string>Keep moving! You can&apos;t slow down now.</string>
 			<key>checkInCopy</key>
 			<string>get out of the danger zone!</string>
 			<key>bonus</key>
@@ -258,11 +274,13 @@
 				<string>FSQdistance</string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S8-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S8-onPRESS.jpg</string>
+			<string>S8_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
-			<string>video_thumbnail_S8-OFF.jpg</string>
+			<string>S8_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S8_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S8_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_9_ICON-on.png</string>
 			<key>buttonLocked</key>
@@ -278,7 +296,7 @@
 			<key>level</key>
 			<integer>7</integer>
 			<key>hintCopy</key>
-			<string>I smell fire...</string>
+			<string>I smell fire. Seems to be smoke coming from the east...</string>
 			<key>checkInCopy</key>
 			<string>It&apos;s just a story, silly goose.</string>
 			<key>bonus</key>
@@ -289,9 +307,13 @@
 				<string>Empty</string>
 			</dict>
 			<key>movieButtonOn</key>
-			<string>video_thumbnail_S9-ON.jpg</string>
-			<key>movieButtonPressed</key>
-			<string>video_thumbnail_S9-onPRESS.jpg</string>
+			<string>S9_unlocked_Default.jpg</string>
+			<key>movieButtonOff</key>
+			<string>S9_locked_Default.jpg</string>
+			<key>movieTextOn</key>
+			<string>S9_unlocked_TXT.png</string>
+			<key>movieTextOff</key>
+			<string>S9_locked_TXT.png</string>
 			<key>buttonAccessible</key>
 			<string>top_lvl4_objs_10_ICON-on.png</string>
 			<key>buttonUnlocked</key>

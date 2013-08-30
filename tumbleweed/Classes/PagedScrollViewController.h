@@ -22,7 +22,7 @@
 -(int) getRandomNumberBetween:(int)from to:(int)to;
 -(void) renderParallax;
 - (void) handleSingleTap:(UIGestureRecognizer *)sender;
-
+-(void) updateScrollDisplay: (NSTimer*) timer;
 
 
 @end

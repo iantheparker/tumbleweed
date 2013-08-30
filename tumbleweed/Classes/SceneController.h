@@ -18,12 +18,12 @@
 @class Scene;
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate, UIGestureRecognizerDelegate>
 {
     IBOutlet UIScrollView *sceneScrollView;
     IBOutlet UIView *sceneSVView;
     IBOutlet UILabel *sceneTitle;
-    IBOutlet UILabel *checkInIntructions;
+    IBOutlet UILabel *unlockCopy;
     IBOutlet UIScrollView *venueScrollView;
     IBOutlet UIView *venueDetailNib;
     IBOutlet UIActivityIndicatorView *activityIndicator;
@@ -34,10 +34,14 @@
     IBOutlet UIView *searchView;
     IBOutlet UIButton *movieThumbnailButton;
     IBOutlet UIView *extrasView;
-    IBOutlet UILabel *timerLabel;
     IBOutlet UIView *introView;
     IBOutlet UIView *contentView;
-    IBOutlet UIPageControl *pageControl;
+    IBOutlet UIView *movieView;
+    IBOutlet UIButton *checkinButton;
+    IBOutlet UILabel *checkinInstructions;
+    IBOutlet UIImageView *sceneTitleIV;
+    IBOutlet UIButton *playButton;
+
 
     CLLocationManager *locationManager;
     //MPMoviePlayerController *moviePlayer;
@@ -48,7 +52,7 @@
 @property (nonatomic, retain) UIScrollView *sceneScrollView;
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) UILabel *sceneTitle;
-@property (nonatomic, retain) UILabel *checkInIntructions;
+@property (nonatomic, retain) UILabel *unlockCopy;
 @property (nonatomic, retain) UIView *sceneSVView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIView *venueView;
@@ -61,8 +65,16 @@
 @property (nonatomic, retain) UIButton *leftScroll;
 @property (nonatomic, retain) UIButton *rightScroll;
 @property (nonatomic, retain) UIButton *movieThumbnailButton;
+@property (nonatomic, retain) UIView *movieView;
 @property (nonatomic, retain) UIView *extrasView;
 @property (nonatomic, readonly) Scene *scene;
+
+@property (nonatomic, retain) NSString *successfulVenueName;
+@property (nonatomic, retain) UIButton *checkinButton;
+@property (nonatomic, retain) UILabel *checkinInstructions;
+@property (nonatomic, retain) UIImageView *sceneTitleIV;
+@property (nonatomic, retain) UIButton *playButton;
+
 
 //initializers
 - (id) initWithScene: (Scene *) scn;
@@ -78,6 +90,10 @@
 - (void) videoPlayBackDidFinish:(NSNotification *) notification;
 - (void) movieFinishedCallback:(NSNotification*) aNotification;
 - (void) movieExitFullscreen:(NSNotification*) aNotification;
+
+//
+- (void) handleSingleTap:(UIGestureRecognizer *)sender;
+
 
 
 

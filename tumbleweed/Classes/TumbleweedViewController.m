@@ -384,6 +384,7 @@
     if (loc.x > canvas_w - [[UIScreen mainScreen] bounds].size.height) {
         hit = YES;
         [self launchProgressPopUp:hit];
+        [self playSystemSound:@"Btn 1"];
         return;
     }
     
@@ -427,6 +428,7 @@
 {
     NSLog(@"ignoring this double-tap");
     [self launchHintPopUp:YES :@"Did you seriously just double-tap? Are you 137 years old?"];
+    [self playSystemSound:@"Btn 3"];
 }
 - (void) launchHintPopUp :(BOOL) up : (NSString*) layerTip
 {
@@ -469,28 +471,46 @@
         [UIView animateWithDuration:0.2 delay:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             bubble3.alpha = 1;
             bubble2.transform = CGAffineTransformMakeScale(1, 1);
-            bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);
+            //bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);
         } completion:^(BOOL finished) {}];
         [UIView animateWithDuration:0.2 delay:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             bubble4.alpha = 1;
             bubble3.transform = CGAffineTransformMakeScale(1, 1);
-            bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);
+            //bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);
         } completion:^(BOOL finished) {}];
         [UIView animateWithDuration:0.2 delay:0.3 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             //bubble4.alpha = 1;
             bubble4.transform = CGAffineTransformMakeScale(1, 1);
-            bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);
+            //bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);
         } completion:^(BOOL finished) {}];
         [UIView animateWithDuration:0.2 delay:0.4 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            //bubble4.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        } completion:^(BOOL finished) {}];
+        
+        hintVC.transform = CGAffineTransformMakeScale(0.001, 0.001);
+        [self.view addSubview:hintVC];
+        [UIView animateWithDuration:0.2 delay:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            hintVC.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {}];
+        
+        [UIView animateWithDuration:0.2 delay:0.6 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bubble1.transform = CGAffineTransformMakeScale(0.01, 0.01);
+
+        } completion:^(BOOL finished) {}];
+        [UIView animateWithDuration:0.2 delay:0.7 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bubble2.transform = CGAffineTransformMakeScale(0.01, 0.01);
+
+        } completion:^(BOOL finished) {}];
+        [UIView animateWithDuration:0.2 delay:0.8 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bubble3.transform = CGAffineTransformMakeScale(0.01, 0.01);
+
+        } completion:^(BOOL finished) {}];
+        [UIView animateWithDuration:0.2 delay:0.9 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             bubble4.transform = CGAffineTransformMakeScale(0.01, 0.01);
         } completion:^(BOOL finished) {}];
         
         
-        hintVC.transform = CGAffineTransformMakeScale(0.001, 0.001);
-        [self.view addSubview:hintVC];
-        [UIView animateWithDuration:0.2 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-            hintVC.transform = CGAffineTransformIdentity;
-        } completion:^(BOOL finished) {}];
+        
         
         
         UILabel *hintLabel = (UILabel *)[hintVC viewWithTag:1];
@@ -965,7 +985,7 @@
         cowboy.position = CGPointMake(2590, ceilf(screenSize.height - cowboy.bounds.size.height/2));
         //CGImageRef cowboyimgref = [cowboyimg CGImage];
         [cowboy setContents:(__bridge id)[cowboyimg CGImage]];
-        cowboy.name = @"That dude is a dick.";
+        cowboy.name = @"I hope you're not tipping your hat because you expect a curtsy.";
         [map4CA addSublayer:cowboy];
         
         CALayer *cowboyHat = [CALayer layer];
@@ -1217,7 +1237,7 @@
         CGImageRef riverImage = [[UIImage imageNamed:@"riverWaves"] CGImage];
         MCSpriteLayer* riverSprite = [MCSpriteLayer layerWithImage:riverImage sampleSize:fixedSize];
         riverSprite.position = CGPointMake(640*4 + 423, scrollView.contentSize.height/2 +3);
-        riverSprite.name = @"What's with those skanks always prancing in the river?";
+        riverSprite.name = @"Do I see petticoats prancing in the river? I guess that's where they do their best work.";
         
         CABasicAnimation *riverAnimation = [CABasicAnimation animationWithKeyPath:@"sampleIndex"];
         riverAnimation.fromValue = [NSNumber numberWithInt:1];
@@ -1261,7 +1281,7 @@
         //double hit area of eyes
         CALayer *deerEyesHitArea = [CALayer layer];
         deerEyesHitArea.frame = CGRectMake(deereyes.frame.origin.x, deereyes.frame.origin.y, deereyes.frame.size.width*3, deereyes.frame.size.height*3);
-        deerEyesHitArea.name = @"I live in a world where bones have eyes. I'm hungry now.";
+        deerEyesHitArea.name = @"It's dry as dust. Not everything good gets buried out here.";
         [map1CA addSublayer:deerEyesHitArea];
 
 
@@ -1613,7 +1633,7 @@
         UIImage *saloonimg = [UIImage imageNamed:@"saloon_base"];
         saloonbase.bounds = CGRectMake(0, 0, floorf(saloonimg.size.width/2), floorf(saloonimg.size.height/2));
         saloonbase.position = CGPointMake(2150, 125);
-        saloonbase.name = @"The only place to quench your thirst in this town.";
+        saloonbase.name = @"The only place to quench your thirst around here. I wonder who's spinning a yarn tonight.";
         [map2CA addSublayer:saloonbase];
         
         CALayer *saloon = [CALayer layer];
@@ -1735,7 +1755,7 @@
     [scrollView addSubview:walkthroughSV];
      */
     
-    if([[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
+    //if(![[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
     {
         tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
         //scrollView.contentSize = CGSizeMake(canvas_w, canvas_h*2);

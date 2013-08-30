@@ -26,8 +26,7 @@
     IBOutlet UIButton *foursquareConnectButton;
     
     //audio
-    //SystemSoundID systemSound;
-    //AVAudioPlayer *_backgroundMusicPlayer;
+
     BOOL _backgroundMusicPlaying;
 	BOOL _backgroundMusicInterrupted;
 	UInt32 _otherMusicIsPlaying;

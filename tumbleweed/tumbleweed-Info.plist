@@ -65,7 +65,7 @@
 	<array>
 		<string>rockwell.ttf</string>
 		<string>rockwell-bold.ttf</string>
-		<string>rockwell-condensed.ttf</string>
+		<string>rockwell-light.ttf</string>
 		<string>rockwell-condensed-bold.ttf</string>
 	</array>
 	<key>UIPrerenderedIcon</key>
