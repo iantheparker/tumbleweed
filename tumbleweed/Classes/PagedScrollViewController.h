@@ -12,16 +12,13 @@
 
 @property (nonatomic, strong) IBOutlet UIScrollView *scrollView;
 @property (nonatomic, strong) IBOutlet UIView *containerView;
-@property (nonatomic, strong) IBOutlet UIView *textContainer;
 @property (nonatomic, strong) IBOutlet UIImageView *text1;
 @property (nonatomic, strong) IBOutlet UIImageView *text2;
 @property (nonatomic, strong) IBOutlet UIImageView *text3;
-@property (nonatomic, strong) IBOutlet UIImageView *text4;
 
 
 -(int) getRandomNumberBetween:(int)from to:(int)to;
 -(void) renderParallax;
-- (void) handleSingleTap:(UIGestureRecognizer *)sender;
 -(void) updateScrollDisplay: (NSTimer*) timer;
 
 

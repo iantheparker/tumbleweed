@@ -13,7 +13,6 @@
 
 #define canvas_h 640
 
-
 @implementation PagedScrollViewController{
 @private
     CALayer *tWLogoLayer;
@@ -22,12 +21,10 @@
     CALayer *tumbleweedLogo;
     CADisplayLink *displayLink;
     int middleWidth;
-    
-
 }
 
 @synthesize scrollView = _scrollView;
-@synthesize containerView, textContainer, text1, text2, text3, text4;
+@synthesize containerView, text1, text2, text3;
 
 
 #pragma mark -
@@ -37,31 +34,21 @@
     return (int)from + arc4random() % (to-from+1);
 }
 
-- (void) handleSingleTap:(UIGestureRecognizer *)sender
-{
-    //NSLog(@"just got tapped");
-    //float loc = self.scrollView.contentOffset.y;
-    //self.scrollView.contentOffset = CGPointMake(0, loc+10);
-    //[self.scrollView setContentOffset:CGPointMake(0, loc+50) animated:YES];
-    [self.scrollView setContentOffset:CGPointMake(0, canvas_h/2) animated:YES];
-    
-    [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
-        //self.scrollView.contentOffset = CGPointMake(0, canvas_h);
-        
-    } completion:^(BOOL finished) {
-        //
-    }];
-
-}
 -(void) updateScrollDisplay : (NSTimer*) timer
 {
     float loc = self.scrollView.contentOffset.y;
-    if (loc <= 150 )
+    
+    if (loc <= 160 )
         self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
-    else if ( loc >= 300 && loc <= 320)
-        self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
-    else
-        self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
+    else if ( loc > 150 && loc <= 320)
+    {
+        float highspeed = 1.25;
+        float lowspeed = 0.25;
+        float middleHeight = (320 - 150)/2.0 + 150;
+        float diffspeed = highspeed - (highspeed - lowspeed) * pow(M_E, -pow((middleHeight - loc)/100, 4));
+        self.scrollView.contentOffset = CGPointMake(0, loc + diffspeed);
+        NSLog(@"diffspeed %f", diffspeed);
+    }
 }
 
 -(void) renderParallax
@@ -69,7 +56,6 @@
     //MAP LAYER PARALLAX SPEEDS
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
-    
     
     CGPoint mapCenter = self.scrollView.center;
     //float offset = self.scrollView.contentOffset.y - mapCenter.y;
@@ -79,7 +65,6 @@
     text1.layer.speed = 4;
     text2.layer.speed = 3;
     text3.layer.speed = 2;
-    text4.layer.speed = 1;
     float slowspeed = 0.2;
     
     tumbleweedLogo.transform = CATransform3DMakeRotation(offset*-M_PI_4*.2, 0, 0, 1);
@@ -102,7 +87,6 @@
     text1.center = text1Center;
     //NSLog(@"windowpointY %f, text1CenterY %f, text1speed %f, text1alpha %f", middleHeight - text1WindowPoint.y, text1Center.y, text1speed, text1.alpha);
 
-
     CGPoint text2WindowPoint = [text2 convertPoint:self.scrollView.bounds.origin toView:self.view];
     text2.alpha = pow(M_E, -pow((middleHeight - text2WindowPoint.y)/100, 4));
     float text2speed = text2.layer.speed - (text2.layer.speed - slowspeed) * text2.alpha;
@@ -116,14 +100,6 @@
     text3.center = text3Center;
     
     /*
-    CGPoint text4WindowPoint = [text4 convertPoint:self.scrollView.bounds.origin toView:self.view];
-    text4.alpha = pow(M_E, -pow((middleHeight - text4WindowPoint.y)/100, 4));
-    float text4speed = text4.layer.speed - (text4.layer.speed - slowspeed) * text4.alpha;
-    CGPoint text4Center = CGPointMake(middleWidth, text4.center.y + (offset * text4speed/50));
-    text4.center = text4Center;
-
-    
-    
     basespeed = 100;
     slowspeed = 40;
     diffspeed = basespeed - slowspeed;
@@ -131,12 +107,9 @@
     
      e^-y
      y = x-100  means it will peak at x = 100
-     
      */
     
-    
     [CATransaction commit];
-    
 }
 
 - (void)viewDidLoad {
@@ -215,7 +188,6 @@
         {78, 223}
     };
     
-    
     for (int i = 1; i<=cloudTotal; i++)
     {
         //int randomPosX = [self getRandomNumberBetween:0 to:[[UIScreen mainScreen] bounds].size.height -100];
@@ -255,44 +227,16 @@
     }
     [self renderParallax];
 
-     
-    UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
-    tapHandler.numberOfTapsRequired = 1;
-    [tapHandler setDelegate:self];
-    //[self.scrollView addGestureRecognizer:tapHandler];
-    
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateScrollDisplay:)];
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
-    
 
 }
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-
-
-    
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
-    
-    self.scrollView = nil;
-
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-}
-
 
 #pragma mark - UIScrollViewDelegate
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    // Load the pages which are now on screen
-    
-    
-    if (scrollView.contentOffset.y == canvas_h - [[UIScreen mainScreen] bounds].size.width)
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{    
+    if (scrollView.contentOffset.y >= canvas_h - [[UIScreen mainScreen] bounds].size.width)
     {
         NSLog(@"over 960");
         //self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
@@ -300,8 +244,6 @@
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasSeenTutorial"];
         [displayLink removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     }
-
-    
     [self renderParallax];
     
 }

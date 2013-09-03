@@ -41,6 +41,9 @@
     IBOutlet UILabel *checkinInstructions;
     IBOutlet UIImageView *sceneTitleIV;
     IBOutlet UIButton *playButton;
+    IBOutlet UIView *tapView;
+    IBOutlet UIImageView *lockedTapImage;
+    IBOutlet UIImageView *lockedTapImageText;
 
 
     CLLocationManager *locationManager;
@@ -74,6 +77,9 @@
 @property (nonatomic, retain) UILabel *checkinInstructions;
 @property (nonatomic, retain) UIImageView *sceneTitleIV;
 @property (nonatomic, retain) UIButton *playButton;
+@property (nonatomic, retain) UIImageView *lockedTapImage;
+@property (nonatomic, retain) UIImageView *lockedTapImageText;
+@property (nonatomic, retain) UIView *tapView;
 
 
 //initializers
