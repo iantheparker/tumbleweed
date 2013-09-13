@@ -38,8 +38,8 @@ void uncaughtExceptionHandler(NSException *exception) {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     
-    TumbleweedViewController *tweedViewController = [[TumbleweedViewController alloc]initWithNibName:@"TumbleweedViewController" bundle:nil];
-    tweedNavController = [[UINavigationController alloc] initWithRootViewController:tweedViewController];
+    //TumbleweedViewController *tweedViewController = [TumbleweedViewController sharedClient];
+    tweedNavController = [[UINavigationController alloc] initWithRootViewController:[TumbleweedViewController sharedClient]];
     tweedNavController.navigationBarHidden = YES;
     
     self.window.rootViewController = tweedNavController;
@@ -107,7 +107,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 - (void)application:(UIApplication *)app didReceiveRemoteNotification:(NSDictionary *)userInfo 
 {
 	NSLog(@"In did receive  Remote Notifications %@", userInfo);
-    [[Tumbleweed sharedClient] getUserUpdates];
+    //[[Tumbleweed sharedClient] getUserUpdates];
 }
 
 //You can alternately implement the pushNotification API
@@ -173,7 +173,7 @@ void uncaughtExceptionHandler(NSException *exception) {
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    if([[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])[[Tumbleweed sharedClient] getUserUpdates];
+    //if([[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])[[Tumbleweed sharedClient] getUserUpdates];
     [UIApplication sharedApplication].applicationIconBadgeNumber=0;
     NSLog(@"appwill become active");
 

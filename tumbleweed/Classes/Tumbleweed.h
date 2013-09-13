@@ -27,10 +27,12 @@
 @property (nonatomic, retain) NSString *tumbleweedId;
 @property (nonatomic, retain) NSDate *lastLevelUpdate;
 @property (nonatomic, retain) CLLocation *lastKnownLocation;
+@property (nonatomic, retain) NSMutableArray *successfulVenues;
 
 + (Tumbleweed *) sharedClient;
 - (void) saveTumbleweed;
-- (void) updateLevel : (int) toLevel;
+- (void) resetLevel;
+- (void) updateLevel : (int) toLevel withVenue :(NSString*) venue;
 
 - (void) registerUser;
 - (void) resetUser;

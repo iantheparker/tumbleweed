@@ -48,6 +48,7 @@
 -(CALayer*) layerInitializer: (id) plistObject :(CGSize) screenSize : (CALayer*) parentLayer : (NSString*) layerName;
 -(int)getRandomNumberBetween:(int)from to:(int)to;
 
+
 @end
 
 @implementation TumbleweedViewController{
@@ -70,27 +71,19 @@
 @synthesize foursquareConnectButton, buttonContainer, blackPanel;
 @synthesize _backgroundMusicPlayer, systemSound;
 
-
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
++ (TumbleweedViewController *) sharedClient
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {        
-        map0CA = [CALayer layer];
-        map1CA = [CALayer layer];
-        map1BCA = [CALayer layer];
-        map1CCA = [CALayer layer];
-        map2CA = [CALayer layer];
-        map4CA = [CALayer layer];
-        map3CA = [CALayer layer];
-        janeAvatar = [CALayer layer];
-        mapCAView = [[UIView alloc] init];
-    }
-    return self;
+    static TumbleweedViewController *_sharedClient = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedClient = [[TumbleweedViewController alloc] initWithNibName:@"TumbleweedViewController" bundle:nil];
+    });
+    
+    return _sharedClient;
 }
+
 #pragma mark -
 #pragma mark screen renders
-
-
 
 - (CGRect) selectAvatarBounds:(float) position
 {
@@ -292,10 +285,109 @@
     }];
      */
 }
+-(void) addProgressBar
+{
+    //[[scenes.lastObject button] setCenter:CGPointMake(campfireSprite.position.x-3, campfireSprite.position.y + 40)];
+    [[scenes.lastObject button] removeFromSuperview];
+    //-->progress bar animation
+    {
+        blackPanel = [CALayer layer];
+        [blackPanel setBounds:CGRectMake(0, 0, 340, canvas_h)];
+        [blackPanel setPosition:CGPointMake(canvas_w - 200, canvas_h/2)];
+        blackPanel.backgroundColor = [UIColor blackColor].CGColor;
+        blackPanel.zPosition = 3;
+        blackPanel.name = @"blackpanel";
+        [mapCAView.layer addSublayer:blackPanel];
+        
+        CALayer *blackPanelExtension = [CALayer layer];
+        [blackPanelExtension setFrame:CGRectMake(blackPanel.bounds.size.width, 0, 400, canvas_h)];
+        blackPanelExtension.backgroundColor  = [UIColor blackColor].CGColor;
+        [blackPanel addSublayer:blackPanelExtension];
+        
+        //the colors for the gradient.  highColor is at the right, lowColor as at the left
+        UIColor * highColor = [UIColor colorWithWhite:0.0 alpha:1.0];
+        UIColor * lowColor = [UIColor colorWithRed:.4 green:.1 blue:.1 alpha:0];
+        
+        CAGradientLayer * gradient = [CAGradientLayer layer];
+        [gradient setFrame:CGRectMake(0, 0, 680, blackPanel.bounds.size.height)];
+        [gradient setColors:[NSArray arrayWithObjects:(id)[highColor CGColor], (id)[lowColor CGColor], nil]];
+        [gradient setStartPoint:CGPointMake(1, .5)];
+        [gradient setEndPoint:CGPointMake(0, .5)];
+        
+        CALayer * roundRect = [CALayer layer];
+        [roundRect setFrame:gradient.frame];
+        [roundRect setPosition:CGPointMake(blackPanel.bounds.size.width - roundRect.frame.size.width, roundRect.frame.size.height/2)];
+        [roundRect setMasksToBounds:YES];
+        [roundRect addSublayer:gradient];
+        [blackPanel addSublayer:roundRect];
+        
+        CGSize fixedSize = CGSizeMake(619, 152);
+        CGImageRef eyesImage = [[UIImage imageNamed:@"eyeBlink"] CGImage];
+        MCSpriteLayer *eyesSprite = [MCSpriteLayer layerWithImage:eyesImage sampleSize:fixedSize];
+        eyesSprite.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/2);
+        eyesSprite.name = @"eyesSprite";
+        
+        CAKeyframeAnimation *eyesAnimation = [CAKeyframeAnimation animationWithKeyPath:@"sampleIndex"];
+        eyesAnimation.duration = 3.0f;
+        eyesAnimation.repeatCount = HUGE_VALF;
+        eyesAnimation.calculationMode = kCAAnimationDiscrete;
+        eyesAnimation.removedOnCompletion = NO;
+        eyesAnimation.fillMode = kCAFillModeForwards;
+        
+        eyesAnimation.values = [NSArray arrayWithObjects:
+                                [NSNumber numberWithInt:1],
+                                [NSNumber numberWithInt:2],
+                                [NSNumber numberWithInt:3],
+                                [NSNumber numberWithInt:5],
+                                [NSNumber numberWithInt:4],
+                                [NSNumber numberWithInt:1],
+                                [NSNumber numberWithInt:1],nil]; //not called
+        
+        eyesAnimation.keyTimes = [NSArray arrayWithObjects:
+                                  [NSNumber numberWithFloat:0.0],
+                                  [NSNumber numberWithFloat:0.1],
+                                  [NSNumber numberWithFloat:0.12],
+                                  [NSNumber numberWithFloat:0.18],
+                                  [NSNumber numberWithFloat:0.3],
+                                  [NSNumber numberWithFloat:.4],
+                                  [NSNumber numberWithFloat:0], nil]; //not called
+        
+        [eyesSprite addAnimation:eyesAnimation forKey:@"eyeBlink"];
+        [blackPanel addSublayer:eyesSprite];
+        
+        float padding = 10.0;
+        progressBar = [CALayer layer];
+        UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all_ON.jpg"];
+        progressBar.bounds = CGRectMake(0, 0, progBarimg.size.width, progBarimg.size.height);
+        [progressBar setPosition:CGPointMake(eyesSprite.position.x - padding/2, eyesSprite.position.y * 1.6)];
+        CGImageRef progCGImage = [progBarimg CGImage];
+        [progressBar setContents:(__bridge id)progCGImage];
+        [blackPanel addSublayer:progressBar];
+        
+        progressBarEmpty = [CALayer layer];
+        [progressBarEmpty setAnchorPoint:CGPointMake(1.0, 1.0)];
+        progressBarEmpty.position = CGPointMake(progressBar.bounds.size.width, progressBar.bounds.size.height);
+        [progressBarEmpty setContents:(__bridge id)[[UIImage imageNamed:@"map_progress_all_OFF.jpg"] CGImage]];
+        [progressBar addSublayer:progressBarEmpty];
+        
+        progressLabel = [[CATextLayer alloc] init];
+        [progressLabel setFont:@"rockwell"];
+        [progressLabel setFontSize:17];
+        [progressLabel setFrame:CGRectMake(0, 0, progressBar.bounds.size.width, progressBar.bounds.size.height/2)];
+        [progressLabel setPosition:CGPointMake(progressBar.bounds.size.width/2, progressBar.bounds.size.height + padding)];
+        [progressLabel setAlignmentMode:kCAAlignmentCenter];
+        [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
+        [progressBarEmpty addSublayer:progressLabel];
+        
+        
+        
+        
+    }
+}
 -(void) startCampfire
 {
     [blackPanel removeFromSuperlayer];
-    
+    [map1CA removeAnimationForKey:@"campfireAnimation"];
     //should read from plist if i want to support non-retina
     CGSize fixedSize = CGSizeMake(256, 289);
     CGImageRef campfireImage = [[UIImage imageNamed:@"campfire"] CGImage];
@@ -309,7 +401,7 @@
     campfireAnimation.repeatCount = HUGE_VALF;
     campfireAnimation.removedOnCompletion = NO;
     
-    [campfireSprite addAnimation:campfireAnimation forKey:nil];
+    [campfireSprite addAnimation:campfireAnimation forKey:@"campfireAnimation"];
     [map1CA addSublayer:campfireSprite];
     //add button
     
@@ -341,7 +433,7 @@
         //audio error sound
         soundName = @"Btn 3";
     }
-    else
+    else if ( sender.highlighted )
     {
         //audio success sound
         soundName = @"Good 1";
@@ -354,7 +446,7 @@
                          }];
     }
     
-    [self playSystemSound:soundName];
+    if (soundName) [self playSystemSound:soundName];
     
 }
 - (void) playSystemSound: (NSString*) name;
@@ -642,9 +734,11 @@
         }
         else if (([[scenes objectAtIndex:i] level] > [Tumbleweed sharedClient].tumbleweedLevel)) {
             [[scenes objectAtIndex:i] button].selected = YES;
+            [[scenes objectAtIndex:i] button].highlighted = NO;
         }
         else if ([[scenes objectAtIndex:i] level] == [Tumbleweed sharedClient].tumbleweedLevel) {
             [[scenes objectAtIndex:i] button].selected = NO;
+            [[scenes objectAtIndex:i] button].highlighted = NO;
         }
         else if ([[scenes objectAtIndex:i] level] < [Tumbleweed sharedClient].tumbleweedLevel){
             [[scenes objectAtIndex:i] button].highlighted = YES;
@@ -653,8 +747,8 @@
 }
 -(void) updateProgressBar: (int) level
 {
-    const float imageWidth = 282.7;
-    const float imageHeight = 39.5;
+    const float imageWidth = 284.5;
+    const float imageHeight = 44;
     
     static const CGRect sampleRects[8] = {
         {0, 0, imageWidth, imageHeight},
@@ -683,14 +777,21 @@
 
 - (void) audioPlayerEndInterruption: (AVAudioPlayer *) player {
 	if (_backgroundMusicInterrupted) {
-		[self tryPlayMusic];
+		[self tryPlayMusic:false];
 		_backgroundMusicInterrupted = NO;
 	}
 }
 
-- (void) tryPlayMusic {
-	
-	// Check to see if iPod music is already playing
+- (void) tryPlayMusic: (BOOL) off
+{	
+	if (off)
+    {
+        [_backgroundMusicPlayer pause];
+        _backgroundMusicPlaying = NO;
+        return;
+    }
+    NSLog(@"tryplaymusic");
+    // Check to see if iPod music is already playing
 	UInt32 propertySize = sizeof(_otherMusicIsPlaying);
 	AudioSessionGetProperty(kAudioSessionProperty_OtherAudioIsPlaying, &propertySize, &_otherMusicIsPlaying);
 	
@@ -700,6 +801,19 @@
 		[_backgroundMusicPlayer play];
 		_backgroundMusicPlaying = YES;
 	}
+}
+- (void) loadBGAudio
+{
+    NSError *setCategoryError = nil;
+	[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&setCategoryError];
+	
+	// Create audio player with background music
+	NSString *backgroundMusicPath = [[NSBundle mainBundle] pathForResource:@"Cobra Western BG 60" ofType:@"mp3"];
+	NSURL *backgroundMusicURL = [NSURL fileURLWithPath:backgroundMusicPath];
+	NSError *error;
+	_backgroundMusicPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:backgroundMusicURL error:&error];
+	[_backgroundMusicPlayer setDelegate:self];  // We need this so we can restart after interruptions
+	[_backgroundMusicPlayer setNumberOfLoops:-1];
 }
 
 #pragma mark -
@@ -828,7 +942,6 @@
 
     return layerArray;
 }
-
 -(int)getRandomNumberBetween:(int)from to:(int)to {
     
     return (int)from + arc4random() % (to-from+1);
@@ -839,6 +952,15 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    map0CA = [CALayer layer];
+    map1CA = [CALayer layer];
+    map1BCA = [CALayer layer];
+    map1CCA = [CALayer layer];
+    map2CA = [CALayer layer];
+    map4CA = [CALayer layer];
+    map3CA = [CALayer layer];
+    janeAvatar = [CALayer layer];
+    mapCAView = [[UIView alloc] init];
     
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
@@ -874,7 +996,7 @@
     
     for (int i=0; i < scenePList.count; i++) {
         [scenes addObject:[[Scene alloc] initWithDictionary:[scenePList objectAtIndex:i]]];
-        [[[scenes objectAtIndex:i] button] addTarget:self action:@selector(scenePressed:) forControlEvents:UIControlEventTouchDown];
+        [[[scenes objectAtIndex:i] button] addTarget:self action:@selector(scenePressed:) forControlEvents:UIControlEventTouchUpInside];
         [[scenes objectAtIndex:i] button].tag = i;
         
         //stopping at count-1  to not add the campfire button to the toplayer container - need a better way
@@ -1116,100 +1238,6 @@
         
         [cactusbird addAnimation:cactusbirdAnimation forKey:@"cactusbird"];
         [map4CA addSublayer:cactusbird];
-        
-    }
-    //-->progress bar animation
-    {
-        blackPanel = [CALayer layer];
-        [blackPanel setBounds:CGRectMake(0, 0, 340, screenSize.height)];
-        [blackPanel setPosition:CGPointMake(screenSize.width - 200, screenSize.height/2)];
-        blackPanel.backgroundColor = [UIColor blackColor].CGColor;
-        blackPanel.zPosition = 3;
-        blackPanel.name = @"blackpanel";
-        [mapCAView.layer addSublayer:blackPanel];
-        
-        CALayer *blackPanelExtension = [CALayer layer];
-        [blackPanelExtension setFrame:CGRectMake(blackPanel.bounds.size.width, 0, 400, screenSize.height)];
-        blackPanelExtension.backgroundColor  = [UIColor blackColor].CGColor;
-        [blackPanel addSublayer:blackPanelExtension];
-        
-        //the colors for the gradient.  highColor is at the right, lowColor as at the left
-        UIColor * highColor = [UIColor colorWithWhite:0.0 alpha:1.0];
-        UIColor * lowColor = [UIColor colorWithRed:.4 green:.1 blue:.1 alpha:0];
-        
-        CAGradientLayer * gradient = [CAGradientLayer layer];
-        [gradient setFrame:CGRectMake(0, 0, 680, blackPanel.bounds.size.height)];
-        [gradient setColors:[NSArray arrayWithObjects:(id)[highColor CGColor], (id)[lowColor CGColor], nil]];
-        [gradient setStartPoint:CGPointMake(1, .5)];
-        [gradient setEndPoint:CGPointMake(0, .5)];
-        
-        CALayer * roundRect = [CALayer layer];
-        [roundRect setFrame:gradient.frame];
-        [roundRect setPosition:CGPointMake(blackPanel.bounds.size.width - roundRect.frame.size.width, roundRect.frame.size.height/2)];
-        [roundRect setMasksToBounds:YES];
-        [roundRect addSublayer:gradient];
-        [blackPanel addSublayer:roundRect];
-        
-        CGSize fixedSize = CGSizeMake(619, 152);
-        CGImageRef eyesImage = [[UIImage imageNamed:@"eyeBlink"] CGImage];
-        MCSpriteLayer *eyesSprite = [MCSpriteLayer layerWithImage:eyesImage sampleSize:fixedSize];
-        eyesSprite.position = CGPointMake(blackPanel.bounds.size.width/2.5, blackPanel.bounds.size.height/2);
-        eyesSprite.name = @"eyesSprite";
-    
-        CAKeyframeAnimation *eyesAnimation = [CAKeyframeAnimation animationWithKeyPath:@"sampleIndex"];
-        eyesAnimation.duration = 3.0f;
-        eyesAnimation.repeatCount = HUGE_VALF;
-        eyesAnimation.calculationMode = kCAAnimationDiscrete;
-        eyesAnimation.removedOnCompletion = NO;
-        eyesAnimation.fillMode = kCAFillModeForwards;
-        
-        eyesAnimation.values = [NSArray arrayWithObjects:
-                            [NSNumber numberWithInt:1],
-                            [NSNumber numberWithInt:2],
-                            [NSNumber numberWithInt:3],
-                            [NSNumber numberWithInt:5], 
-                            [NSNumber numberWithInt:4], 
-                            [NSNumber numberWithInt:1], 
-                            [NSNumber numberWithInt:1],nil]; //not called
-        
-        eyesAnimation.keyTimes = [NSArray arrayWithObjects:
-                              [NSNumber numberWithFloat:0.0], 
-                              [NSNumber numberWithFloat:0.1], 
-                              [NSNumber numberWithFloat:0.12], 
-                              [NSNumber numberWithFloat:0.18], 
-                              [NSNumber numberWithFloat:0.3], 
-                              [NSNumber numberWithFloat:.4],
-                              [NSNumber numberWithFloat:0], nil]; //not called 
-        
-        [eyesSprite addAnimation:eyesAnimation forKey:@"eyeBlink"];
-        [blackPanel addSublayer:eyesSprite];
-        
-        float padding = 10.0;
-        progressBar = [CALayer layer];
-        UIImage *progBarimg = [UIImage imageNamed:@"map_progress_all_ON.jpg"];
-        progressBar.bounds = CGRectMake(0, 0, progBarimg.size.width, progBarimg.size.height);
-        [progressBar setPosition:CGPointMake(eyesSprite.position.x - padding/2, eyesSprite.position.y * 1.6)];
-        CGImageRef progCGImage = [progBarimg CGImage];
-        [progressBar setContents:(__bridge id)progCGImage];
-        [blackPanel addSublayer:progressBar];
-        
-        progressBarEmpty = [CALayer layer];
-        [progressBarEmpty setAnchorPoint:CGPointMake(1.0, 1.0)];
-        progressBarEmpty.position = CGPointMake(progressBar.bounds.size.width, progressBar.bounds.size.height);
-        [progressBarEmpty setContents:(__bridge id)[[UIImage imageNamed:@"map_progress_all_OFF.jpg"] CGImage]];
-        [progressBar addSublayer:progressBarEmpty];
-        
-        progressLabel = [[CATextLayer alloc] init];
-        [progressLabel setFont:@"rockwell"];
-        [progressLabel setFontSize:17];
-        [progressLabel setFrame:CGRectMake(0, 0, progressBar.bounds.size.width, progressBar.bounds.size.height/2)];
-        [progressLabel setPosition:CGPointMake(progressBar.bounds.size.width/2, progressBar.bounds.size.height + padding)];
-        [progressLabel setAlignmentMode:kCAAlignmentCenter];
-        [progressLabel setForegroundColor:[[UIColor grayColor] CGColor]];
-        [progressBarEmpty addSublayer:progressLabel];
-        
-        
-        
         
     }
     //-->bird animation
@@ -1732,6 +1760,8 @@
         [map1CA addSublayer:graveyard];
     }
     
+    [self addProgressBar];
+    
     [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE :TRUE];
     
     [CATransaction commit];
@@ -1755,7 +1785,7 @@
     [scrollView addSubview:walkthroughSV];
      */
     
-    //if(![[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
     {
         tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
         //scrollView.contentSize = CGSizeMake(canvas_w, canvas_h*2);
@@ -1767,17 +1797,8 @@
     }
 
     
-    NSError *setCategoryError = nil;
-	[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&setCategoryError];
-	
-	// Create audio player with background music
-	NSString *backgroundMusicPath = [[NSBundle mainBundle] pathForResource:@"Cobra Western BG 60" ofType:@"mp3"];
-	NSURL *backgroundMusicURL = [NSURL fileURLWithPath:backgroundMusicPath];
-	NSError *error;
-	_backgroundMusicPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:backgroundMusicURL error:&error];
-	[_backgroundMusicPlayer setDelegate:self];  // We need this so we can restart after interruptions
-	[_backgroundMusicPlayer setNumberOfLoops:-1];
-    [self tryPlayMusic];
+    [self loadBGAudio];
+    [self tryPlayMusic:false];
 
 }
 
@@ -1794,7 +1815,7 @@
                                              selector:@selector(gameSavetNotif:)
                                                  name:@"loggedIn" object:nil];
     [self gameState];
-    [self tryPlayMusic];
+    [self tryPlayMusic:false];
 
 }
 

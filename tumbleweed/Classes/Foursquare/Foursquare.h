@@ -42,5 +42,13 @@ WithBlock:(void (^)(NSArray *venues, NSError *error))block;
          checkin:(NSString*) checkInId
        broadcast:(NSString*) broadcastType;
 
++ (void)addList:(NSString*) name
+    description:(NSString*) desc
+WithBlock:(void (^)(NSDictionary *listResponse, NSError *error))block;
+
++ (void)addListItem:(NSString*) listId
+              venue:(NSString*) venueId
+           itemText:(NSString*) text;
+
 
 @end

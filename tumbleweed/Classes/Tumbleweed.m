@@ -8,6 +8,9 @@
 
 #import "Tumbleweed.h"
 #import <SVProgressHUD.h>
+#import <stdlib.h>
+
+#define numoflevels 9
 
 @interface Tumbleweed(SVProgressHUD)
 - (void) dismissHUD: (BOOL) successful : (NSError*) err;
@@ -22,6 +25,7 @@
 @synthesize tumbleweedLevel;
 @synthesize lastLevelUpdate;
 @synthesize lastKnownLocation;
+@synthesize successfulVenues;
 
 
 #pragma mark - Lifecycle Methods
@@ -54,6 +58,19 @@
                                   : [myEncodedObject objectForKey:@"lastKnownLocationLon"]];
         NSLog(@"using stored tumbleweed %@", myEncodedObject);
     }
+    
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"successfulVenues"])
+    {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        successfulVenues = [NSMutableArray arrayWithArray:[defaults arrayForKey:@"successfulVenues"]];
+        NSLog(@"using stored successfulVenues %@", successfulVenues);
+    }
+    else
+    {
+        successfulVenues = [NSMutableArray arrayWithCapacity:numoflevels];        
+        NSLog(@"print successful venues %@", successfulVenues);
+    }
+        
     return self;
 }
 
@@ -67,9 +84,11 @@
                                             [NSString stringWithFormat:@"%f",lastKnownLocation.coordinate.longitude], @"lastKnownLocationLon",
                                             nil];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:myEncodedObject forKey:@"tumbleweed"];
+    [defaults setObject:[NSDictionary dictionaryWithDictionary:myEncodedObject] forKey:@"tumbleweed"];
+    //NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[NSArray arrayWithArray:successfulVenues]];
+    [defaults setObject:[NSArray arrayWithArray:successfulVenues] forKey:@"successfulVenues"];
     [defaults synchronize];
-    NSLog(@"saving tumbleweed %@", myEncodedObject);
+    NSLog(@"saving tumbleweed %@ and successfulVenues %@", myEncodedObject, successfulVenues);
     //update game state
     [[NSNotificationCenter defaultCenter] postNotificationName:@"gameSave" object:self];
     
@@ -78,9 +97,23 @@
 #pragma mark -
 #pragma mark - iVar Methods
 
-- (void) updateLevel : (int) toLevel
+- (void) resetLevel
+{
+    tumbleweedLevel = 0;
+    [successfulVenues removeAllObjects];
+    
+    [self saveTumbleweed];
+}
+- (void) updateLevel : (int) toLevel withVenue :(NSString*) venue
 {
     tumbleweedLevel = toLevel;
+    
+    if (!venue) venue = [NSString stringWithFormat:@""];
+    [successfulVenues addObject:venue];
+    
+    [self saveTumbleweed];
+    
+    NSLog(@"successfulVenues %@", successfulVenues);
 }
 
 - (void) setLastKnownLocation : (NSString*) lat : (NSString*) lon
@@ -125,8 +158,29 @@
                                                        NSLog(@"tumbleweed id %@, register json %@", tumbleweedId, JSON);
                                                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                                        NSLog(@"tumbleweed id error %@", error);
+                                                       tumbleweedId = [NSString stringWithFormat:@"%d",arc4random_uniform(9999)];
+                                                       tumbleweedLevel = 0;
+                                                       [self saveTumbleweed];
                                                        [self dismissHUD:0 :error];
                                                    }];
+            /*
+            [Foursquare addList:nil description:nil WithBlock:^(NSDictionary *listResponse, NSError *error) {
+                if (error) {
+                    NSLog(@"fsq addlist error %@", error);
+                }
+                else {
+                    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                    //save listId in nsuserdefaults
+                    NSString *fsqListId = [listResponse objectForKey:@"id"];
+                    [defaults setObject:fsqListId forKey:@"fsqListId"];
+                    //save listurl in nsuserdefaults
+                    NSString *fsqListUrl = [listResponse objectForKey:@"canonicalUrl"];
+                    [defaults setObject:fsqListUrl forKey:@"fsqListUrl"];
+                    [defaults synchronize];
+                    NSLog(@"list response fsqlistid %@ and fsqlistUrl %@", fsqListId, fsqListUrl);
+                }
+            }];
+             */
         }
     }];
 
@@ -141,7 +195,8 @@
     [[AFTumbleweedClient sharedClient] postPath:@"updater" parameters:queryParams
                                         success:^(AFHTTPRequestOperation *operation, id JSON) {
                                             NSLog(@"tumbleweed- updateUser json %@", JSON);
-                                            tumbleweedLevel = 0;
+                                            //tumbleweedLevel = 0;
+                                            [self resetLevel];
                                             [self saveTumbleweed];
                                             [self dismissHUD:YES :nil];
                                         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -175,7 +230,6 @@
                                        }];
     return update;
 }
-
 - (void) postUserUpdates
 {
     if (!tumbleweedId) return;

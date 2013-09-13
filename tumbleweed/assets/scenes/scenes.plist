@@ -46,6 +46,8 @@
 				<string>shops</string>
 				<key>categoryId</key>
 				<string>4d4b7105d754a06378d81259</string>
+				<key>categoryHint</key>
+				<string>a SHOP where you can buy some stuff.</string>
 			</dict>
 			<key>hintCopy</key>
 			<string>Start exploring town - or the outskirts. There could be some shady deals going down.</string>
@@ -85,6 +87,8 @@
 			<string></string>
 			<key>sceneType</key>
 			<dict>
+				<key>categoryHint</key>
+				<string>a SALOON or RESTAURANT.</string>
 				<key>sectionId</key>
 				<string>drinks</string>
 				<key>type</key>
@@ -122,6 +126,8 @@
 			<string></string>
 			<key>sceneType</key>
 			<dict>
+				<key>categoryHint</key>
+				<string>a TRAVEL HUB of any kind.</string>
 				<key>query</key>
 				<string>travel</string>
 				<key>type</key>
@@ -159,6 +165,8 @@
 			<string></string>
 			<key>sceneType</key>
 			<dict>
+				<key>categoryHint</key>
+				<string>some OUTDOORSY place.</string>
 				<key>sectionId</key>
 				<string>outdoors</string>
 				<key>type</key>
@@ -224,11 +232,13 @@
 			<key>hintCopy</key>
 			<string>Uh oh. Where can I go where no one will find me? </string>
 			<key>checkInCopy</key>
-			<string>go where you haven&apos;t been before:</string>
+			<string>go where you&apos;ve never been:</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
 			<dict>
+				<key>categoryHint</key>
+				<string>an OUTDOORSY place you&apos;ve never been to before.</string>
 				<key>novelty</key>
 				<string>new</string>
 				<key>sectionId</key>

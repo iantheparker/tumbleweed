@@ -16,7 +16,7 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import "MCSpriteLayer.h"
 
-#define MINIMUM_ZOOM_ARC 0.008 //approximately 1 miles (1 degree of arc ~= 69 miles)
+#define MINIMUM_ZOOM_ARC 0.007 //approximately 1 miles (1 degree of arc ~= 69 miles)
 #define ANNOTATION_REGION_PAD_FACTOR 1.0
 #define MAP_LATITUDE_OFFSET .0014
 #define MAX_DEGREES_ARC 360
@@ -40,6 +40,7 @@ typedef enum {
 @property (nonatomic, retain) NSString *movieName;
 @property (nonatomic, retain) NSString *checkInCopy;
 @property (nonatomic, retain) NSString *bonusUrl;
+@property (nonatomic, retain) NSString *categoryHint;
 
 @property (nonatomic) unsigned int venueSVPos;
 
@@ -54,6 +55,8 @@ typedef enum {
 - (void) tapSpriteAdvancer: (unsigned int) tapNum;
 - (void) removeTapView;
 - (void) resetTapView: (BOOL) fromStart;
+- (void) starringTapButton;
+- (void) resetScene;
 
 @end
 
@@ -72,11 +75,12 @@ typedef enum {
     UILabel *tapLabel2;
     UILabel *tapLabel3;
     UIImageView *tapImage1;
+    NSMutableArray *fsqannotations;
     
 }
 //plist properties
 @synthesize name, movieName, checkInCopy, bonusUrl;
-@synthesize categoryId, sectionId, noveltyId, queryString, sceneTypeName, sceneTypeDict;
+@synthesize categoryId, sectionId, noveltyId, categoryHint, queryString, sceneTypeName, sceneTypeDict;
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
@@ -91,12 +95,12 @@ typedef enum {
     // Did the superclass's designated initializer succeed?
     if (self) {
         _scene = scn;
-        
         name = [scn.pListDetails objectForKey:@"name"];
         sceneTypeName = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"type"];
         categoryId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"categoryId"];
+        categoryHint = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"categoryHint"];
         sectionId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"sectionId"];
-        noveltyId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"noveltyId"];
+        noveltyId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"novelty"];
         movieName = [scn.pListDetails objectForKey:@"movieName"];
         checkInCopy = [scn.pListDetails objectForKey:@"checkInCopy"];
         bonusUrl = [NSString stringWithFormat:@"%d", scn.level];
@@ -120,6 +124,10 @@ typedef enum {
 }
 - (void) launchCheckinVC: (id)sender : (NSDictionary*) dict
 {
+    if (!((FoursquareAnnotation*)[[mvFoursquare selectedAnnotations] objectAtIndex:0]).venueId) {
+        [self willPresentError:[NSError errorWithDomain:nil code:0 userInfo:nil]];
+        return;
+    }
     NSDictionary *launchDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                 ((FoursquareAnnotation*)[[mvFoursquare selectedAnnotations] objectAtIndex:0]).venueId, @"id",
                                 ((FoursquareAnnotation*)[[mvFoursquare selectedAnnotations] objectAtIndex:0]).title, @"name", nil];
@@ -134,10 +142,34 @@ typedef enum {
 }
 - (void) launchBonusWebView
 {
+    NSString *baseBonusURL = @"http://western.goddamncobras.com/";
+    /*
     NSLog(@"launching bonus webview");
-    BonusWebViewController *bonusView = [[BonusWebViewController alloc] initWithUrl:bonusUrl];
+    //BonusWebViewController *bonusView = [[BonusWebViewController alloc] initWithUrl:bonusUrl];
+    BonusWebViewController *bonusView = [[BonusWebViewController alloc] initWithUrl:baseBonusURL];
     [self presentViewController:bonusView animated:YES completion:^{}];
+     */
+    NSURL *URL = [NSURL URLWithString:baseBonusURL];
+    BOOL result = [[UIApplication sharedApplication] openURL:URL];
+    if (!result) {
+        NSLog(@"*** %s: cannot open url \"%@\"", __PRETTY_FUNCTION__, URL);
+    }
     
+}
+- (IBAction) resetButton:(id)sender
+{
+    [[Tumbleweed sharedClient] resetLevel];
+    [[TumbleweedViewController sharedClient] addProgressBar];
+    [self dismissModal:nil];
+    //[self refreshView];
+}
+- (IBAction) fsqListButton:(id)sender
+{
+    NSURL *URL = [NSURL URLWithString:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListUrl"]];
+    BOOL result = [[UIApplication sharedApplication] openURL:URL];
+    if (!result) {
+        NSLog(@"*** %s: cannot open url \"%@\"", __PRETTY_FUNCTION__, URL);
+    }
 }
 - (IBAction) playVideo:(id)sender 
 {
@@ -149,6 +181,8 @@ typedef enum {
     // prevent mute switch from switching off audio from movie player
     NSError *_error = nil;
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &_error];
+    
+    [[TumbleweedViewController sharedClient] tryPlayMusic:TRUE];
     
     [self presentMoviePlayerViewControllerAnimated:moviePlayer];
 
@@ -213,69 +247,6 @@ typedef enum {
      */
 
 }
-- (void)movieExitFullscreen:(NSNotification*)aNotification
-{
-    NSLog(@"inside of movieExitFullscreen");
-
-}
-- (void)movieFinishedCallback:(NSNotification*)aNotification
-{
-    NSLog(@"inside of moviefinishedcallback");
-    // Obtain the reason why the movie playback finished
-    NSNumber *finishReason = [[aNotification userInfo] objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
-    
-    // Dismiss the view controller ONLY when the reason is not "playback ended"
-    if ([finishReason intValue] != MPMovieFinishReasonPlaybackEnded)
-    {
-        MPMoviePlayerController *moviePlayer1 = [aNotification object];
-        
-        // Remove this class from the observers
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:MPMoviePlayerPlaybackDidFinishNotification
-                                                      object:moviePlayer1];
-        
-        // Dismiss the view controller
-        [self dismissModalViewControllerAnimated:YES];
-    }
-}
-- (void) videoPlayBackDidFinish: (NSNotification*) notification
-{
-    /*
-    if ([[notification userInfo] objectForKey:MPMoviePlayerDidExitFullscreenNotification]) {
-        
-        NSLog(@"stopping");
-        //return;
-    }
-    [moviePlayer setFullscreen:NO animated:YES];
-    [moviePlayer stop];
-    [self dismissMoviePlayerViewControllerAnimated]; 
-    [moviePlayer.view removeFromSuperview];
-    moviePlayer = nil;
-    
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer];
-    */
-    NSLog(@"notif received in moviefinish");
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
-    
-    [moviePlayer.moviePlayer stop];
-    moviePlayer = nil;
-    [self dismissMoviePlayerViewControllerAnimated];
-    
-    
-    int reason = [[[notification userInfo] valueForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey] intValue];
-    if (reason == MPMovieFinishReasonPlaybackEnded) {
-        //movie finished playin
-        NSLog(@"finished");
-    }else if (reason == MPMovieFinishReasonUserExited) {
-        //user hit the done button
-        NSLog(@"hit done");
-    }else if (reason == MPMovieFinishReasonPlaybackError) {
-        //error
-        NSLog(@"error");
-    }
-
-}
 - (IBAction)rightScroll:(id)sender
 {
     self.venueSVPos += 1;
@@ -313,7 +284,9 @@ typedef enum {
     }
     venueSVPos = position;
     
-    [venueScrollView setContentOffset:CGPointMake(venueSVPos*venueScrollView.frame.size.width, 0) animated:TRUE];
+    //[venueScrollView setContentOffset:CGPointMake(venueSVPos*venueScrollView.frame.size.width, 0) animated:TRUE];
+    [mvFoursquare removeAnnotations:fsqannotations];
+    [mvFoursquare addAnnotation: [fsqannotations objectAtIndex:venueSVPos]];
     
     for (id<MKAnnotation> currentAnnotation in mvFoursquare.annotations) {
         if ([currentAnnotation isKindOfClass:[FoursquareAnnotation class]]){
@@ -472,9 +445,9 @@ typedef enum {
     for (id<MKAnnotation> currentAnnotation in mapView.annotations) {
         if ([currentAnnotation isKindOfClass:[FoursquareAnnotation class]]){
             if (((FoursquareAnnotation*)currentAnnotation).arrayPos == 0) {
+                [self zoomMapViewToFitAnnotations:mapView animated:YES];
                 [mapView selectAnnotation:(FoursquareAnnotation*)currentAnnotation animated:YES];
                 //NSLog(@"mv selected %@", [[mapView selectedAnnotations] objectAtIndex:0]);
-                [self zoomMapViewToFitAnnotations:mapView animated:YES];
                 break;
             }
         }
@@ -522,7 +495,6 @@ typedef enum {
     [mapView setRegion:region animated:animated];
 }
 
-
 #pragma mark -
 #pragma mark - SearchView methods
 - (void) searchSetup
@@ -538,12 +510,14 @@ typedef enum {
     mvFoursquare.userTrackingMode = MKUserTrackingModeNone;
     mvFoursquare.showsUserLocation = YES;
     [self setPinsLoaded:NO];
+    /*
     if (!locationManager){
         locationManager = [[CLLocationManager alloc] init];
         [locationManager setDelegate:self];
     }
-    //[locationManager startUpdatingLocation];
-    
+    [locationManager startUpdatingLocation];
+    */
+     
     RCLocationManager *locationManagerRC = [RCLocationManager sharedManager];
     [locationManagerRC setUserDistanceFilter:kCLLocationAccuracyHundredMeters];
     [locationManagerRC setUserDesiredAccuracy:kCLLocationAccuracyBest];
@@ -557,6 +531,7 @@ typedef enum {
                     NSLog(@"error %@", error);
                 }
                 [self processVenues:kExplore:venues :error];
+                NSLog(@"categoryid %@ sectionid %@ noveltyid %@", categoryId, sectionId, noveltyId);
             }];
         }
         else if ([sceneTypeName isEqualToString:@"FSQsearch"]) {
@@ -594,35 +569,30 @@ typedef enum {
     //if re-search was hit, reset all the views and values
     //allVenues = nil;
     //venueView = nil;
-    venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
-    [venueScrollView addSubview:venueView];
+    //venueView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
+    //[venueScrollView addSubview:venueView];
     
     // If there are no search results, throw up "Nothing found."
     if ([items count] == 0 || err) {
-        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, contentSize.width, contentSize.height)];
-        [nameLabel setTextAlignment:UITextAlignmentCenter];
+
         if (err) {
-            [nameLabel setText:@"You need some internets."];
             [self willPresentError:err];
         }
-        else [nameLabel setText:@"Nothing nearby? Weird."];
+        else {
+            [self willPresentError:[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDeferredFailed userInfo:nil]];
+        }
         
-        NSLog(@"items %@, itemsArrayLength %d, error %@, namelable %@", items, itemsArrayLength, err.domain, nameLabel.text);
-        [nameLabel setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-        [nameLabel setTextColor:beigeC];
-        [nameLabel setClearsContextBeforeDrawing:YES];
-        [nameLabel setBackgroundColor:[UIColor clearColor]];
-        [nameLabel setCenter:CGPointMake(nibwidth/2, nibheight/2)];
-        [venueView addSubview:nameLabel];
+        //[venueView addSubview:nameLabel];
         rightScroll.enabled = NO;
+        checkinButton.enabled = NO;
     }
     else{
         if (items.count > 1) rightScroll.enabled = YES;
         
         allVenues = [NSMutableArray arrayWithCapacity:itemsArrayLength];
 
-        int offset = 0;
-        NSMutableArray *annotations = [[NSMutableArray alloc] init];
+        //int offset = 0;
+        fsqannotations = [[NSMutableArray alloc] init];
         for (int i = 0; i < [items count]; i++) {
             
             NSDictionary *ven = [items objectAtIndex:i];
@@ -631,6 +601,7 @@ typedef enum {
             NSString *address = [[ven objectForKey: @"location"]  objectForKey:@"address"];
             CGFloat latitude = [[[ven objectForKey: @"location"] objectForKey: @"lat"] floatValue];
             CGFloat longitude = [[[ven objectForKey: @"location"] objectForKey: @"lng"] floatValue];
+            /*
             NSArray *venCats = [ven objectForKey:@"categories"];
             NSString *iconURL;
             if (venCats.count) {
@@ -661,13 +632,17 @@ typedef enum {
             
             // push venue details into a tag for future lookup            
             nameButton.tag = i;
-            [allVenues addObject:ven];
+            
             
             // capture events
             [nameButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchDown];
             
             // add it to the content view
             [venueView addSubview:venueDetailNib];
+             
+            */
+            
+            [allVenues addObject:ven];
             
             // create and initialise the annotation
             FoursquareAnnotation *foursquareAnnotation = [[FoursquareAnnotation alloc] init];
@@ -680,14 +655,16 @@ typedef enum {
             //[foursquareAnnotation setTitle: [NSString stringWithFormat:@"%d", i+1]];
             [foursquareAnnotation setSubtitle: address];
             [foursquareAnnotation setVenueId: vID];
-            [foursquareAnnotation setIconUrl:iconURL];
+            //[foursquareAnnotation setIconUrl:iconURL];
             [foursquareAnnotation setArrayPos:((unsigned int) i)];
             
             // add the annotation object to the container
-            [annotations addObject: foursquareAnnotation];
+            [fsqannotations addObject: foursquareAnnotation];
             
         }
-        [mvFoursquare addAnnotations: annotations];
+        //[mvFoursquare addAnnotations: annotations];
+        [mvFoursquare addAnnotation: [fsqannotations objectAtIndex:0]];
+        checkinButton.enabled = YES;
     }
     [venueScrollView.subviews makeObjectsPerformSelector:@selector(setNeedsDisplay)];
     self.venueSVPos = 0;
@@ -746,7 +723,6 @@ typedef enum {
 }
 - (void) tapSpriteAdvancer: (unsigned int) tapNum
 {
-    
     if ([movieName isEqualToString:@"01_Intro"])
     {
         //NSLog(@"hiih");
@@ -837,18 +813,20 @@ typedef enum {
             case 10:
             {
                 [self resetTapView:false];
-                tapLabel1.text = @"Eden Brolin as";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x-140, tapLabel1.center.y-30);
+                [lockedTapImage removeFromSuperview];
+                [lockedTapImageText removeFromSuperview];
+                tapLabel1.text = @"Eden Brolin";
+                tapLabel1.textAlignment = NSTextAlignmentRight;
+                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
                 
-                tapLabel2.text = @"Lady Land";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
+                tapLabel2.text = @"as Lady Land";
+                tapLabel2.textAlignment = NSTextAlignmentRight;
+                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
                 tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
                 
                 tapImage1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"intro-01_eden.jpg"]];
-                tapImage1.frame = CGRectMake(tapView.center.x-20, 0, tapImage1.image.size.width/1.3, tapImage1.image.size.height/1.3);
+                tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
                 [tapView addSubview:tapImage1];
                 tapImage1.layer.cornerRadius = 17.0;
                 tapImage1.layer.masksToBounds = YES;
@@ -859,18 +837,16 @@ typedef enum {
             case 11:
             {
                 [self resetTapView:false];
-                tapLabel1.text = @"Justin Johnson as";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+140, tapLabel1.center.y-30);
+                tapLabel1.text = @"Justin Johnson";
+                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
                 
                 tapLabel2.text = @"The Sheriff";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
+                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
                 tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
                 
                 tapImage1.image = [UIImage imageNamed:@"intro-02_bearClaw.jpg"];
-                tapImage1.frame = CGRectMake(0, 0, tapImage1.image.size.width/1.3, tapImage1.image.size.height/1.3);
+                tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
                 [tapView addSubview:tapImage1];
                 
                 
@@ -880,18 +856,19 @@ typedef enum {
             case 12:
             {
                 [self resetTapView:false];
-                tapLabel1.text = @"Rich Awn as";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x-140, tapLabel1.center.y-30);
+                tapLabel1.text = @"Rich Awn";
+                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
+                tapLabel1.textAlignment = NSTextAlignmentRight;
                 
-                tapLabel2.text = @"Seersucker";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
+                tapLabel2.text = @"The Seersucker";
+                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
                 tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                tapLabel2.textAlignment = NSTextAlignmentRight;
+
                 
                 tapImage1.image = [UIImage imageNamed:@"intro-03_rich.jpg"];
-                tapImage1.frame = CGRectMake(tapView.center.x-20, 0, tapImage1.image.size.width/1.3, tapImage1.image.size.height/1.3);
+                tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
                 [tapView addSubview:tapImage1];
             }
                 break;
@@ -899,18 +876,16 @@ typedef enum {
             case 13:
             {
                 [self resetTapView:false];
-                tapLabel1.text = @"James Brolin as";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+140, tapLabel1.center.y-30);
+                tapLabel1.text = @"James Brolin";
+                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
                 
-                tapLabel2.text = @"Old Buzzard";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
+                tapLabel2.text = @"The Storyteller";
+                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
                 tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
                 
                 tapImage1.image = [UIImage imageNamed:@"intro-04_james.jpg"];
-                tapImage1.frame = CGRectMake(0, 0, tapImage1.image.size.width/1.3, tapImage1.image.size.height/1.3);
+                tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
                 [tapView addSubview:tapImage1];
             }
                 break;
@@ -921,10 +896,10 @@ typedef enum {
                 tapLabel1.text = @"Made by";
                 [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
                 tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+80);
+                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+75);
                 
                 tapLabel2.text = @"Goddamn Cobras Collective";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
                 tapLabel2.textAlignment = NSTextAlignmentCenter;
                 tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
                 
@@ -947,6 +922,7 @@ typedef enum {
             case 16:
             {
                 [self removeTapView];
+                [self animateRewards:2 :YES];
             }
                 break;
         }
@@ -1769,13 +1745,14 @@ typedef enum {
                 tapLabel2.text = @"you got a good story out of it...";
                 tapLabel2.textAlignment = NSTextAlignmentRight;
                 [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:22]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-1.0);
+                tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-1.8);
             }
                 break;
                 
             case 15:
             {
                 [self removeTapView];
+                [self animateRewards:2 :YES];
             }
                 break;
         }
@@ -1833,11 +1810,45 @@ typedef enum {
 }
 - (void) removeTapView
 {
-    [tapView removeFromSuperview];
-    tappedOut = YES;
-    [self refreshView];
+    [UIView animateWithDuration:0.5 animations:^{
+        tapView.alpha = 0;
+    } completion:^(BOOL finished) {
+        [tapView removeFromSuperview];
+        tappedOut = YES;
+        [self refreshView];
+    }];
+    
 }
-
+- (void) handleDoubleTap:(UIGestureRecognizer *)sender
+{
+    NSLog(@"ignoring double tap");
+}
+- (void) resetScene
+{
+    tappedOut = NO;
+    [movieView removeFromSuperview];
+    [self.view addSubview:tapView];
+    tapView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2 +25);
+    tapNumber = 0;
+    [self tapSpriteAdvancer:tapNumber];
+    tapView.alpha = 1;
+    
+}
+- (void) starringTapButton;
+{
+    tappedOut = NO;
+    [movieView removeFromSuperview];
+    [self.view addSubview:tapView];
+    tapView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2 +25);
+    tapNumber = 10;
+    [self tapSpriteAdvancer:tapNumber];
+    [UIView animateWithDuration:0.5 animations:^{
+        tapView.alpha = 1;
+    } completion:^(BOOL finished) {
+        
+    }];
+    
+}
 - (void) animateRewards : (NSTimeInterval) duration : (BOOL) withVideo
 {
     NSLog(@"hitting animate rewards");
@@ -1857,18 +1868,16 @@ typedef enum {
     [UIView animateWithDuration:duration animations:^{
         searchView.alpha = 0;
         movieView.alpha = 1;
-        unlockCopy.text = [NSString stringWithFormat:@"unlocked at: %@", successfulVenueName];
+        if ([[Tumbleweed sharedClient] successfulVenues].count > 0 && unlockCopy.hidden==NO)
+        {
+            NSLog(@"animate unlock");
+            successfulVenueName = [[[Tumbleweed sharedClient] successfulVenues] objectAtIndex:_scene.level];
+            unlockCopy.text = [NSString stringWithFormat:@"unlocked at: %@", successfulVenueName];
+            if ([successfulVenueName isEqualToString:@""]) unlockCopy.text = [NSString stringWithFormat:@"unlocked"];
+        }
     } completion:^(BOOL finished) {
         [searchView removeFromSuperview];
-        [UIView transitionWithView:movieThumbnailButton
-                          duration:0.7f
-                           options:UIViewAnimationOptionTransitionCrossDissolve
-                        animations:^{
-                            
-                            
-                        } completion:^(BOOL finished){
-                            if (withVideo)[self playVideo:nil];
-                        }];
+        if (withVideo)[self playVideo:nil];
         
     }];
     
@@ -1883,12 +1892,15 @@ typedef enum {
 }
 - (void) willPresentError:(NSError *)error
 {
-    
     NSString *errorTitle;
     NSString *errorMessage;
     NSLog(@"presenting alert error");
     if ([[error domain] isEqualToString:kCLErrorDomain] || [[error domain] isEqualToString:NSURLErrorDomain]) {
         switch([error code]) {
+            case kCLErrorDeferredFailed:
+                errorTitle = @"Nothing nearby";
+                errorMessage = [NSString stringWithFormat:@"You must be in the middle of nowhere. Hit the re-search button on the map when you're closer to %@", categoryHint];
+                break;
             case kCLAuthorizationStatusAuthorized:
             case kCLErrorDenied:
                 errorTitle = @"Location Services Disabled";
@@ -1918,19 +1930,91 @@ typedef enum {
     
     if ([sceneTypeName isEqualToString:@"Empty"])
     {
-        
+        unlockCopy.hidden = YES;
         if ([movieName isEqualToString:@"01_Intro"])
         {
+            UIImageView *tap2start = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"tap-to-start_scene.png"]];
+            [lockedTapImage addSubview:tap2start];
+            tap2start.center = CGPointMake(lockedTapImage.image.size.width, -15);
             if (!tappedOut) return;
+            //so animate rewards doesn't fail
             [self animateRewards:0:NO];
-            unlockCopy.hidden = YES;
+            {
+                UIButton *starringButton = [UIButton buttonWithType:UIButtonTypeCustom];
+                starringButton.frame = CGRectMake(0, 0, 122, 40);
+                starringButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
+                starringButton.titleLabel.textColor = redC;
+                starringButton.titleLabel.frame = starringButton.frame;
+                
+                [starringButton setBackgroundImage:[UIImage imageNamed:@"blank_button_Default.png"] forState:UIControlStateNormal];
+                [starringButton setBackgroundImage:[UIImage imageNamed:@"blank_button_onPress.png"] forState:UIControlStateHighlighted];
+                [starringButton setTitle:@"STARRING" forState:UIControlStateNormal&UIControlStateHighlighted];
+                [starringButton setTitleColor:redC forState:UIControlStateNormal];
+                [starringButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+                
+                [starringButton addTarget:self action:@selector(starringTapButton) forControlEvents:UIControlEventTouchUpInside];
+                
+                [movieView addSubview:starringButton];
+                starringButton.center = CGPointMake(movieView.bounds.size.width/2, movieView.bounds.size.height-(starringButton.bounds.size.height/2 -3));
+            }
         }
         else if ([movieName isEqualToString:@"09_Campfire"])
         {
+            NSLog(@"in campfire");
             if (!tappedOut) return;
             [self animateRewards:0:NO];
-            extrasView.hidden = NO;
-
+            {
+                UIButton *extrasButton = [UIButton buttonWithType:UIButtonTypeCustom];
+                extrasButton.frame = CGRectMake(0, 0, 122, 40);
+                extrasButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
+                extrasButton.titleLabel.textColor = redC;
+                extrasButton.titleLabel.frame = extrasButton.frame;
+                
+                [extrasButton setBackgroundImage:[UIImage imageNamed:@"blank_button_Default.png"] forState:UIControlStateNormal];
+                [extrasButton setBackgroundImage:[UIImage imageNamed:@"blank_button_onPress.png"] forState:UIControlStateHighlighted];
+                [extrasButton setTitle:@"EXTRAS" forState:UIControlStateNormal&UIControlStateHighlighted];
+                [extrasButton setTitleColor:redC forState:UIControlStateNormal];
+                [extrasButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+                
+                [extrasButton addTarget:self action:@selector(launchBonusWebView) forControlEvents:UIControlEventTouchUpInside];
+                
+                [movieView addSubview:extrasButton];
+                extrasButton.center = CGPointMake(movieView.bounds.size.width/4, movieView.bounds.size.height-(extrasButton.bounds.size.height/2 -3));
+                
+                UIButton *resetButton = [UIButton buttonWithType:UIButtonTypeCustom];
+                resetButton.frame = CGRectMake(0, 0, 122, 40);
+                resetButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
+                resetButton.titleLabel.textColor = redC;
+                resetButton.titleLabel.frame = resetButton.frame;
+                
+                [resetButton setBackgroundImage:[UIImage imageNamed:@"blank_button_Default.png"] forState:UIControlStateNormal];
+                [resetButton setBackgroundImage:[UIImage imageNamed:@"blank_button_onPress.png"] forState:UIControlStateHighlighted];
+                [resetButton setTitle:@"RESET" forState:UIControlStateNormal&UIControlStateHighlighted];
+                [resetButton setTitleColor:redC forState:UIControlStateNormal];
+                [resetButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+                
+                [resetButton addTarget:self action:@selector(resetButton:) forControlEvents:UIControlEventTouchUpInside];
+                
+                [movieView addSubview:resetButton];
+                resetButton.center = CGPointMake(movieView.bounds.size.width*3/4, movieView.bounds.size.height-(resetButton.bounds.size.height/2 -3));
+                
+                UIButton *fsqListButton = [UIButton buttonWithType:UIButtonTypeCustom];
+                fsqListButton.frame = CGRectMake(0, 0, 122, 40);
+                fsqListButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
+                fsqListButton.titleLabel.textColor = redC;
+                fsqListButton.titleLabel.frame = fsqListButton.frame;
+                
+                [fsqListButton setBackgroundImage:[UIImage imageNamed:@"blank_button_Default.png"] forState:UIControlStateNormal];
+                [fsqListButton setBackgroundImage:[UIImage imageNamed:@"blank_button_onPress.png"] forState:UIControlStateHighlighted];
+                [fsqListButton setTitle:@"MY PATH" forState:UIControlStateNormal&UIControlStateHighlighted];
+                [fsqListButton setTitleColor:redC forState:UIControlStateNormal];
+                [fsqListButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+                
+                [fsqListButton addTarget:self action:@selector(fsqListButton:) forControlEvents:UIControlEventTouchUpInside];
+                
+                //[movieView addSubview:fsqListButton];
+                fsqListButton.center = CGPointMake(movieView.bounds.size.width, movieView.bounds.size.height-(fsqListButton.bounds.size.height/2 -3));
+            }
         }
     }
     else
@@ -1938,14 +2022,17 @@ typedef enum {
         if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards:0:NO];
         else if ([sceneTypeName isEqualToString:@"Timer"] || [sceneTypeName isEqualToString:@"FSQdistance"])
         {
+            //[self resetScene];
             if (!tappedOut) return;
-            [self animateRewards:0:NO];
-            [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1)];
+            [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1) withVenue:nil];
+            noveltyId = @"new";
+            [self animateRewards:1:YES];
         }
         else {
+            //[self resetScene];
             if (!tappedOut) return;
             [self.view addSubview:searchView];
-            searchView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2);
+            searchView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2+18);
             [self searchSetup];
         }
     }
@@ -1965,7 +2052,7 @@ typedef enum {
         
     unlockCopy.font = [UIFont fontWithName:@"rockwell" size:16];
     [unlockCopy setTextColor:beigeC];
-    checkinInstructions.font = [UIFont fontWithName:@"rockwell-bold" size:25];
+    checkinInstructions.font = [UIFont fontWithName:@"Rockwell-Light" size:25];
     checkinInstructions.text = checkInCopy;
     [checkinInstructions setTextColor:brownC];
     sceneTitleIV.image = [UIImage imageNamed:[_scene.pListDetails objectForKey:@"movieTextOn"]];
@@ -1973,7 +2060,16 @@ typedef enum {
         //[playButton setImage:[UIImage imageNamed:[_scene.pListDetails objectForKey:@"movieTextOff"]] forState:UIControlStateDisabled];
         lockedTapImageText.image = [UIImage imageNamed:[_scene.pListDetails objectForKey:@"movieTextOff"]];
     }
-    [playButton addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchDown];
+    [playButton addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
+    
+    checkinButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
+    checkinButton.titleLabel.textColor = redC;
+    checkinButton.titleLabel.frame = checkinButton.frame;    
+    [checkinButton setTitle:@"Check In To Watch" forState:UIControlStateNormal&UIControlStateHighlighted];
+    [checkinButton setTitle:@"Nothing Nearby" forState:UIControlStateDisabled];
+    [checkinButton setTitleColor:redC forState:UIControlStateNormal];
+    [checkinButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+    [checkinButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchUpInside];
 
     
     //movieButton settings
@@ -1988,14 +2084,14 @@ typedef enum {
             //[movieThumbnailButton setImage:buttonImg3 forState:UIControlStateDisabled];
             lockedTapImage.image = buttonImg3;
         }
-        
+        movieThumbnailButton.imageView.layer.masksToBounds = YES;
         movieThumbnailButton.imageView.layer.cornerRadius = 15.0;
     }
     
     [sceneSVView.layer setContents:(__bridge id)[[UIImage imageNamed:@"check-in_bg.jpg"] CGImage]];
     
-    CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, sceneSVView.bounds.size.height);
-    if ([sceneSVView.subviews containsObject:contentView]) sceneScrollView.contentSize = screenSize;
+    //CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, sceneSVView.bounds.size.height);
+    //if ([sceneSVView.subviews containsObject:contentView]) sceneScrollView.contentSize = screenSize;
     [sceneScrollView addSubview:sceneSVView];
     
     UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
@@ -2003,10 +2099,14 @@ typedef enum {
     [tapHandler setDelegate:self];
     [tapView addGestureRecognizer:tapHandler];
     
+    //ignore double-tap
+    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget: self action:@selector(handleDoubleTap:)] ;
+    doubleTap.numberOfTapsRequired = 2;
+    [tapView addGestureRecognizer:doubleTap];
+    //[tapHandler requireGestureRecognizerToFail:doubleTap];
+    
     mvFoursquare.layer.cornerRadius = 10.0;
-    
-    [checkinButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchDown];
-    
+        
     [self refreshView];
 }
 
@@ -2028,7 +2128,7 @@ typedef enum {
     [[RCLocationManager sharedManager] stopUpdatingLocation];
     [Foursquare cancelSearchVenues];
     
-    [locationManager stopUpdatingLocation];    
+    //[locationManager stopUpdatingLocation];
 }
 
 

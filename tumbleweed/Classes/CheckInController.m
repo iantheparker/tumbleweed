@@ -102,7 +102,7 @@
             NSLog(@"error checking in %@", error);
         }
         else {
-            [[Tumbleweed sharedClient] updateLevel:(sceneControllerId.scene.level + 1)];
+            [[Tumbleweed sharedClient] updateLevel:(sceneControllerId.scene.level + 1) withVenue:venueNameLabel.text];
             
             [self.navigationController popViewControllerAnimated:YES];
                 
@@ -111,8 +111,9 @@
                 NSString *checkInId = [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"];
                 [Foursquare addPhoto:[photoButton imageForState:UIControlStateSelected] checkin:checkInId broadcast:_broadcastType];
             }
+            //[Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:[venueDetails objectForKey:@"id"] itemText:nil];
             [sceneControllerId animateRewards:1:YES];
-            sceneControllerId.successfulVenueName = venueNameLabel.text;
+            //sceneControllerId.successfulVenueName = venueNameLabel.text;
             //NSLog(@"foursquare checkinresponse %@", checkInResponse);
             
         }
@@ -230,7 +231,7 @@
     [venueNameLabel setFont:[UIFont fontWithName:@"rockwell-bold" size:30]];
     [venueNameLabel setTextColor:brownC];
     
-    shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check-in. Thanks Tumbleweed!";
+    shoutText = @"Woah! I just unlocked a scene from the movie No Man's Land with this check-in. Thanks tumbleweed.me!";
     shoutTextView.text = shoutText;
     //NSLog(@"shoutText is %@", shoutText);
     shoutTextView.layer.cornerRadius = 10.0;

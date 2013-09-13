@@ -26,7 +26,6 @@
     IBOutlet UIButton *foursquareConnectButton;
     
     //audio
-
     BOOL _backgroundMusicPlaying;
 	BOOL _backgroundMusicInterrupted;
 	UInt32 _otherMusicIsPlaying;
@@ -39,10 +38,13 @@
 @property (nonatomic) SystemSoundID systemSound;
 @property (nonatomic, retain) AVAudioPlayer *_backgroundMusicPlayer;
 
+//-- shared instance
++ (TumbleweedViewController *) sharedClient;
 
 //-- instance methods
 - (void) gameState;
 - (void) saveAvatarPosition;
+- (void) addProgressBar;
 
 //-- event handlers
 - (IBAction) foursquareConnect:(UIButton *)sender;
@@ -51,7 +53,8 @@
 
 
 //audio
-- (void) tryPlayMusic;
+- (void) loadBGAudio;
+- (void) tryPlayMusic: (BOOL) off;
 - (void) playSystemSound: (NSString*) name;
 
 

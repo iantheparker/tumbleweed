@@ -15,6 +15,7 @@
     #import <MobileCoreServices/MobileCoreServices.h>
     #import "Foursquare.h"
     #import "Tumbleweed.h"
+    #import "TumbleweedViewController.h"
     #import "Environment.h"
 
 #endif

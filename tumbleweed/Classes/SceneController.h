@@ -34,8 +34,6 @@
     IBOutlet UIView *searchView;
     IBOutlet UIButton *movieThumbnailButton;
     IBOutlet UIView *extrasView;
-    IBOutlet UIView *introView;
-    IBOutlet UIView *contentView;
     IBOutlet UIView *movieView;
     IBOutlet UIButton *checkinButton;
     IBOutlet UILabel *checkinInstructions;
@@ -82,23 +80,24 @@
 @property (nonatomic, retain) UIView *tapView;
 
 
+
 //initializers
 - (id) initWithScene: (Scene *) scn;
 
 // touch events
 - (IBAction) dismissModal:(id)sender;
+- (IBAction) resetButton:(id)sender;
+- (IBAction) fsqListButton:(id)sender;
 - (IBAction) playVideo:(id)sender ;
-- (IBAction)refreshSearch:(id)sender;
-- (IBAction)leftScroll :(id)sender;
-- (IBAction)rightScroll :(id)sender;
+- (IBAction) refreshSearch:(id)sender;
+- (IBAction) leftScroll :(id)sender;
+- (IBAction) rightScroll :(id)sender;
 
 - (void) animateRewards : (NSTimeInterval) duration :(BOOL) withVideo;
-- (void) videoPlayBackDidFinish:(NSNotification *) notification;
-- (void) movieFinishedCallback:(NSNotification*) aNotification;
-- (void) movieExitFullscreen:(NSNotification*) aNotification;
 
 //
 - (void) handleSingleTap:(UIGestureRecognizer *)sender;
+- (void) handleDoubleTap:(UIGestureRecognizer *)sender;
 
 
 

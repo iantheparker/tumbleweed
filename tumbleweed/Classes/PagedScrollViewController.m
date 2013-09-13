@@ -37,15 +37,19 @@
 -(void) updateScrollDisplay : (NSTimer*) timer
 {
     float loc = self.scrollView.contentOffset.y;
+    int cutoff = 150;
     
-    if (loc <= 160 )
+    if (loc <= cutoff )
+    {
         self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
-    else if ( loc > 150 && loc <= 320)
+    }
+    else if ( loc > cutoff && loc <= [UIScreen mainScreen].bounds.size.height)
     {
         float highspeed = 1.25;
         float lowspeed = 0.25;
-        float middleHeight = (320 - 150)/2.0 + 150;
-        float diffspeed = highspeed - (highspeed - lowspeed) * pow(M_E, -pow((middleHeight - loc)/100, 4));
+        float middleHeight = ([UIScreen mainScreen].bounds.size.width - cutoff)/2.0 + cutoff;
+        float diffspeed = lowspeed + (highspeed - lowspeed) * pow(M_E, -pow((middleHeight - loc)/100, 6));
+        diffspeed = roundf(diffspeed*4)/4;
         self.scrollView.contentOffset = CGPointMake(0, loc + diffspeed);
         NSLog(@"diffspeed %f", diffspeed);
     }

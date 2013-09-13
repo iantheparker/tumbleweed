@@ -227,6 +227,49 @@ static int vDate = 20120927;
     [[AFFoursquareAPIClient sharedClient] enqueueHTTPRequestOperation:operation];
 }
 
++ (void)addList:(NSString*) name
+    description:(NSString*) desc
+      WithBlock:(void (^)(NSDictionary *listResponse, NSError *error))block
+{
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 @"No Man's Land Path", @"name",
+                                 @"All the places I went to while watching this movie from tumbleweed.me", @"description",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 [NSNumber numberWithInt:vDate], @"v", nil];
+    [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
+    [[AFFoursquareAPIClient sharedClient] postPath:@"lists/add" parameters:queryParams
+                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                               NSDictionary *results = [[JSON objectForKey:@"response"] objectForKey:@"list"];
+                                               if (block) {
+                                                   block(results, nil);
+                                               }
+                                           } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                               if (block) {
+                                                   block([NSDictionary dictionary], error);
+                                                   NSLog(@"error from list %@", error);
+                                               }
+                                           }];
+}
+
++ (void)addListItem:(NSString*) listId
+              venue:(NSString*) venueId
+           itemText:(NSString*) text
+{
+    NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 venueId, @"venueId",
+                                 text, @"text",
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 [NSNumber numberWithInt:vDate], @"v", nil];
+    [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
+    [[AFFoursquareAPIClient sharedClient] postPath:[NSString stringWithFormat:@"lists/%@/additem", listId] parameters:queryParams
+                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
+                                               NSLog(@"successful addedlistitem %@", JSON);
+                                               
+                                           } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                               NSLog(@"addlistitem error %@", error);
+                                               
+                                           }];
+}
 #pragma mark -
 #pragma mark - SVProgressHUD
 
