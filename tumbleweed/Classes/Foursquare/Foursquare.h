@@ -30,6 +30,7 @@ WithBlock:(void (^)(NSArray *venues, NSError *error))block;
                         sectionId:(NSString*)section
                           noveltyId:(NSString*)novelty
                            distance:(NSString*)radius
+                       friendVisits:(NSString*)visited
                          WithBlock:(void (^)(NSArray *venues, NSError *error))block;
 
 + (void)cancelSearchVenues;

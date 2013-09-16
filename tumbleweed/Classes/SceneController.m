@@ -9,7 +9,6 @@
 #import "SceneController.h"
 #import "CheckInController.h"
 #import "AFFoursquareAPIClient.h"
-#import "BonusWebViewController.h"
 #import <UIImageView+AFNetworking.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import "MCSpriteLayer.h"
@@ -20,6 +19,17 @@
 #define MAX_DEGREES_ARC 360
 #define DISTANCE_UNLOCK_RADIUS 1000.0
 
+/*
+ *  System Versioning Preprocessor Macros
+ */
+
+#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
+
 typedef enum {
     kSearch,
     kExplore,
@@ -28,7 +38,6 @@ typedef enum {
 
 @interface SceneController()
 
-@property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) NSString *categoryId;
 @property (nonatomic, retain) NSString *sectionId;
 @property (nonatomic, retain) NSString *noveltyId;
@@ -40,6 +49,7 @@ typedef enum {
 @property (nonatomic, retain) NSString *bonusUrl;
 @property (nonatomic, retain) NSString *categoryHint;
 @property (nonatomic, retain) NSString *radius;
+@property (nonatomic, retain) NSString *friendVisits;
 
 @property (nonatomic) unsigned int venueSVPos;
 
@@ -55,7 +65,7 @@ typedef enum {
 - (void) removeTapView;
 - (void) resetTapView: (BOOL) fromStart;
 - (void) starringTapButton;
-- (void) resetScene;
+
 
 @end
 
@@ -79,18 +89,18 @@ typedef enum {
 }
 //plist properties
 @synthesize name, movieName, checkInCopy, bonusUrl;
-@synthesize categoryId, sectionId, noveltyId, categoryHint, queryString, sceneTypeName, sceneTypeDict, radius;
+@synthesize categoryId, sectionId, noveltyId, categoryHint, queryString, sceneTypeName, sceneTypeDict, radius, friendVisits;
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
 @synthesize venueScrollView, venueDetailNib, venueView, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
 //generic properties
-@synthesize sceneScrollView, sceneTitle, unlockCopy, movieThumbnailButton, extrasView, moviePlayer, movieView, checkinButton, successfulVenueName, checkinInstructions, sceneTitleIV, playButton, tapView, lockedTapImage, lockedTapImageText;
+@synthesize sceneScrollView, unlockCopy, movieThumbnailButton, extrasView, moviePlayer, movieView, checkinButton, successfulVenueName, checkinInstructions, sceneTitleIV, playButton, tapView, lockedTapImage, lockedTapImageText;
 
 
 - (id) initWithScene:(Scene *) scn
 {
-    self = [super init];
+    self = [super initWithNibName:@"SceneController" bundle:nil];
     // Did the superclass's designated initializer succeed?
     if (self) {
         _scene = scn;
@@ -101,6 +111,7 @@ typedef enum {
         sectionId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"sectionId"];
         noveltyId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"novelty"];
         radius = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"radius"];
+        friendVisits = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"friendVisits"];
         movieName = [scn.pListDetails objectForKey:@"movieName"];
         checkInCopy = [scn.pListDetails objectForKey:@"checkInCopy"];
         bonusUrl = [NSString stringWithFormat:@"%d", scn.level];
@@ -158,10 +169,43 @@ typedef enum {
 }
 - (IBAction) resetButton:(id)sender
 {
-    [[Tumbleweed sharedClient] resetLevel];
-    [[TumbleweedViewController sharedClient] addProgressBar];
-    [self dismissModal:nil];
-    //[self refreshView];
+    UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Reset"
+                                                      message:@"Are you sure you want to reset No Man's Land?"
+                                                     delegate:self
+                                            cancelButtonTitle:@"Nahh"
+                                            otherButtonTitles:@"YEAH!", nil];
+    [message show];
+    
+}
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
+    if([title isEqualToString:@"YEAH!"])
+    {
+        NSLog(@"Button 1 was selected.");
+        /*
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:nil
+                                                          message:@"Please close No Man's Land to clear your history. Open it back up later when you're ready to play again"
+                                                         delegate:nil
+                                                cancelButtonTitle:@"OK"
+                                                otherButtonTitles:nil];
+        [message show];
+        */
+        [[Tumbleweed sharedClient] resetLevel];
+        [[TumbleweedViewController sharedClient] addProgressBar];
+        [self dismissModal:nil];
+    }
+}
+- (void) resetScene
+{
+    tappedOut = NO;
+    [movieView removeFromSuperview];
+    [self.view addSubview:tapView];
+    tapView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2 +25);
+    tapNumber = 0;
+    [self tapSpriteAdvancer:tapNumber];
+    tapView.alpha = 1;
+    
 }
 - (IBAction) fsqListButton:(id)sender
 {
@@ -316,7 +360,7 @@ typedef enum {
     
     NSLog(@"locationmanager latlong %f,%f ", userCoordinate.latitude, userCoordinate.longitude);
     
-    [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId distance:nil WithBlock:^(NSArray *venues, NSError *error) {
+    [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId distance:nil friendVisits:friendVisits WithBlock:^(NSArray *venues, NSError *error) {
         if (error) {
             NSLog(@"error %@", error);
         }
@@ -503,12 +547,11 @@ typedef enum {
         userCoordinate = [newLocation coordinate];
 
         if ([sceneTypeName isEqualToString:@"FSQexplorenew"]) {
-            [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId distance:radius  WithBlock:^(NSArray *venues, NSError *error) {
+            [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId distance:radius friendVisits:friendVisits WithBlock:^(NSArray *venues, NSError *error) {
                 if (error) {
                     NSLog(@"error %@", error);
                 }
                 [self processVenues:kExplore:venues :error];
-                NSLog(@"categoryid %@ sectionid %@ noveltyid %@ radius %@", categoryId, sectionId, noveltyId, radius);
             }];
         }
         else if ([sceneTypeName isEqualToString:@"FSQsearch"]) {
@@ -523,13 +566,15 @@ typedef enum {
     } errorBlock:^(CLLocationManager *manager, NSError *error) {
         [self processVenues:0:nil :error];
     }];
+    NSLog(@"categoryid %@ sectionid %@ noveltyid %@ radius %@", categoryId, sectionId, noveltyId, radius);
+
     
     
 }
 - (void) processVenues: (NSInteger) searchType : (NSArray*) items : (NSError*) err
 {
     [activityIndicator stopAnimating];
-    [venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    //[venueScrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     //init view sizes
     float nibwidth = venueScrollView.frame.size.width;
@@ -553,9 +598,13 @@ typedef enum {
     if ([items count] == 0 || err) {
 
         if (err) {
+            //no connection
+            [checkinButton setTitle:@"No Service" forState:UIControlStateDisabled];
             [self willPresentError:err];
         }
         else {
+            //nothing nearby
+            [checkinButton setTitle:@"Nothing Nearby" forState:UIControlStateDisabled];
             [self willPresentError:[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDeferredFailed userInfo:nil]];
         }
         
@@ -700,1042 +749,2093 @@ typedef enum {
 }
 - (void) tapSpriteAdvancer: (unsigned int) tapNum
 {
-    if ([movieName isEqualToString:@"01_Intro"])
-    {
-        //NSLog(@"hiih");
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"HIT ME";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) {
+        NSLog(@"displaying ios6 tap texts");
+        if ([movieName isEqualToString:@"01_Intro"])
+        {
+            //NSLog(@"hiih");
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"HIT ME";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:200]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y - 30);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"BANG!";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x + 20,tapLabel1.center.y );
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"BANG! Your tap";
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"BANG! Your tap is the trigger.";
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"easy, partner.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+70);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"I think you got it.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"this is a                 movie.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                    
+                    tapLabel2.text = @"tappable";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:25]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+3, tapLabel1.center.y + 2);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"STARRING";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:170]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                    
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self resetTapView:false];
+                    [lockedTapImage removeFromSuperview];
+                    [lockedTapImageText removeFromSuperview];
+                    tapLabel1.text = @"Eden Brolin";
+                    tapLabel1.textAlignment = NSTextAlignmentRight;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
+                    
+                    tapLabel2.text = @"as Lady Land";
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"intro-01_eden.jpg"]];
+                    tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                    tapImage1.layer.cornerRadius = 17.0;
+                    tapImage1.layer.masksToBounds = YES;
+                    
+                }
+                    break;
+                    
+                case 11:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Justin Johnson";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
+                    
+                    tapLabel2.text = @"The Sheriff";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-02_bearClaw.jpg"];
+                    tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                    
+                    
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Rich Awn";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
+                    tapLabel1.textAlignment = NSTextAlignmentRight;
+                    
+                    tapLabel2.text = @"The Seersucker";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-03_rich.jpg"];
+                    tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                }
+                    break;
+                    
+                case 13:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"James Brolin";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
+                    
+                    tapLabel2.text = @"The Storyteller";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-04_james.jpg"];
+                    tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                }
+                    break;
+                    
+                case 14:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Made by";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+75);
+                    
+                    tapLabel2.text = @"Goddamn Cobras Collective";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-05_cobras.jpg"];
+                    tapImage1.frame = CGRectMake(50, -10, tapImage1.image.size.width, tapImage1.image.size.height);
+                    [tapView addSubview:tapImage1];
+                }
+                    break;
+                    
+                case 15:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Let's give this a shot.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:60]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 16:
+                {
+                    [self removeTapView];
+                    [self animateRewards:2 :YES];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:200]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y - 30);
-                
+        }
+        else if ([movieName isEqualToString:@"02_TheDeal"])
+        {
+            //NSLog(@"hiih");
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"so tell me";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel2.text = @"have you ever had to";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel3.text = @"sell your soul?";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    tapLabel3.textAlignment = NSTextAlignmentRight;
+                    tapLabel3.center = CGPointMake(tapLabel2.center.x,tapLabel2.center.y - 1.6);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"what's it";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+84,tapView.bounds.size.height-40);
+                    
+                    tapLabel2.text = @"worth";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y-1.6);
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel3.text = @"to you?";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                    tapLabel3.textAlignment = NSTextAlignmentRight;
+                    tapLabel3.center = CGPointMake(tapLabel3.center.x-94,tapLabel1.center.y);
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"would you strike a";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                    tapLabel2.text = @"deal?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:40]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x - 8,tapLabel1.center.y+3.6);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"IF YOU DO";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @"you better be damn sure to get a receipt";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y + 70);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-            case 3:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"BANG!";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x + 20,tapLabel1.center.y );
-                
+        }
+        else if ([movieName isEqualToString:@"03_Bar"])
+        {
+            //NSLog(@"hiih");
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"the devil";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel2.text = @"wears many disguises.";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x - 12,tapLabel1.center.y - 4);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"but the most cunning of all";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapView.bounds.size.height-15);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"but the most cunning of all...";
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"but the most cunning of all...is his smile.";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"SO WHEN YOU MEET HIM";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:50]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-20);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel2.text = @"keep a straight face";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:60]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+50);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"because everyone falls";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:45]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-20);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel2.text = @"for the man buying drinks";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:40]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y + 40);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-            case 4:
-            {
-                tapLabel1.text = @"BANG! Your tap";
-                
+        }
+        else if ([movieName isEqualToString:@"04_GasStation"])
+        {
+            //NSLog(@"hiih"); 04_GasStation
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"travelers need to ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:21]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                    tapLabel2.text = @"fill up";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:21]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x - 29,tapLabel1.center.y + 2.4);
+                    
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"travelers need to            before splitting town.";
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"don't let him";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:170]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-60);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel2.text = @"get away";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:58]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 90);
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel2.text = @"get away just yet";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"show him what his money's worth";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:20]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+10,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel2.text = @" in ";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:20]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+305,tapLabel1.center.y+2.6);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @" in this ";
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel2.text = @" in this town.";
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"and see if there's something else";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:50]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-5);
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel2.text = @"he can't resist...";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:66]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+50);
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-            case 5:
-            {
-                tapLabel1.text = @"BANG! Your tap is the trigger.";
+        }
+        else if ([movieName isEqualToString:@"05_Riverbed"])
+        {
+            //NSLog(@"hiih"); 05_Riverbed
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"who can resist ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:32]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"who can resist a ";
+                    tapLabel2.text = @"good baptism?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:32]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 4.4);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"especially when";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:20]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+20,tapLabel1.center.y+90);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"especially when you're led";
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"especially when you're led by the pants...";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"when the edge of the river";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:60]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-50);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel2.text = @"is as slick as his smile,";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:26]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @"is as slick as his smile, he might just slip";
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel3.text = @"right";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
+                    tapLabel3.center = CGPointMake(tapLabel1.center.x+3,tapLabel2.center.y+40);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    tapLabel3.text = @"right into";
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel3.text = @"right into your hands";
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"grab the deed";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 13:
+                {
+                    tapLabel2.text = @"and while you're at it";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:26]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
+                    
+                }
+                    break;
+                    
+                case 14:
+                {
+                    tapLabel2.text = @"and while you're at it...";
+                    
+                }
+                    break;
+                case 15:
+                {
+                    tapLabel3.text = @"give him a scare";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:26]];
+                    tapLabel3.textAlignment = NSTextAlignmentRight;
+                    tapLabel3.center = CGPointMake(tapLabel2.center.x,tapLabel2.center.y - 2.4);
+                    
+                }
+                    break;
+                    
+                case 16:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"easy, partner.";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+70);
+        }
+        else if ([movieName isEqualToString:@"06_Rivernight"])
+        {
+            //NSLog(@"hiih"); 06_Rivernight
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"what ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+75,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"what news ";
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel1.text = @"what news will ";
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"what news will wash up ";
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"what news will wash up later?";
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"you?";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"your itchy trigger finger?";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:70]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-10);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"NEWS TRAVELS FAST";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:70]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-40);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel2.text = @"you better get ahead of it";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+55);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 7:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"I think you got it.";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+        }
+        else if ([movieName isEqualToString:@"07_DesertChase"])
+        {
+            //NSLog(@"hiih"); 07_DesertChase
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"you took it ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+5,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"you took it            .";
+                    tapLabel2.text = @"too far";
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:24]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x-70,tapLabel1.center.y+3.2);
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel1.text = @"you took it            . now they're on to you.";
+                }
+                    break;
+                case 4:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"they want justice ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:26]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x-2,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 5:
+                {
+                    //tapLabel1.text = @"they want justice the ";
+                    tapLabel2.text = @"the old-fashioned way";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:25]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x+2,tapLabel1.center.y + 3.2);
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"PACK YOUR BAGS";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:80]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-10);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"you're not going to see ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                    tapLabel2.text = @"home";
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:24]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+62,tapLabel1.center.y+3.2);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel1.text = @"you're not going to see            for awhile";
+                    
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self resetTapView:false];
+                    tapLabel2.text = @"what about ";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+15,tapLabel1.center.y+70);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    tapLabel2.text = @"what about mexico?";
+                }
+                    break;
+                    
+                case 11:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 8:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"this is a                 movie.";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
-                
-                tapLabel2.text = @"tappable";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:25]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                tapLabel2.center = CGPointMake(tapLabel1.center.x+3, tapLabel1.center.y + 2);
+        }
+        else if ([movieName isEqualToString:@"08_DesertLynch"])
+        {
+            //NSLog(@"hiih"); 08_DesertLynch
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"WATER";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:44]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-70);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"WATER SLEEP";
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel1.text = @"WATER SLEEP SHADE";
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel2.text = @"WATER";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+18,tapLabel2.center.y);
+                }
+                    break;
+                    
+                case 5:
+                {
+                    tapLabel2.text = @"WATER SLEEP";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    tapLabel2.text = @"WATER SLEEP SHADE";
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel3.text = @"WATER";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:36]];
+                    tapLabel3.center = CGPointMake(tapLabel2.center.x+22,tapLabel2.center.y + 70);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel3.text = @"WATER SLEEP";
+                    
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel3.text = @"WATER SLEEP SHADE";
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"sounds so good right now";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+30,tapLabel1.center.y+110);
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel1.text = @"sounds so good right now doesn't it?";
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"did you make it";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:32]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+20,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 13:
+                {
+                    tapLabel1.text = @"did you make it far enough?";
+                }
+                    break;
+                    
+                case 14:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 9:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"STARRING";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:170]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
-                
+        }
+        else if ([movieName isEqualToString:@"09_Campfire"])
+        {
+            //NSLog(@"hiih"); 09_Campfire
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"so tell me";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel2.text = @"LADY LAND,";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel2.text = @"LADY LAND, was she good to you?";
+                    //[tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    //tapLabel3.textAlignment = NSTextAlignmentRight;
+                    //tapLabel3.center = CGPointMake(tapLabel2.center.x,tapLabel2.center.y - 1.6);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"was it worth the good fight?";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 5:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"was it worth the cost of home?";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"DEAD";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:64]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+5,tapLabel1.center.y-25);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel1.text = @"DEAD BURIED";
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @"who's land is it now?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:46]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
+                    
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"WILD";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:56]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-25);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    tapLabel1.text = @"WILD UNTAMED";
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel2.text = @"did you catch her?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:53]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
+                    
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"did you catch her?";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 13:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"at least tell me";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:21]];
+                }
+                    break;
+                    
+                case 14:
+                {
+                    tapLabel2.text = @"you got a good story out of it...";
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:22]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-1.8);
+                }
+                    break;
+                    
+                case 15:
+                {
+                    [self removeTapView];
+                    [self animateRewards:2 :YES];
+                }
+                    break;
             }
-                break;
-                
-            case 10:
-            {
-                [self resetTapView:false];
-                [lockedTapImage removeFromSuperview];
-                [lockedTapImageText removeFromSuperview];
-                tapLabel1.text = @"Eden Brolin";
-                tapLabel1.textAlignment = NSTextAlignmentRight;
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
-                
-                tapLabel2.text = @"as Lady Land";
-                tapLabel2.textAlignment = NSTextAlignmentRight;
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
-                
-                tapImage1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"intro-01_eden.jpg"]];
-                tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
-                [tapView addSubview:tapImage1];
-                tapImage1.layer.cornerRadius = 17.0;
-                tapImage1.layer.masksToBounds = YES;
-                
-            }
-                break;
-                
-            case 11:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"Justin Johnson";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
-                
-                tapLabel2.text = @"The Sheriff";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
-                
-                tapImage1.image = [UIImage imageNamed:@"intro-02_bearClaw.jpg"];
-                tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
-                [tapView addSubview:tapImage1];
-                
-                
-            }
-                break;
-                
-            case 12:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"Rich Awn";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
-                tapLabel1.textAlignment = NSTextAlignmentRight;
-                
-                tapLabel2.text = @"The Seersucker";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
-                tapLabel2.textAlignment = NSTextAlignmentRight;
-
-                
-                tapImage1.image = [UIImage imageNamed:@"intro-03_rich.jpg"];
-                tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
-                [tapView addSubview:tapImage1];
-            }
-                break;
-                
-            case 13:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"James Brolin";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
-                
-                tapLabel2.text = @"The Storyteller";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
-                
-                tapImage1.image = [UIImage imageNamed:@"intro-04_james.jpg"];
-                tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
-                [tapView addSubview:tapImage1];
-            }
-                break;
-                
-            case 14:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"Made by";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+75);
-                
-                tapLabel2.text = @"Goddamn Cobras Collective";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
-                
-                tapImage1.image = [UIImage imageNamed:@"intro-05_cobras.jpg"];
-                tapImage1.frame = CGRectMake(50, -10, tapImage1.image.size.width, tapImage1.image.size.height);
-                [tapView addSubview:tapImage1];
-            }
-                break;
-                
-            case 15:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"Let's give this a shot.";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:60]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
-            }
-                break;
-                
-            case 16:
-            {
-                [self removeTapView];
-                [self animateRewards:2 :YES];
-            }
-                break;
         }
     }
-    else if ([movieName isEqualToString:@"02_TheDeal"])
-    {
-        //NSLog(@"hiih");
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"so tell me";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+    else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+        NSLog(@"displaying ios7 tap texts");
+        if ([movieName isEqualToString:@"01_Intro"])
+        {
+            //NSLog(@"hiih");
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"HIT ME";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:200]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y - 30);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"BANG!";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x + 20,tapLabel1.center.y );
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"BANG! Your tap";
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"BANG! Your tap is the trigger.";
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"easy, partner.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+70);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"I think you got it.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"this is a                 movie.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                    
+                    tapLabel2.text = @"tappable";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:25]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+3, tapLabel1.center.y + 2);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"STARRING";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:170]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                    
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self resetTapView:false];
+                    [lockedTapImage removeFromSuperview];
+                    [lockedTapImageText removeFromSuperview];
+                    tapLabel1.text = @"Eden Brolin";
+                    tapLabel1.textAlignment = NSTextAlignmentRight;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
+                    
+                    tapLabel2.text = @"as Lady Land";
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"intro-01_eden.jpg"]];
+                    tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                    tapImage1.layer.cornerRadius = 17.0;
+                    tapImage1.layer.masksToBounds = YES;
+                    
+                }
+                    break;
+                    
+                case 11:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Justin Johnson";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
+                    
+                    tapLabel2.text = @"The Sheriff";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-02_bearClaw.jpg"];
+                    tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                    
+                    
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Rich Awn";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(0, tapLabel1.center.y-40);
+                    tapLabel1.textAlignment = NSTextAlignmentRight;
+                    
+                    tapLabel2.text = @"The Seersucker";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-03_rich.jpg"];
+                    tapImage1.frame = CGRectMake(tapView.bounds.size.width/2, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                }
+                    break;
+                    
+                case 13:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"James Brolin";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x*2, tapLabel1.center.y-40);
+                    
+                    tapLabel2.text = @"The Storyteller";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-04_james.jpg"];
+                    tapImage1.frame = CGRectMake(40, 0, tapImage1.image.size.width/1.2, tapImage1.image.size.height/1.2);
+                    [tapView addSubview:tapImage1];
+                }
+                    break;
+                    
+                case 14:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Made by";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+75);
+                    
+                    tapLabel2.text = @"Goddamn Cobras Collective";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:30]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+30);
+                    
+                    tapImage1.image = [UIImage imageNamed:@"intro-05_cobras.jpg"];
+                    tapImage1.frame = CGRectMake(50, -10, tapImage1.image.size.width, tapImage1.image.size.height);
+                    [tapView addSubview:tapImage1];
+                }
+                    break;
+                    
+                case 15:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"Let's give this a shot.";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 16:
+                {
+                    [self removeTapView];
+                    [self animateRewards:2 :YES];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel2.text = @"have you ever had to";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
-                tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
-                
-            }
-                break;
-            case 3:
-            {
-                tapLabel3.text = @"sell your soul?";
-                [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
-                tapLabel3.textAlignment = NSTextAlignmentRight;
-                tapLabel3.center = CGPointMake(tapLabel2.center.x,tapLabel2.center.y - 1.6);
-                
-            }
-                break;
-            case 4:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"what's it";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+84,tapView.bounds.size.height-40);
-                
-                tapLabel2.text = @"worth";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y-1.6);
-                
-            }
-                break;
-            case 5:
-            {
-                tapLabel3.text = @"to you?";
-                [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
-                tapLabel3.textAlignment = NSTextAlignmentRight;
-                tapLabel3.center = CGPointMake(tapLabel3.center.x-94,tapLabel1.center.y);
-                
-            }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"would you strike a";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-                
-                tapLabel2.text = @"deal?";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:40]];
-                tapLabel2.textAlignment = NSTextAlignmentRight;
-                tapLabel2.center = CGPointMake(tapLabel2.center.x - 8,tapLabel1.center.y+3.6);
-            }
-                break;
-                
-            case 7:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"IF YOU DO";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
-            }
-                break;
-                
-            case 8:
-            {
-                tapLabel2.text = @"you better be damn sure to get a receipt";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y + 70);
-            }
-                break;
-                
-            case 9:
-            {
-                [self removeTapView];
-            }
-                break;
         }
-    }
-    else if ([movieName isEqualToString:@"03_Bar"])
-    {
-        //NSLog(@"hiih");
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"the devil";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-                
+        else if ([movieName isEqualToString:@"02_TheDeal"])
+        {
+            //NSLog(@"hiih");
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"so tell me";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel2.text = @"have you ever had to";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel3.text = @"sell your soul?";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:27]];
+                    tapLabel3.textAlignment = NSTextAlignmentRight;
+                    tapLabel3.center = CGPointMake(tapLabel2.center.x-12,tapLabel2.center.y - 1.6);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"what's it";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+84,tapView.bounds.size.height-40);
+                    
+                    tapLabel2.text = @"worth";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y-2.6);
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel3.text = @"to you?";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell-Light" size:28]];
+                    tapLabel3.textAlignment = NSTextAlignmentRight;
+                    tapLabel3.center = CGPointMake(tapLabel3.center.x-94,tapLabel1.center.y);
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"would you strike a";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                    tapLabel2.text = @"deal?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:38]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x - 13,tapLabel1.center.y+4.8);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"IF YOU DO";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @"you better be damn sure to get a receipt";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
+                    tapLabel2.adjustsFontSizeToFitWidth = YES;
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y + 70);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel2.text = @"wears many disguises.";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel2.textAlignment = NSTextAlignmentRight;
-                tapLabel2.center = CGPointMake(tapLabel2.center.x - 12,tapLabel1.center.y - 4);
-                
-            }
-                break;
-            case 3:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"but the most cunning of all";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapView.bounds.size.height-15);
-                
-            }
-                break;
-            case 4:
-            {
-                tapLabel1.text = @"but the most cunning of all...";
-                
-            }
-                break;
-            case 5:
-            {
-                tapLabel1.text = @"but the most cunning of all...is his smile.";
-                
-            }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"SO WHEN YOU MEET HIM";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:50]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-20);
-            }
-                break;
-                
-            case 7:
-            {
-                tapLabel2.text = @"keep a straight face";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:60]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+50);
-            }
-                break;
-                
-            case 8:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"because everyone falls";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:45]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-20);
-            }
-                break;
-                
-            case 9:
-            {
-                tapLabel2.text = @"for the man buying drinks";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:40]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y + 40);
-            }
-                break;
-                
-            case 10:
-            {
-                [self removeTapView];
-            }
-                break;
         }
-    }
-    else if ([movieName isEqualToString:@"04_GasStation"])
-    {
-        //NSLog(@"hiih"); 04_GasStation
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"travelers need to ";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:21]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-                
-                tapLabel2.text = @"fill up";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:21]];
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                tapLabel2.center = CGPointMake(tapLabel2.center.x - 29,tapLabel1.center.y + 2.4);
-                
+        else if ([movieName isEqualToString:@"03_Bar"])
+        {
+            //NSLog(@"hiih");
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"the devil";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:30]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel2.text = @"wears many disguises.";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x - 12,tapLabel1.center.y - 3.6);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"but the most cunning of all";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapView.bounds.size.height-15);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"but the most cunning of all...";
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"but the most cunning of all...is his smile.";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"SO WHEN YOU MEET HIM";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:50]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-20);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel2.text = @"keep a straight face";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:60]];
+                    tapLabel2.adjustsFontSizeToFitWidth = YES;
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+50);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"because everyone falls";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:45]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-20);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel2.text = @"for the man buying drinks";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:40]];
+                    tapLabel2.adjustsFontSizeToFitWidth = YES;
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y + 40);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel1.text = @"travelers need to            before splitting town.";
-                
-            }
-                break;
-            case 3:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"don't let him";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:170]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-60);
-                
-            }
-                break;
-            case 4:
-            {
-                tapLabel2.text = @"get away";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:58]];
-                tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 90);
-                
-            }
-                break;
-            case 5:
-            {
-                tapLabel2.text = @"get away just yet";
-                
-            }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"show him what his money's worth";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:20]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+10,tapLabel1.center.y);
-            }
-                break;
-                
-            case 7:
-            {
-                tapLabel2.text = @" in ";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:20]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x+305,tapLabel1.center.y+2.6);
-            }
-                break;
-                
-            case 8:
-            {
-                tapLabel2.text = @" in this ";
-            }
-                break;
-                
-            case 9:
-            {
-                tapLabel2.text = @" in this town.";
-            }
-                break;
-                
-            case 10:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"and see if there's something else";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:50]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-5);
-            }
-                break;
-                
-            case 11:
-            {
-                tapLabel2.text = @"he can't resist...";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:66]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+50);
-            }
-                break;
-                
-            case 12:
-            {
-                [self removeTapView];
-            }
-                break;
         }
-    }
-    else if ([movieName isEqualToString:@"05_Riverbed"])
-    {
-        //NSLog(@"hiih"); 05_Riverbed
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"who can resist ";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:32]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+        else if ([movieName isEqualToString:@"04_GasStation"])
+        {
+            //NSLog(@"hiih"); 04_GasStation
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"travelers need to ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:21]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                    tapLabel2.text = @"fill up";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:20]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x - 30,tapLabel1.center.y + 3.2);
+                    
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"travelers need to            before splitting town.";
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"don't let him";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:170]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-60);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel2.text = @"get away";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:57]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 90);
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel2.text = @"get away just yet";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"show him what his money's worth";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:20]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+10,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel2.text = @" in ";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:19]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+305,tapLabel1.center.y+2.0);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @" in this ";
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel2.text = @" in this town.";
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"and see if there's something else";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:50]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-5);
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel2.text = @"he can't resist...";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:66]];
+                    tapLabel2.adjustsFontSizeToFitWidth = YES;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y+50);
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel1.text = @"who can resist a ";
-                tapLabel2.text = @"good baptism?";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:32]];
-                tapLabel2.textAlignment = NSTextAlignmentRight;
-                tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 4.4);
-                
-            }
-                break;
-            case 3:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"especially when";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:20]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+20,tapLabel1.center.y+90);
-                
-            }
-                break;
-            case 4:
-            {
-                tapLabel1.text = @"especially when you're led";
-                
-            }
-                break;
-            case 5:
-            {
-                tapLabel1.text = @"especially when you're led by the pants...";
-                
-            }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"when the edge of the river";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:60]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-50);
-            }
-                break;
-                
-            case 7:
-            {
-                tapLabel2.text = @"is as slick as his smile,";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:26]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
-            }
-                break;
-                
-            case 8:
-            {
-                tapLabel2.text = @"is as slick as his smile, he might just slip";
-            }
-                break;
-                
-            case 9:
-            {
-                tapLabel3.text = @"right";
-                [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
-                tapLabel3.center = CGPointMake(tapLabel1.center.x+3,tapLabel2.center.y+40);
-            }
-                break;
-                
-            case 10:
-            {
-                tapLabel3.text = @"right into";
-            }
-                break;
-                
-            case 11:
-            {
-                tapLabel3.text = @"right into your hands";
-            }
-                break;
-                
-            case 12:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"grab the deed";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
-            }
-                break;
-                
-            case 13:
-            {
-                tapLabel2.text = @"and while you're at it";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:26]];
-                tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
-                
-            }
-                break;
-                
-            case 14:
-            {
-                tapLabel2.text = @"and while you're at it...";
-                
-            }
-                break;
-            case 15:
-            {
-                tapLabel3.text = @"give him a scare";
-                [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:26]];
-                tapLabel3.textAlignment = NSTextAlignmentRight;
-                tapLabel3.center = CGPointMake(tapLabel2.center.x,tapLabel2.center.y - 2.4);
-                
-            }
-                break;
-                
-            case 16:
-            {
-                [self removeTapView];
-            }
-                break;
         }
-    }
-    else if ([movieName isEqualToString:@"06_Rivernight"])
-    {
-        //NSLog(@"hiih"); 06_Rivernight
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"what ";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+75,tapLabel1.center.y);
+        else if ([movieName isEqualToString:@"05_Riverbed"])
+        {
+            //NSLog(@"hiih"); 05_Riverbed
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"who can resist ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:32]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"who can resist a ";
+                    tapLabel2.text = @"good baptism?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:31]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x-8,tapLabel1.center.y + 3.9);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"especially when";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:20]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+20,tapLabel1.center.y+90);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"especially when you're led";
+                    
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"especially when you're led by the pants...";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"when the edge of the river";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:60]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-50);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel2.text = @"is as slick as his smile,";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:25]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @"is as slick as his smile, he might just slip";
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel3.text = @"right";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
+                    tapLabel3.center = CGPointMake(tapLabel1.center.x,tapLabel2.center.y+45);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    tapLabel3.text = @"right into";
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel3.text = @"right into your hands";
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"grab the deed";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 13:
+                {
+                    tapLabel2.text = @"and while you're at it";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:25]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
+                    
+                }
+                    break;
+                    
+                case 14:
+                {
+                    tapLabel2.text = @"and while you're at it...";
+                    
+                }
+                    break;
+                case 15:
+                {
+                    tapLabel2.text = @"and while you're at it...give him a scare";
+                    
+                }
+                    break;
+                    
+                case 16:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel1.text = @"what news ";
-            }
-                break;
-            case 3:
-            {
-                tapLabel1.text = @"what news will ";
-            }
-                break;
-            case 4:
-            {
-                tapLabel1.text = @"what news will wash up ";
-            }
-                break;
-            case 5:
-            {
-                tapLabel1.text = @"what news will wash up later?";
-            }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"you?";
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-            }
-                break;
-                
-            case 7:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"your itchy trigger finger?";
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:70]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-10);
-            }
-                break;
-                
-            case 8:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"NEWS TRAVELS FAST";
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:70]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-40);
-            }
-                break;
-                
-            case 9:
-            {
-                tapLabel2.text = @"you better get ahead of it";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+55);
-            }
-                break;
-                
-            case 10:
-            {
-                [self removeTapView];
-            }
-                break;
         }
-    }
-    else if ([movieName isEqualToString:@"07_DesertChase"])
-    {
-        //NSLog(@"hiih"); 07_DesertChase
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"you took it ";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+5,tapLabel1.center.y);
+        else if ([movieName isEqualToString:@"06_Rivernight"])
+        {
+            //NSLog(@"hiih"); 06_Rivernight
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"what ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+75,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"what news ";
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel1.text = @"what news will ";
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel1.text = @"what news will wash up ";
+                }
+                    break;
+                case 5:
+                {
+                    tapLabel1.text = @"what news will wash up later?";
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"you?";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:25]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"your itchy trigger finger?";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:70]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-10);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"NEWS TRAVELS FAST";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:70]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-40);
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel2.text = @"you better get ahead of it";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:44]];
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+55);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel1.text = @"you took it            .";
-                tapLabel2.text = @"too far";
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:24]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x-70,tapLabel1.center.y+3.2);
-            }
-                break;
-            case 3:
-            {
-                tapLabel1.text = @"you took it            . now they're on to you.";
-            }
-                break;
-            case 4:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"they want justice ";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:26]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x-2,tapLabel1.center.y);
-            }
-                break;
-                
-            case 5:
-            {
-                //tapLabel1.text = @"they want justice the ";
-                tapLabel2.text = @"the old-fashioned way";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:25]];
-                tapLabel2.textAlignment = NSTextAlignmentRight;
-                tapLabel2.center = CGPointMake(tapLabel2.center.x+2,tapLabel1.center.y + 3.2);
-                
-            }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"PACK YOUR BAGS";
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:80]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-10);
-            }
-                break;
-                
-            case 7:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"you're not going to see ";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-                
-                tapLabel2.text = @"home";
-                tapLabel2.textAlignment = NSTextAlignmentCenter;
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:24]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x+62,tapLabel1.center.y+3.2);
-            }
-                break;
-                
-            case 8:
-            {
-                tapLabel1.text = @"you're not going to see            for awhile";
-                
-            }
-                break;
-                
-            case 9:
-            {
-                [self resetTapView:false];
-                tapLabel2.text = @"what about ";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x+15,tapLabel1.center.y+70);
-            }
-                break;
-                
-            case 10:
-            {
-                tapLabel2.text = @"what about mexico?";
-            }
-                break;
-                
-            case 11:
-            {
-                [self removeTapView];
-            }
-                break;
         }
-    }
-    else if ([movieName isEqualToString:@"08_DesertLynch"])
-    {
-        //NSLog(@"hiih"); 08_DesertLynch
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"WATER";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:44]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-70);
+        else if ([movieName isEqualToString:@"07_DesertChase"])
+        {
+            //NSLog(@"hiih"); 07_DesertChase
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"you took it ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+5,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"you took it            .";
+                    tapLabel2.text = @"too far";
+                    tapLabel2.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:23]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x-70,tapLabel1.center.y+2.5);
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel1.text = @"you took it            .  now they're on to you.";
+                }
+                    break;
+                case 4:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"they want justice ";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:26]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 5:
+                {
+                    //tapLabel1.text = @"they want justice the ";
+                    tapLabel2.text = @"the old-fashioned way";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:25]];
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x-2,tapLabel1.center.y + 2.8);
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"PACK YOUR BAGS";
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:80]];
+                    tapLabel1.adjustsFontSizeToFitWidth = YES;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-10);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"you're not going to see home";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                    
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel1.text = @"you're not going to see home for awhile";
+                    
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self resetTapView:false];
+                    tapLabel2.text = @"what about ";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-bold" size:47]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+15,tapLabel1.center.y+70);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    tapLabel2.text = @"what about mexico?";
+                }
+                    break;
+                    
+                case 11:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel1.text = @"WATER SLEEP";
-            }
-                break;
-            case 3:
-            {
-                tapLabel1.text = @"WATER SLEEP SHADE";
-            }
-                break;
-            case 4:
-            {
-                tapLabel2.text = @"WATER";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x+18,tapLabel2.center.y);
-            }
-                break;
-                
-            case 5:
-            {
-                tapLabel2.text = @"WATER SLEEP";
-                
-            }
-                break;
-                
-            case 6:
-            {
-                tapLabel2.text = @"WATER SLEEP SHADE";
-            }
-                break;
-                
-            case 7:
-            {
-                tapLabel3.text = @"WATER";
-                [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:36]];
-                tapLabel3.center = CGPointMake(tapLabel2.center.x+22,tapLabel2.center.y + 70);
-            }
-                break;
-                
-            case 8:
-            {
-                tapLabel3.text = @"WATER SLEEP";
-                
-            }
-                break;
-                
-            case 9:
-            {
-                tapLabel3.text = @"WATER SLEEP SHADE";
-            }
-                break;
-                
-            case 10:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"sounds so good right now";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:24]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+30,tapLabel1.center.y+110);
-            }
-                break;
-                
-            case 11:
-            {
-                tapLabel1.text = @"sounds so good right now doesn't it?";
-            }
-                break;
-                
-            case 12:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"did you make it";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:32]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+20,tapLabel1.center.y);
-            }
-                break;
-                
-            case 13:
-            {
-                tapLabel1.text = @"did you make it far enough?";
-            }
-                break;
-                
-            case 14:
-            {
-                [self removeTapView];
-            }
-                break;
         }
-    }
-    else if ([movieName isEqualToString:@"09_Campfire"])
-    {
-        //NSLog(@"hiih"); 09_Campfire
-        
-        switch (tapNum) {
-            case 1:
-            {
-                tapLabel1.text = @"so tell me";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+        else if ([movieName isEqualToString:@"08_DesertLynch"])
+        {
+            //NSLog(@"hiih"); 08_DesertLynch
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"WATER";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:44]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-70);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel1.text = @"WATER SLEEP";
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel1.text = @"WATER SLEEP SHADE";
+                }
+                    break;
+                case 4:
+                {
+                    tapLabel2.text = @"WATER";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:40]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x+18,tapLabel2.center.y);
+                }
+                    break;
+                    
+                case 5:
+                {
+                    tapLabel2.text = @"WATER SLEEP";
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    tapLabel2.text = @"WATER SLEEP SHADE";
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel3.text = @"WATER";
+                    [tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:36]];
+                    tapLabel3.center = CGPointMake(tapLabel2.center.x+22,tapLabel2.center.y + 70);
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel3.text = @"WATER SLEEP";
+                    
+                }
+                    break;
+                    
+                case 9:
+                {
+                    tapLabel3.text = @"WATER SLEEP SHADE";
+                }
+                    break;
+                    
+                case 10:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"sounds so good right now";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:24]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+30,tapLabel1.center.y+110);
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel1.text = @"sounds so good right now doesn't it?";
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"did you make it";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:32]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+20,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 13:
+                {
+                    tapLabel1.text = @"did you make it far enough?";
+                }
+                    break;
+                    
+                case 14:
+                {
+                    [self removeTapView];
+                }
+                    break;
             }
-                break;
-                
-            case 2:
-            {
-                tapLabel2.text = @"LADY LAND,";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
-                tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
-                
+        }
+        else if ([movieName isEqualToString:@"09_Campfire"])
+        {
+            //NSLog(@"hiih"); 09_Campfire
+            
+            switch (tapNum) {
+                case 1:
+                {
+                    tapLabel1.text = @"so tell me";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    tapLabel2.text = @"LADY LAND,";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
+                    
+                }
+                    break;
+                case 3:
+                {
+                    tapLabel2.text = @"LADY LAND, was she good to you?";
+                    //[tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
+                    //tapLabel3.textAlignment = NSTextAlignmentRight;
+                    //tapLabel3.center = CGPointMake(tapLabel2.center.x,tapLabel2.center.y - 1.6);
+                    
+                }
+                    break;
+                case 4:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"was it worth the good fight?";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 5:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"was it worth the cost of home?";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                    
+                }
+                    break;
+                    
+                case 6:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"DEAD";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:64]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+5,tapLabel1.center.y-25);
+                }
+                    break;
+                    
+                case 7:
+                {
+                    tapLabel1.text = @"DEAD BURIED";
+                }
+                    break;
+                    
+                case 8:
+                {
+                    tapLabel2.text = @"who's land is it now?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:46]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
+                    
+                }
+                    break;
+                    
+                case 9:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"WILD";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:56]];
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-25);
+                }
+                    break;
+                    
+                case 10:
+                {
+                    tapLabel1.text = @"WILD UNTAMED";
+                }
+                    break;
+                    
+                case 11:
+                {
+                    tapLabel2.text = @"did you catch her?";
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:53]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
+                    
+                }
+                    break;
+                    
+                case 12:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"did you catch her?";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
+                    tapLabel1.textAlignment = NSTextAlignmentCenter;
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
+                }
+                    break;
+                    
+                case 13:
+                {
+                    [self resetTapView:false];
+                    tapLabel1.text = @"at least tell me";
+                    [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:21]];
+                }
+                    break;
+                    
+                case 14:
+                {
+                    tapLabel2.text = @"you got a good story out of it...";
+                    tapLabel2.textAlignment = NSTextAlignmentRight;
+                    [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:22]];
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x-2,tapLabel1.center.y-2.4);
+                }
+                    break;
+                    
+                case 15:
+                {
+                    [self removeTapView];
+                    [self animateRewards:2 :YES];
+                }
+                    break;
             }
-                break;
-            case 3:
-            {
-                tapLabel2.text = @"LADY LAND, was she good to you?";
-                //[tapLabel3 setFont:[UIFont fontWithName:@"Rockwell" size:28]];
-                //tapLabel3.textAlignment = NSTextAlignmentRight;
-                //tapLabel3.center = CGPointMake(tapLabel2.center.x,tapLabel2.center.y - 1.6);
-                
-            }
-                break;
-            case 4:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"was it worth the good fight?";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-            }
-                break;
-                
-            case 5:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"was it worth the cost of home?";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell" size:30]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-                
-            }
-                break;
-                
-            case 6:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"DEAD";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:64]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x+5,tapLabel1.center.y-25);
-            }
-                break;
-                
-            case 7:
-            {
-                tapLabel1.text = @"DEAD BURIED";
-            }
-                break;
-                
-            case 8:
-            {
-                tapLabel2.text = @"who's land is it now?";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:46]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
-                
-            }
-                break;
-                
-            case 9:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"WILD";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:56]];
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-25);
-            }
-                break;
-                
-            case 10:
-            {
-                tapLabel1.text = @"WILD UNTAMED";
-            }
-                break;
-                
-            case 11:
-            {
-                tapLabel2.text = @"did you catch her?";
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:53]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y+50);
-                
-            }
-                break;
-                
-            case 12:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"did you catch her?";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-Light" size:22]];
-                tapLabel1.textAlignment = NSTextAlignmentCenter;
-                tapLabel1.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y);
-            }
-                break;
-                
-            case 13:
-            {
-                [self resetTapView:false];
-                tapLabel1.text = @"at least tell me";
-                [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:21]];
-            }
-                break;
-                
-            case 14:
-            {
-                tapLabel2.text = @"you got a good story out of it...";
-                tapLabel2.textAlignment = NSTextAlignmentRight;
-                [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell" size:22]];
-                tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y-1.8);
-            }
-                break;
-                
-            case 15:
-            {
-                [self removeTapView];
-                [self animateRewards:2 :YES];
-            }
-                break;
         }
     }
     
 }
+
 - (void) resetTapView: (BOOL) fromStart
 {
     if (fromStart) {
@@ -1744,6 +2844,9 @@ typedef enum {
         lockedTapImage.alpha = 1;
         lockedTapImageText.alpha = 1;
     }
+    
+    tapView.center = CGPointMake([UIScreen mainScreen].bounds.size.height/2, tapView.center.y);
+    
     [tapLabel1 removeFromSuperview];
     [tapLabel2 removeFromSuperview];
     [tapLabel3 removeFromSuperview];
@@ -1758,7 +2861,6 @@ typedef enum {
     tapLabel1.numberOfLines = 1;
     tapLabel1.font = [UIFont fontWithName:@"Rockwell" size:50];
     tapLabel1.adjustsFontSizeToFitWidth = YES;
-    tapLabel1.adjustsLetterSpacingToFitWidth = YES;
     tapLabel1.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
     [tapView addSubview:tapLabel1];
     
@@ -1784,6 +2886,14 @@ typedef enum {
     tapLabel3.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
     [tapView addSubview:tapLabel3];
     
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) {
+        
+        tapLabel1.adjustsLetterSpacingToFitWidth = YES;
+        tapLabel2.adjustsLetterSpacingToFitWidth = YES;
+        tapLabel3.adjustsLetterSpacingToFitWidth = YES;
+    
+    }
+    
 }
 - (void) removeTapView
 {
@@ -1800,17 +2910,7 @@ typedef enum {
 {
     NSLog(@"ignoring double tap");
 }
-- (void) resetScene
-{
-    tappedOut = NO;
-    [movieView removeFromSuperview];
-    [self.view addSubview:tapView];
-    tapView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2 +25);
-    tapNumber = 0;
-    [self tapSpriteAdvancer:tapNumber];
-    tapView.alpha = 1;
-    
-}
+
 - (void) starringTapButton;
 {
     tappedOut = NO;
@@ -1832,10 +2932,7 @@ typedef enum {
 
     //check if it's already unlocked - it's playing twice at the moment
     if (duration ==1 ) {
-        NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"Good 3" ofType:@"mp3"];
-        NSURL *soundUrl = [NSURL fileURLWithPath:soundPath];
-        AudioServicesCreateSystemSoundID ((__bridge CFURLRef)soundUrl, &checkinSound);
-        AudioServicesPlaySystemSound(checkinSound);
+        [[TumbleweedViewController sharedClient] playSystemSound:@"Good 3"];
     }
     
     [tapView removeFromSuperview];
@@ -1854,6 +2951,7 @@ typedef enum {
         }
     } completion:^(BOOL finished) {
         [searchView removeFromSuperview];
+        searchView.alpha = 1;
         if (withVideo)[self playVideo:nil];
         
     }];
@@ -1952,61 +3050,46 @@ typedef enum {
                 [extrasButton setTitle:@"EXTRAS" forState:UIControlStateNormal&UIControlStateHighlighted];
                 [extrasButton setTitleColor:redC forState:UIControlStateNormal];
                 [extrasButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-                
                 [extrasButton addTarget:self action:@selector(launchBonusWebView) forControlEvents:UIControlEventTouchUpInside];
-                
                 [movieView addSubview:extrasButton];
-                extrasButton.center = CGPointMake(movieView.bounds.size.width/4, movieView.bounds.size.height-(extrasButton.bounds.size.height/2 -3));
-                
-                UIButton *resetButton = [UIButton buttonWithType:UIButtonTypeCustom];
-                resetButton.frame = CGRectMake(0, 0, 122, 40);
-                resetButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
-                resetButton.titleLabel.textColor = redC;
-                resetButton.titleLabel.frame = resetButton.frame;
-                
-                [resetButton setBackgroundImage:[UIImage imageNamed:@"blank_button_Default.png"] forState:UIControlStateNormal];
-                [resetButton setBackgroundImage:[UIImage imageNamed:@"blank_button_onPress.png"] forState:UIControlStateHighlighted];
-                [resetButton setTitle:@"RESET" forState:UIControlStateNormal&UIControlStateHighlighted];
-                [resetButton setTitleColor:redC forState:UIControlStateNormal];
-                [resetButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-                
-                [resetButton addTarget:self action:@selector(resetButton:) forControlEvents:UIControlEventTouchUpInside];
-                
-                [movieView addSubview:resetButton];
-                resetButton.center = CGPointMake(movieView.bounds.size.width*3/4, movieView.bounds.size.height-(resetButton.bounds.size.height/2 -3));
+                extrasButton.center = CGPointMake(movieView.bounds.size.width/2 - extrasButton.frame.size.width * 1.2, movieView.bounds.size.height-(extrasButton.bounds.size.height/2 -3));
                 
                 UIButton *fsqListButton = [UIButton buttonWithType:UIButtonTypeCustom];
                 fsqListButton.frame = CGRectMake(0, 0, 122, 40);
                 fsqListButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
                 fsqListButton.titleLabel.textColor = redC;
                 fsqListButton.titleLabel.frame = fsqListButton.frame;
-                
                 [fsqListButton setBackgroundImage:[UIImage imageNamed:@"blank_button_Default.png"] forState:UIControlStateNormal];
                 [fsqListButton setBackgroundImage:[UIImage imageNamed:@"blank_button_onPress.png"] forState:UIControlStateHighlighted];
                 [fsqListButton setTitle:@"MY PATH" forState:UIControlStateNormal&UIControlStateHighlighted];
                 [fsqListButton setTitleColor:redC forState:UIControlStateNormal];
                 [fsqListButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-                
                 [fsqListButton addTarget:self action:@selector(fsqListButton:) forControlEvents:UIControlEventTouchUpInside];
+                [movieView addSubview:fsqListButton];
+                fsqListButton.center = CGPointMake(movieView.bounds.size.width/2, movieView.bounds.size.height-(fsqListButton.bounds.size.height/2 -3));
                 
-                //[movieView addSubview:fsqListButton];
-                fsqListButton.center = CGPointMake(movieView.bounds.size.width, movieView.bounds.size.height-(fsqListButton.bounds.size.height/2 -3));
+                UIButton *resetButton = [UIButton buttonWithType:UIButtonTypeCustom];
+                resetButton.frame = CGRectMake(0, 0, 122, 40);
+                resetButton.titleLabel.font = [UIFont fontWithName:@"rockwell-bold" size:20];
+                resetButton.titleLabel.textColor = redC;
+                resetButton.titleLabel.frame = resetButton.frame;
+                [resetButton setBackgroundImage:[UIImage imageNamed:@"blank_button_Default.png"] forState:UIControlStateNormal];
+                [resetButton setBackgroundImage:[UIImage imageNamed:@"blank_button_onPress.png"] forState:UIControlStateHighlighted];
+                [resetButton setTitle:@"RESET" forState:UIControlStateNormal&UIControlStateHighlighted];
+                [resetButton setTitleColor:redC forState:UIControlStateNormal];
+                [resetButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+                [resetButton addTarget:self action:@selector(resetButton:) forControlEvents:UIControlEventTouchUpInside];
+                [movieView addSubview:resetButton];
+                resetButton.center = CGPointMake(movieView.bounds.size.width/2 + resetButton.frame.size.width * 1.2, movieView.bounds.size.height-(resetButton.bounds.size.height/2 -3));
+                
+                
             }
         }
     }
     else
     {
         if (_scene.level < [Tumbleweed sharedClient].tumbleweedLevel) [self animateRewards:0:NO];
-        else if ([sceneTypeName isEqualToString:@"Timer"] || [sceneTypeName isEqualToString:@"FSQdistance"])
-        {
-            //[self resetScene];
-            if (!tappedOut) return;
-            [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1) withVenue:nil];
-            noveltyId = @"new";
-            [self animateRewards:1:YES];
-        }
         else {
-            //[self resetScene];
             if (!tappedOut) return;
             [self.view addSubview:searchView];
             searchView.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/2+18);
@@ -2047,7 +3130,6 @@ typedef enum {
     [checkinButton setTitleColor:redC forState:UIControlStateNormal];
     [checkinButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [checkinButton setTitleColor:beigeC forState:UIControlStateDisabled];
-    [checkinButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateDisabled];
     [checkinButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchUpInside];
 
     

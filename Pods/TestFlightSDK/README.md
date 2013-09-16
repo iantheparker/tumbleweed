@@ -8,9 +8,9 @@ The SDK also offers a remote logging solution. Find out more about our logging s
 
 ## Requirements
 
-The TestFlight SDK requires iOS 4.0 or above and the libz library to run.
+The TestFlight SDK requires iOS 4.3 or above, the Apple LLVM compiler, and the libz library to run.
 
-The AdSupport.framework is required for iOS 6.0+ in order to estimate the number of unique users your app has. You may weak link the framework in you app. If your app does not link with the AdSupport.framework, the TestFlight SDK will automatically load it for apps running on iOS 6.0+.
+The AdSupport.framework is required for iOS 6.0+ in order to uniquely identify users so we can estimate the number of users your app has (using `ASIdentifierManager`). You may weak link the framework in you app. If your app does not link with the AdSupport.framework, the TestFlight SDK will automatically load it for apps running on iOS 6.0+.
 
                 
 ## Integration

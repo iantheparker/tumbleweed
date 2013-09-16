@@ -63,7 +63,10 @@
     UIImageView *forgotImage;
     UIScrollView *walkthroughSV;
     PagedScrollViewController *tutorial;
-    
+    AVAudioPlayer *openSceneSound;
+    AVAudioPlayer *unlockSceneSound;
+    AVAudioPlayer *hintSound;
+    AVAudioPlayer *errorSound;
 
 }
 
@@ -289,6 +292,10 @@
 {
     //[[scenes.lastObject button] setCenter:CGPointMake(campfireSprite.position.x-3, campfireSprite.position.y + 40)];
     [[scenes.lastObject button] removeFromSuperview];
+    for (int i = 0; i<scenes.count; i++) {
+        [[[scenes objectAtIndex:i] sceneVC] resetScene];
+        [[[scenes objectAtIndex:i] sceneVC] dismissViewControllerAnimated:NO completion:nil];
+    }
     //-->progress bar animation
     {
         blackPanel = [CALayer layer];
@@ -448,15 +455,6 @@
     
     if (soundName) [self playSystemSound:soundName];
     
-}
-- (void) playSystemSound: (NSString*) name;
-{
-    NSString *soundPath = [[NSBundle mainBundle] pathForResource:name ofType:@"mp3"];
-    NSURL *soundUrl = [NSURL fileURLWithPath:soundPath];
-    AudioServicesCreateSystemSoundID ((__bridge CFURLRef)soundUrl, &systemSound);
-    AudioServicesPlaySystemSound(systemSound);
-    NSLog(@"system sound");
-
 }
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
@@ -814,6 +812,31 @@
 	_backgroundMusicPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:backgroundMusicURL error:&error];
 	[_backgroundMusicPlayer setDelegate:self];  // We need this so we can restart after interruptions
 	[_backgroundMusicPlayer setNumberOfLoops:-1];
+}
+- (void) playSystemSound: (NSString*) name;
+{
+    [[AVAudioSession sharedInstance]
+     setCategory: AVAudioSessionCategoryPlayback
+     error: nil];
+    if ([name isEqualToString:@"Good 1"]) {
+        [openSceneSound play];
+    }
+    else if ([name isEqualToString:@"Good 3"])
+    {
+        [unlockSceneSound play];
+    }
+    else if ([name isEqualToString:@"Btn 1"])
+    {
+        [hintSound play];
+    }
+    else if ([name isEqualToString:@"Btn 3"])
+    {
+        [errorSound play];
+    }
+    //AudioServicesCreateSystemSoundID ((__bridge CFURLRef)soundUrl, &systemSound);
+    //AudioServicesPlaySystemSound(systemSound);
+    NSLog(@"system sound");
+    
 }
 
 #pragma mark -
@@ -1762,7 +1785,7 @@
     
     [self addProgressBar];
     
-    [self renderScreen:[[NSUserDefaults standardUserDefaults] boolForKey:@"walkingForward"]:FALSE :TRUE];
+    [self renderScreen:TRUE :FALSE :TRUE];
     
     [CATransaction commit];
     /*
@@ -1788,14 +1811,17 @@
     if(![[NSUserDefaults standardUserDefaults] boolForKey:@"hasSeenTutorial"])
     {
         tutorial = [[PagedScrollViewController alloc] initWithNibName:@"PagedScrollViewController" bundle:[NSBundle mainBundle]];
-        //scrollView.contentSize = CGSizeMake(canvas_w, canvas_h*2);
-        //scrollView.alwaysBounceVertical = NO;
-
         [self presentViewController:tutorial animated:NO completion:^{}];
-        //[self.navigationController pushViewController:tutorial animated:NO];
-         
     }
 
+    NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"Good 1" ofType:@"mp3"];
+    openSceneSound = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundPath] error:NULL];
+    soundPath = [[NSBundle mainBundle] pathForResource:@"Good 3" ofType:@"mp3"];
+    unlockSceneSound = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundPath] error:NULL];
+    soundPath = [[NSBundle mainBundle] pathForResource:@"Btn 1" ofType:@"mp3"];
+    hintSound = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundPath] error:NULL];
+    soundPath = [[NSBundle mainBundle] pathForResource:@"Btn 3" ofType:@"mp3"];
+    errorSound = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundPath] error:NULL];
     
     [self loadBGAudio];
     [self tryPlayMusic:false];

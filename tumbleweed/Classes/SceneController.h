@@ -18,7 +18,7 @@
 @class Scene;
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate, UIGestureRecognizerDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate>
 {
     IBOutlet UIScrollView *sceneScrollView;
     IBOutlet UIView *sceneSVView;
@@ -52,7 +52,7 @@
 
 @property (nonatomic, retain) UIScrollView *sceneScrollView;
 @property (nonatomic, retain) UIScrollView *venueScrollView;
-@property (nonatomic, retain) UILabel *sceneTitle;
+@property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) UILabel *unlockCopy;
 @property (nonatomic, retain) UIView *sceneSVView;
 @property (nonatomic, retain) UIView *venueDetailNib;
@@ -94,6 +94,7 @@
 - (IBAction) rightScroll :(id)sender;
 
 - (void) animateRewards : (NSTimeInterval) duration :(BOOL) withVideo;
+- (void) resetScene;
 
 //
 - (void) handleSingleTap:(UIGestureRecognizer *)sender;

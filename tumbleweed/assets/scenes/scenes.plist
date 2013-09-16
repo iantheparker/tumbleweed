@@ -207,19 +207,19 @@
 			<key>hintCopy</key>
 			<string>What was that all about? I need some time to think...</string>
 			<key>checkInCopy</key>
-			<string>news travels fast. this fast.</string>
+			<string>any last sights you wanted to see?</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
 			<dict>
 				<key>type</key>
-				<string>FSQsearch</string>
+				<string>FSQexplorenew</string>
+				<key>sectionId</key>
+				<string>sights</string>
 				<key>radius</key>
-				<string>9000</string>
+				<string>300</string>
 				<key>categoryHint</key>
-				<string>a CEMETERY.</string>
-				<key>categoryId</key>
-				<string>4bf58dd8d48988d15c941735</string>
+				<string>a SIGHT or LANDMARK of interest.</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S6_unlocked_Default.jpg</string>
@@ -260,7 +260,7 @@
 				<key>type</key>
 				<string>FSQexplorenew</string>
 				<key>radius</key>
-				<string>9000</string>
+				<string>250</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S7_unlocked_Default.jpg</string>
@@ -297,11 +297,15 @@
 				<key>type</key>
 				<string>FSQexplorenew</string>
 				<key>sectionId</key>
-				<string>sights</string>
+				<string>outdoors</string>
 				<key>radius</key>
-				<string>9000</string>
+				<string>250</string>
 				<key>categoryHint</key>
-				<string>a SIGHT of interest.</string>
+				<string>an OUTDOORSY place your friends have never been to before.</string>
+				<key>novelty</key>
+				<string>new</string>
+				<key>friendVisits</key>
+				<string>notvisited</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S8_unlocked_Default.jpg</string>

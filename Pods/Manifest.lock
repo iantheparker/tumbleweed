@@ -1,22 +1,19 @@
 PODS:
   - AFNetworking (1.3.1)
-  - FlurrySDK (4.2.1)
   - RCLocationManager (0.1)
   - SVProgressHUD (0.9)
-  - TestFlightSDK (1.3.0-beta.7)
+  - TestFlightSDK (2.0)
 
 DEPENDENCIES:
   - AFNetworking
-  - FlurrySDK
   - RCLocationManager
   - SVProgressHUD
   - TestFlightSDK
 
 SPEC CHECKSUMS:
   AFNetworking: 9ec8aafb9269236a7630bd8d9838ce2ba30fa2a0
-  FlurrySDK: 9a38bbb195c9f636a40193190ef38fd07e6b76c5
   RCLocationManager: f02bd426e93e87693fe8a2adf76f917a74d774c9
   SVProgressHUD: 03d4845ec8e64591726428a08236c6a5489d45f8
-  TestFlightSDK: 3af0a385405725e36452a35ef63ba8b3f2ef3ffc
+  TestFlightSDK: 940906d4b2550cf397c6f2d2fcc4ebfdcd8ae858
 
-COCOAPODS: 0.22.2
+COCOAPODS: 0.23.0

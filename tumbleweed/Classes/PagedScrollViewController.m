@@ -236,6 +236,14 @@
 
 }
 
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    // Return YES for supported orientations
+    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft)
+    || (interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+    
+}
+
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -251,7 +259,5 @@
     [self renderParallax];
     
 }
-
-
 
 @end

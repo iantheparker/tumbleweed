@@ -163,7 +163,7 @@
                                                        [self saveTumbleweed];
                                                        [self dismissHUD:0 :error];
                                                    }];
-            /*
+            
             [Foursquare addList:nil description:nil WithBlock:^(NSDictionary *listResponse, NSError *error) {
                 if (error) {
                     NSLog(@"fsq addlist error %@", error);
@@ -180,7 +180,7 @@
                     NSLog(@"list response fsqlistid %@ and fsqlistUrl %@", fsqListId, fsqListUrl);
                 }
             }];
-             */
+             
         }
     }];
 

@@ -132,9 +132,9 @@ static int vDate = 20120927;
                           sectionId:(NSString*)section
                           noveltyId:(NSString*)novelty
                            distance:(NSString*)radius
+                       friendVisits:(NSString*)visited
                           WithBlock:(void (^)(NSArray *venues, NSError *error))block
 {
-    //if (!radius) radius = @"200";
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%f,%f", lat, lon], @"ll",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
@@ -143,6 +143,7 @@ static int vDate = 20120927;
                                  section, @"section",
                                  //@"travel", @"query",
                                  novelty, @"novelty",
+                                 visited, @"friendVisits",
                                  [NSNumber numberWithInt:vDate], @"v",
                                  nil];
     [[AFFoursquareAPIClient sharedClient] getPath:@"venues/explore" parameters:queryParams
@@ -265,7 +266,7 @@ static int vDate = 20120927;
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
     [[AFFoursquareAPIClient sharedClient] postPath:[NSString stringWithFormat:@"lists/%@/additem", listId] parameters:queryParams
                                            success:^(AFHTTPRequestOperation *operation, id JSON) {
-                                               NSLog(@"successful addedlistitem %@", JSON);
+                                               NSLog(@"successful addedlistitem");
                                                
                                            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                                NSLog(@"addlistitem error %@", error);

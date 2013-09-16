@@ -150,7 +150,7 @@ void uncaughtExceptionHandler(NSException *exception) {
      */
 
     [[[tweedNavController viewControllers] objectAtIndex:0] saveAvatarPosition];
-    [tweedNavController dismissModalViewControllerAnimated:NO];
+    [tweedNavController dismissViewControllerAnimated:NO completion:nil];
     [tweedNavController popToRootViewControllerAnimated:NO];
     
     [[Tumbleweed sharedClient] saveTumbleweed];

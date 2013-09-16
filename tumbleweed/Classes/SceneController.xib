@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4510" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
-        <deployment version="1280" defaultVersion="1280" identifier="iOS"/>
+        <deployment version="1280" defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
     <objects>
@@ -23,7 +23,7 @@
                 <outlet property="sceneScrollView" destination="46" id="92"/>
                 <outlet property="sceneTitleIV" destination="161" id="162"/>
                 <outlet property="searchView" destination="86" id="87"/>
-                <outlet property="tapView" destination="169" id="174"/>
+                <outlet property="tapView" destination="169" id="zIR-vS-6z9"/>
                 <outlet property="unlockCopy" destination="56" id="159"/>
                 <outlet property="venueScrollView" destination="10" id="26"/>
                 <outlet property="view" destination="46" id="52"/>
@@ -103,7 +103,7 @@
                     </connections>
                 </scrollView>
                 <button contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="78" userLabel="left scroll Button">
-                    <rect key="frame" x="-3" y="99.5" width="60" height="39.5"/>
+                    <rect key="frame" x="-3" y="100" width="60" height="40"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                     <inset key="contentEdgeInsets" minX="-10" minY="-2" maxX="-6" maxY="-2"/>
@@ -183,6 +183,7 @@
                         <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
+                    <state key="disabled" backgroundImage="blank_button_off_fade.png"/>
                     <state key="highlighted" backgroundImage="blank_button_onPress.png">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
@@ -247,6 +248,7 @@
     <resources>
         <image name="back2-scroll-map_button.png" width="77" height="71"/>
         <image name="blank_button_Default.png" width="122" height="40"/>
+        <image name="blank_button_off_fade.png" width="122" height="40"/>
         <image name="blank_button_onPress.png" width="122" height="40"/>
         <image name="carousel_left-off.png" width="22" height="33"/>
         <image name="carousel_left-on.png" width="22" height="33"/>

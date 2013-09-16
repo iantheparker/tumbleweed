@@ -111,7 +111,7 @@
                 NSString *checkInId = [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"];
                 [Foursquare addPhoto:[photoButton imageForState:UIControlStateSelected] checkin:checkInId broadcast:_broadcastType];
             }
-            //[Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:[venueDetails objectForKey:@"id"] itemText:nil];
+            [Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:[venueDetails objectForKey:@"id"] itemText:[NSString stringWithFormat:@"Your unlocked scene : %@", sceneControllerId.name]];
             [sceneControllerId animateRewards:1:YES];
             //sceneControllerId.successfulVenueName = venueNameLabel.text;
             //NSLog(@"foursquare checkinresponse %@", checkInResponse);
@@ -144,7 +144,7 @@
     imagePickerController.editing = YES;
     imagePickerController.delegate = (id)self;
     
-    [self presentModalViewController:imagePickerController animated:YES];
+    [self presentViewController:imagePickerController animated:YES completion:nil];
 }
 
 #pragma mark -
@@ -159,12 +159,12 @@
     //photo.image = croppedImage;
     [photoButton setImage:image forState:UIControlStateSelected];
     photoButton.selected = YES;
-    [picker dismissModalViewControllerAnimated:NO];
+    [picker dismissViewControllerAnimated:NO completion:nil];
     [photoButton.layer setBorderColor:[redC CGColor]];
 }
 
 -(void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    [picker dismissModalViewControllerAnimated:NO];
+    [picker dismissViewControllerAnimated:NO completion:nil];
 }
 
 #pragma mark -
