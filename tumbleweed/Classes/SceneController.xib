@@ -144,23 +144,23 @@
                         <outlet property="delegate" destination="-1" id="60"/>
                     </connections>
                 </mapView>
-                <imageView opaque="NO" autoresizesSubviews="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_SOUTH.png" id="72" userLabel="map_border_btm.png">
+                <imageView autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_SOUTH.png" id="72" userLabel="map_border_btm.png">
                     <rect key="frame" x="55" y="207" width="337" height="13"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
-                <imageView opaque="NO" autoresizesSubviews="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_NORTH.png" id="154" userLabel="map_border_btm.png">
+                <imageView autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_NORTH.png" id="154" userLabel="map_border_btm.png">
                     <rect key="frame" x="53" y="8" width="338" height="13"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
-                <imageView opaque="NO" autoresizesSubviews="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_WEST.png" id="74" userLabel="map_border_left.png">
+                <imageView autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_WEST.png" id="74" userLabel="map_border_left.png">
                     <rect key="frame" x="53" y="19" width="8" height="191"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
-                <imageView opaque="NO" autoresizesSubviews="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_EAST.png" id="75" userLabel="map_border_right.png">
+                <imageView autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_EAST.png" id="75" userLabel="map_border_right.png">
                     <rect key="frame" x="382" y="17" width="9" height="194"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
-                <button opaque="NO" autoresizesSubviews="NO" clearsContextBeforeDrawing="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="clip" id="62" userLabel="refresh Button">
+                <button autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="clip" id="62" userLabel="refresh Button">
                     <rect key="frame" x="345" y="167" width="38" height="38"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -221,7 +221,7 @@
                         <action selector="playVideo:" destination="-1" eventType="touchUpInside" id="82"/>
                     </connections>
                 </button>
-                <label opaque="NO" autoresizesSubviews="NO" userInteractionEnabled="NO" contentMode="left" text="unlock by checking in at:" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="10" adjustsFontSizeToFit="NO" id="56">
+                <label autoresizesSubviews="NO" opaque="NO" userInteractionEnabled="NO" contentMode="left" text="unlock by checking in at:" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="10" adjustsFontSizeToFit="NO" id="56">
                     <rect key="frame" x="14" y="278" width="286" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>

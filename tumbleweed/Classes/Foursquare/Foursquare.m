@@ -131,13 +131,15 @@ static int vDate = 20120927;
                           longitude:(float)lon
                           sectionId:(NSString*)section
                           noveltyId:(NSString*)novelty
+                           distance:(NSString*)radius
                           WithBlock:(void (^)(NSArray *venues, NSError *error))block
 {
+    //if (!radius) radius = @"200";
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%f,%f", lat, lon], @"ll",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  @"10", @"limit",
-                                 @"200", @"radius",
+                                 radius, @"radius",
                                  section, @"section",
                                  //@"travel", @"query",
                                  novelty, @"novelty",

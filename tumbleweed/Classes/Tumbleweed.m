@@ -133,7 +133,7 @@
 {
     NSLog(@"in register");
     if (tumbleweedId) return;
-    [SVProgressHUD showWithStatus:@"Logging in!" maskType:SVProgressHUDMaskTypeGradient];
+    [SVProgressHUD showWithStatus:@"Logging in..." maskType:SVProgressHUDMaskTypeGradient];
     [Foursquare getUserIdWithBlock:^(NSDictionary *userCred, NSError *error) {
         if (error) {
             NSLog(@"userCred error %@", error);

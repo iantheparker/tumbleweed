@@ -29,6 +29,7 @@ WithBlock:(void (^)(NSArray *venues, NSError *error))block;
                          longitude:(float)lon
                         sectionId:(NSString*)section
                           noveltyId:(NSString*)novelty
+                           distance:(NSString*)radius
                          WithBlock:(void (^)(NSArray *venues, NSError *error))block;
 
 + (void)cancelSearchVenues;

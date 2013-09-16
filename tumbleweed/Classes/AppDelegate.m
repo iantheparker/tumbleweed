@@ -11,7 +11,6 @@
 #import "Tumbleweed.h"
 
 #import "TestFlight.h"
-#import "Flurry.h"
 
 #define deviceTokenKey   @"devtok"
 
@@ -24,7 +23,6 @@
   * Catch any exceptions that leak through and report
   */
 void uncaughtExceptionHandler(NSException *exception) {
-    [Flurry logError:@"Uncaught" message:@"Crash!" exception:exception];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -32,7 +30,6 @@ void uncaughtExceptionHandler(NSException *exception) {
     NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
     
     // analytics
-    [Flurry startSession:@"TPPGLUQ1PTGM7XKM8MF3"];
     [TestFlight takeOff:@"c3fbe14b-2a0f-4be8-903e-efd0f7c622be"];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

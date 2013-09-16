@@ -11,8 +11,6 @@
 #import "AFFoursquareAPIClient.h"
 #import "BonusWebViewController.h"
 #import <UIImageView+AFNetworking.h>
-#import "RegionAnnotation.h"
-#import "RegionAnnotationView.h"
 #import <AudioToolbox/AudioToolbox.h>
 #import "MCSpriteLayer.h"
 
@@ -41,6 +39,7 @@ typedef enum {
 @property (nonatomic, retain) NSString *checkInCopy;
 @property (nonatomic, retain) NSString *bonusUrl;
 @property (nonatomic, retain) NSString *categoryHint;
+@property (nonatomic, retain) NSString *radius;
 
 @property (nonatomic) unsigned int venueSVPos;
 
@@ -80,7 +79,7 @@ typedef enum {
 }
 //plist properties
 @synthesize name, movieName, checkInCopy, bonusUrl;
-@synthesize categoryId, sectionId, noveltyId, categoryHint, queryString, sceneTypeName, sceneTypeDict;
+@synthesize categoryId, sectionId, noveltyId, categoryHint, queryString, sceneTypeName, sceneTypeDict, radius;
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
@@ -101,6 +100,7 @@ typedef enum {
         categoryHint = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"categoryHint"];
         sectionId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"sectionId"];
         noveltyId = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"novelty"];
+        radius = [[scn.pListDetails objectForKey:@"sceneType"] objectForKey:@"radius"];
         movieName = [scn.pListDetails objectForKey:@"movieName"];
         checkInCopy = [scn.pListDetails objectForKey:@"checkInCopy"];
         bonusUrl = [NSString stringWithFormat:@"%d", scn.level];
@@ -316,7 +316,7 @@ typedef enum {
     
     NSLog(@"locationmanager latlong %f,%f ", userCoordinate.latitude, userCoordinate.longitude);
     
-    [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId WithBlock:^(NSArray *venues, NSError *error) {
+    [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId distance:nil WithBlock:^(NSArray *venues, NSError *error) {
         if (error) {
             NSLog(@"error %@", error);
         }
@@ -373,27 +373,6 @@ typedef enum {
         
         return annotationView;
     }
-    if([annotation isKindOfClass:[RegionAnnotation class]]) {
-		RegionAnnotation *currentAnnotation = (RegionAnnotation *)annotation;
-		NSString *annotationIdentifier = [currentAnnotation title];
-		RegionAnnotationView *regionView = (RegionAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:annotationIdentifier];
-		
-		if (!regionView) {
-			regionView = [[RegionAnnotationView alloc] initWithAnnotation:annotation];
-            
-			regionView.map = mapView;
-            
-			
-		} else {
-			regionView.annotation = annotation;
-			regionView.theAnnotation = annotation;
-		}
-		
-		// Update or add the overlay displaying the radius of the region around the annotation.
-		[regionView updateRadiusOverlay];
-		
-		return regionView;
-	}
     
     return nil;
 }
@@ -451,9 +430,7 @@ typedef enum {
                 break;
             }
         }
-        else if ([currentAnnotation isKindOfClass:[RegionAnnotation class]]){
-            break;
-        }
+       
     }
 }
 - (void)zoomMapViewToFitAnnotations:(MKMapView *)mapView animated:(BOOL)animated
@@ -526,12 +503,12 @@ typedef enum {
         userCoordinate = [newLocation coordinate];
 
         if ([sceneTypeName isEqualToString:@"FSQexplorenew"]) {
-            [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId WithBlock:^(NSArray *venues, NSError *error) {
+            [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId distance:radius  WithBlock:^(NSArray *venues, NSError *error) {
                 if (error) {
                     NSLog(@"error %@", error);
                 }
                 [self processVenues:kExplore:venues :error];
-                NSLog(@"categoryid %@ sectionid %@ noveltyid %@", categoryId, sectionId, noveltyId);
+                NSLog(@"categoryid %@ sectionid %@ noveltyid %@ radius %@", categoryId, sectionId, noveltyId, radius);
             }];
         }
         else if ([sceneTypeName isEqualToString:@"FSQsearch"]) {
@@ -641,7 +618,7 @@ typedef enum {
             [venueView addSubview:venueDetailNib];
              
             */
-            
+            NSLog(@"venue %d %@", i, vName);
             [allVenues addObject:ven];
             
             // create and initialise the annotation
@@ -1873,7 +1850,7 @@ typedef enum {
             NSLog(@"animate unlock");
             successfulVenueName = [[[Tumbleweed sharedClient] successfulVenues] objectAtIndex:_scene.level];
             unlockCopy.text = [NSString stringWithFormat:@"unlocked at: %@", successfulVenueName];
-            if ([successfulVenueName isEqualToString:@""]) unlockCopy.text = [NSString stringWithFormat:@"unlocked"];
+            if ([successfulVenueName isEqualToString:@""]) unlockCopy.text = [NSString stringWithFormat:@"uncovered"];
         }
     } completion:^(BOOL finished) {
         [searchView removeFromSuperview];
@@ -2069,6 +2046,8 @@ typedef enum {
     [checkinButton setTitle:@"Nothing Nearby" forState:UIControlStateDisabled];
     [checkinButton setTitleColor:redC forState:UIControlStateNormal];
     [checkinButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+    [checkinButton setTitleColor:beigeC forState:UIControlStateDisabled];
+    [checkinButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateDisabled];
     [checkinButton addTarget:self action:@selector(launchCheckinVC::) forControlEvents:UIControlEventTouchUpInside];
 
     

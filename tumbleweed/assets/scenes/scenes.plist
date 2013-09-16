@@ -48,6 +48,8 @@
 				<string>4d4b7105d754a06378d81259</string>
 				<key>categoryHint</key>
 				<string>a SHOP where you can buy some stuff.</string>
+				<key>radius</key>
+				<string>250</string>
 			</dict>
 			<key>hintCopy</key>
 			<string>Start exploring town - or the outskirts. There could be some shady deals going down.</string>
@@ -95,6 +97,8 @@
 				<string>FSQexplorenew</string>
 				<key>categoryId</key>
 				<string>4d4b7105d754a06378d81259</string>
+				<key>radius</key>
+				<string>250</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S3_unlocked_Default.jpg</string>
@@ -134,6 +138,8 @@
 				<string>FSQsearch</string>
 				<key>categoryId</key>
 				<string>4bf58dd8d48988d113951735,4d4b7105d754a06379d81259</string>
+				<key>radius</key>
+				<string>250</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S4_unlocked_Default.jpg</string>
@@ -173,6 +179,8 @@
 				<string>FSQexplorenew</string>
 				<key>categoryId</key>
 				<string></string>
+				<key>radius</key>
+				<string>250</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S5_unlocked_Default.jpg</string>
@@ -205,7 +213,13 @@
 			<key>sceneType</key>
 			<dict>
 				<key>type</key>
-				<string>Timer</string>
+				<string>FSQsearch</string>
+				<key>radius</key>
+				<string>9000</string>
+				<key>categoryHint</key>
+				<string>a CEMETERY.</string>
+				<key>categoryId</key>
+				<string>4bf58dd8d48988d15c941735</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S6_unlocked_Default.jpg</string>
@@ -245,8 +259,8 @@
 				<string>outdoors</string>
 				<key>type</key>
 				<string>FSQexplorenew</string>
-				<key>categoryId</key>
-				<string></string>
+				<key>radius</key>
+				<string>9000</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S7_unlocked_Default.jpg</string>
@@ -275,13 +289,19 @@
 			<key>hintCopy</key>
 			<string>Keep moving! You can&apos;t slow down now.</string>
 			<key>checkInCopy</key>
-			<string>get out of the danger zone!</string>
+			<string>get out of the danger zone:</string>
 			<key>bonus</key>
 			<string></string>
 			<key>sceneType</key>
 			<dict>
 				<key>type</key>
-				<string>FSQdistance</string>
+				<string>FSQexplorenew</string>
+				<key>sectionId</key>
+				<string>sights</string>
+				<key>radius</key>
+				<string>9000</string>
+				<key>categoryHint</key>
+				<string>a SIGHT of interest.</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S8_unlocked_Default.jpg</string>
