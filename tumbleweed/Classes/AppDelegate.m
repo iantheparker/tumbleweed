@@ -14,6 +14,13 @@
 
 #define deviceTokenKey   @"devtok"
 
+@implementation UINavigationController (LandscapeOnly)
+
+- (NSUInteger) supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskLandscape;
+}
+@end
+
 @implementation AppDelegate
 
 @synthesize window = _window;
@@ -186,6 +193,9 @@ void uncaughtExceptionHandler(NSException *exception) {
      */
 }
 
+- (NSUInteger)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window{
+    return UIInterfaceOrientationMaskAll;
+}
 
 
 @end

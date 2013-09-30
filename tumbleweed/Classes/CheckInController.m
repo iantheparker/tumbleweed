@@ -111,7 +111,7 @@
                 NSString *checkInId = [[[checkInResponse objectForKey:@"response"] objectForKey:@"checkin"]  objectForKey:@"id"];
                 [Foursquare addPhoto:[photoButton imageForState:UIControlStateSelected] checkin:checkInId broadcast:_broadcastType];
             }
-            [Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:[venueDetails objectForKey:@"id"] itemText:[NSString stringWithFormat:@"Your unlocked scene : %@", sceneControllerId.name]];
+            [Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:[venueDetails objectForKey:@"id"] itemText:[NSString stringWithFormat:@"I unlocked this cool scene from the movie No Man's Land : %@. Thanks tumbleweed.me", sceneControllerId.name]];
             [sceneControllerId animateRewards:1:YES];
             //sceneControllerId.successfulVenueName = venueNameLabel.text;
             //NSLog(@"foursquare checkinresponse %@", checkInResponse);
@@ -247,8 +247,11 @@
     [photoButton.layer setBorderColor:[beigeC CGColor]];
     [photoButton.layer setBorderWidth:3.0];
     
-    [self.view.layer setContents:(__bridge id)[[UIImage imageNamed:@"check-in_bg.jpg"] CGImage]];
-
+    UIGraphicsBeginImageContext(CGSizeMake([UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width));
+    [[UIImage imageNamed:@"check-in_bg.jpg"] drawInRect:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    self.view.backgroundColor = [UIColor colorWithPatternImage:image];
     
 }
 
@@ -267,6 +270,16 @@
     return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft 
             || interfaceOrientation == UIInterfaceOrientationLandscapeRight);
 
+}
+
+- (BOOL) shouldAutorotate {
+    return YES;
+}
+
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    return (UIInterfaceOrientationLandscapeLeft
+            | UIInterfaceOrientationLandscapeRight);
 }
 
 @end

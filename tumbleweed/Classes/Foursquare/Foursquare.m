@@ -236,7 +236,7 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  @"No Man's Land Path", @"name",
-                                 @"All the places I went to while watching this movie from tumbleweed.me", @"description",
+                                 @"All the places I went to while watching No Man's Land from tumbleweed.me", @"description",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
@@ -260,7 +260,7 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  venueId, @"venueId",
-                                 text, @"text",
+                                 //text, @"text",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
                                  [NSNumber numberWithInt:vDate], @"v", nil];
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];

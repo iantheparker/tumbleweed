@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4510" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
         <deployment version="1280" defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
@@ -19,82 +19,70 @@
                 <outlet property="playButton" destination="167" id="168"/>
                 <outlet property="refreshButton" destination="62" id="69"/>
                 <outlet property="rightScroll" destination="77" id="79"/>
-                <outlet property="sceneSVView" destination="1" id="93"/>
-                <outlet property="sceneScrollView" destination="46" id="92"/>
                 <outlet property="sceneTitleIV" destination="161" id="162"/>
-                <outlet property="searchView" destination="86" id="87"/>
+                <outlet property="searchView" destination="86" id="vxC-Fi-hwk"/>
                 <outlet property="tapView" destination="169" id="zIR-vS-6z9"/>
                 <outlet property="unlockCopy" destination="56" id="159"/>
                 <outlet property="venueScrollView" destination="10" id="26"/>
-                <outlet property="view" destination="46" id="52"/>
+                <outlet property="view" destination="1" id="IcQ-tP-1mI"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <scrollView contentMode="scaleToFill" bounces="NO" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" id="46">
+        <view clearsContextBeforeDrawing="NO" tag="1" contentMode="scaleToFill" id="1">
             <rect key="frame" x="0.0" y="0.0" width="480" height="320"/>
-            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
             <subviews>
-                <view clearsContextBeforeDrawing="NO" tag="1" contentMode="scaleToFill" id="1">
+                <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="check-in_bg.jpg" id="YiX-Ep-ccf">
                     <rect key="frame" x="0.0" y="0.0" width="480" height="320"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                </imageView>
+                <view contentMode="scaleToFill" id="12" userLabel="Nav View">
+                    <rect key="frame" x="0.0" y="5" width="480" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <subviews>
-                        <view contentMode="scaleToFill" id="12" userLabel="Nav View">
-                            <rect key="frame" x="0.0" y="5" width="480" height="44"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                            <subviews>
-                                <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" id="16" userLabel="Back Button">
-                                    <rect key="frame" x="0.0" y="-8" width="77" height="71"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                    <state key="normal" image="back2-scroll-map_button.png">
-                                        <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
-                                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                    </state>
-                                    <state key="highlighted">
-                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    </state>
-                                    <connections>
-                                        <action selector="dismissModal:" destination="-1" eventType="touchUpInside" id="17"/>
-                                    </connections>
-                                </button>
-                            </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                        </view>
-                        <view autoresizesSubviews="NO" tag="-1" contentMode="scaleToFill" id="169" userLabel="tap View">
-                            <rect key="frame" x="5" y="44" width="470" height="264"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <subviews>
-                                <imageView userInteractionEnabled="NO" tag="7" contentMode="scaleAspectFit" id="175" userLabel="lockedImage">
-                                    <rect key="frame" x="53" y="10" width="364" height="218"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                </imageView>
-                                <imageView userInteractionEnabled="NO" tag="7" contentMode="center" id="177" userLabel="lockedImageText">
-                                    <rect key="frame" x="53" y="11" width="364" height="218"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                </imageView>
-                            </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                            <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
-                            <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
-                        </view>
+                        <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" id="16" userLabel="Back Button">
+                            <rect key="frame" x="0.0" y="-8" width="77" height="71"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                            <state key="normal" image="back2-scroll-map_button.png">
+                                <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <state key="highlighted">
+                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="dismissModal:" destination="-1" eventType="touchUpInside" id="17"/>
+                            </connections>
+                        </button>
                     </subviews>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                    <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                </view>
+                <view autoresizesSubviews="NO" opaque="NO" tag="-1" contentMode="scaleToFill" id="169" userLabel="tap View">
+                    <rect key="frame" x="5" y="44" width="470" height="264"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" tag="7" contentMode="scaleAspectFit" id="175" userLabel="lockedImage">
+                            <rect key="frame" x="53" y="10" width="364" height="218"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        </imageView>
+                        <imageView userInteractionEnabled="NO" tag="7" contentMode="center" id="177" userLabel="lockedImageText">
+                            <rect key="frame" x="53" y="11" width="364" height="218"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        </imageView>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                 </view>
             </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
-        </scrollView>
-        <view autoresizesSubviews="NO" contentMode="top" id="86" userLabel="Search View">
+        </view>
+        <view autoresizesSubviews="NO" opaque="NO" contentMode="top" id="86" userLabel="Search View">
             <rect key="frame" x="0.0" y="0.0" width="447" height="274"/>
             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <activityIndicatorView hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="scaleAspectFit" hidesWhenStopped="YES" style="whiteLarge" id="33">
-                    <rect key="frame" x="205" y="99" width="37" height="37"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                    <rect key="contentStretch" x="0.0" y="0.0" width="0.64999999999999969" height="0.64999999999999969"/>
-                    <color key="color" red="0.81568634510000004" green="0.33333334329999997" blue="0.36078432199999999" alpha="1" colorSpace="deviceRGB"/>
-                </activityIndicatorView>
                 <scrollView hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" scrollEnabled="NO" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" id="10" userLabel="Venue Scroll View">
                     <rect key="frame" x="25" y="227" width="396" height="39"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
@@ -144,6 +132,12 @@
                         <outlet property="delegate" destination="-1" id="60"/>
                     </connections>
                 </mapView>
+                <activityIndicatorView opaque="NO" userInteractionEnabled="NO" contentMode="scaleAspectFit" hidesWhenStopped="YES" animating="YES" style="whiteLarge" id="33">
+                    <rect key="frame" x="205" y="99" width="37" height="37"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <rect key="contentStretch" x="0.0" y="0.0" width="0.64999999999999969" height="0.64999999999999969"/>
+                    <color key="color" red="0.69019609689712524" green="0.63921570777893066" blue="0.56470590829849243" alpha="1" colorSpace="deviceRGB"/>
+                </activityIndicatorView>
                 <imageView autoresizesSubviews="NO" opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" image="map_border_SOUTH.png" id="72" userLabel="map_border_btm.png">
                     <rect key="frame" x="55" y="207" width="337" height="13"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -199,12 +193,12 @@
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
         </view>
-        <view autoresizesSubviews="NO" contentMode="scaleToFill" id="94" userLabel="Movie View">
+        <view autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" id="94" userLabel="Movie View">
             <rect key="frame" x="0.0" y="0.0" width="315" height="305"/>
             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <imageView userInteractionEnabled="NO" contentMode="center" id="161" userLabel="SceneTitle Image View">
-                    <rect key="frame" x="17" y="8" width="280" height="32"/>
+                    <rect key="frame" x="17" y="7" width="280" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
                 <button contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="81" userLabel="Movie Frame Button">
@@ -254,6 +248,7 @@
         <image name="carousel_left-on.png" width="22" height="33"/>
         <image name="carousel_right-off.png" width="22" height="33"/>
         <image name="carousel_right-on.png" width="22" height="33"/>
+        <image name="check-in_bg.jpg" width="480" height="540"/>
         <image name="google_map_refresh-icon.png" width="38" height="38"/>
         <image name="map_border_EAST.png" width="9" height="193"/>
         <image name="map_border_NORTH.png" width="367" height="22"/>

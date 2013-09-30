@@ -93,9 +93,9 @@ typedef enum {
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
-@synthesize venueScrollView, venueDetailNib, venueView, sceneSVView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
+@synthesize venueScrollView, venueDetailNib, venueView, leftScroll, rightScroll, venueSVPos, refreshButton, activityIndicator;
 //generic properties
-@synthesize sceneScrollView, unlockCopy, movieThumbnailButton, extrasView, moviePlayer, movieView, checkinButton, successfulVenueName, checkinInstructions, sceneTitleIV, playButton, tapView, lockedTapImage, lockedTapImageText;
+@synthesize unlockCopy, movieThumbnailButton, extrasView, moviePlayer, movieView, checkinButton, successfulVenueName, checkinInstructions, sceneTitleIV, playButton, tapView, lockedTapImage, lockedTapImageText;
 
 
 - (id) initWithScene:(Scene *) scn
@@ -127,8 +127,8 @@ typedef enum {
 {
     [UIView animateWithDuration:0.35
                      animations:^{
-                         [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
-                         [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp forView:self.navigationController.view cache:NO];
+                         //[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+                         [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp forView:self.navigationController.view cache:YES];
                      } completion:^(BOOL finished) {}];
     [self.navigationController popViewControllerAnimated:NO];
     NSLog(@"dismissing view");
@@ -1787,7 +1787,7 @@ typedef enum {
         }
     }
     else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-        NSLog(@"displaying ios7 tap texts");
+        //NSLog(@"displaying ios7 tap texts");
         if ([movieName isEqualToString:@"01_Intro"])
         {
             //NSLog(@"hiih");
@@ -2385,7 +2385,7 @@ typedef enum {
                     tapLabel1.text = @"grab the deed";
                     [tapLabel1 setFont:[UIFont fontWithName:@"Rockwell-bold" size:170]];
                     tapLabel1.adjustsFontSizeToFitWidth = YES;
-                    tapLabel1.center = CGPointMake(tapLabel1.center.x, tapLabel1.center.y-30);
+                    tapLabel1.center = CGPointMake(tapLabel1.center.x+10, tapLabel1.center.y-50);
                 }
                     break;
                     
@@ -2393,7 +2393,7 @@ typedef enum {
                 {
                     tapLabel2.text = @"and while you're at it";
                     [tapLabel2 setFont:[UIFont fontWithName:@"Rockwell-Light" size:25]];
-                    tapLabel2.center = CGPointMake(tapLabel2.center.x,tapLabel1.center.y + 70);
+                    tapLabel2.center = CGPointMake(tapLabel1.center.x,tapLabel1.center.y + 70);
                     
                 }
                     break;
@@ -3002,6 +3002,7 @@ typedef enum {
     NSLog(@"refreshing view");
     tapNumber = 0;
     [self resetTapView:TRUE];
+    checkinButton.enabled = false;
     
     if ([sceneTypeName isEqualToString:@"Empty"])
     {
@@ -3149,11 +3150,12 @@ typedef enum {
         movieThumbnailButton.imageView.layer.cornerRadius = 15.0;
     }
     
-    [sceneSVView.layer setContents:(__bridge id)[[UIImage imageNamed:@"check-in_bg.jpg"] CGImage]];
-    
-    //CGSize screenSize = CGSizeMake(sceneSVView.bounds.size.width, sceneSVView.bounds.size.height);
-    //if ([sceneSVView.subviews containsObject:contentView]) sceneScrollView.contentSize = screenSize;
-    [sceneScrollView addSubview:sceneSVView];
+    //[self.view.layer setContents:(__bridge id)[[UIImage imageNamed:@"check-in_bg.jpg"] CGImage]];
+    UIGraphicsBeginImageContext(CGSizeMake([UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width));
+    [[UIImage imageNamed:@"check-in_bg.jpg"] drawInRect:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width)];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    self.view.backgroundColor = [UIColor colorWithPatternImage:image];
     
     UITapGestureRecognizer *tapHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
     tapHandler.numberOfTapsRequired = 1;
@@ -3198,6 +3200,11 @@ typedef enum {
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft 
             || interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    return (UIInterfaceOrientationLandscapeLeft
+            | UIInterfaceOrientationLandscapeRight);
 }
 
 @end

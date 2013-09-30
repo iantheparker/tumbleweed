@@ -18,10 +18,8 @@
 @class Scene;
 
 
-@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIScrollViewDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate>
+@interface SceneController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate>
 {
-    IBOutlet UIScrollView *sceneScrollView;
-    IBOutlet UIView *sceneSVView;
     IBOutlet UILabel *sceneTitle;
     IBOutlet UILabel *unlockCopy;
     IBOutlet UIScrollView *venueScrollView;
@@ -50,11 +48,9 @@
     
 }
 
-@property (nonatomic, retain) UIScrollView *sceneScrollView;
 @property (nonatomic, retain) UIScrollView *venueScrollView;
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) UILabel *unlockCopy;
-@property (nonatomic, retain) UIView *sceneSVView;
 @property (nonatomic, retain) UIView *venueDetailNib;
 @property (nonatomic, retain) UIView *venueView;
 @property (nonatomic, strong) CLLocationManager *locationManager;
