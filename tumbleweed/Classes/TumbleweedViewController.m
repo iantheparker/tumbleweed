@@ -41,7 +41,7 @@
 -(CGRect) selectAvatarBounds:(float) position;
 -(void) updateProgressBar: (int) level;
 -(void) startCampfire;
--(void) popBeginSign;
+-(void) addIconWiggleAnimation: (unsigned int) sceneNumber;
 -(void) updateSceneButtonStates;
 -(CGPoint) coordinatePListReader: (NSString*) positionString;
 -(NSMutableArray*) mapLayerPListPlacer: (NSDictionary*) plist : (CGSize) screenSize : (CALayer*) parentLayer : (NSMutableArray*) sceneArray;
@@ -58,6 +58,7 @@
     CATextLayer *progressLabel;
     CALayer *progressBar;
     CALayer *progressBarEmpty;
+    CALayer *coachtip;
     UIView *hintVC;
     UIView *bubbleContainer;
     UIImageView *forgotImage;
@@ -272,7 +273,7 @@
 
 #pragma mark -
 #pragma mark animation controls
--(void) popBeginSign
+-(void) addIconWiggleAnimation: (unsigned int) sceneNumber
 {
     /*
     UIImage *beginSignimg = [UIImage imageNamed:@"top_lvl4_objs_0.png"];
@@ -287,6 +288,34 @@
         beginSign.transform = transform1;
     }];
      */
+    
+    CAKeyframeAnimation *iconWiggleAnimation = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+    iconWiggleAnimation.duration = 4.0f;
+    iconWiggleAnimation.repeatCount = HUGE_VALF;
+    iconWiggleAnimation.removedOnCompletion = NO;
+    iconWiggleAnimation.fillMode = kCAFillModeForwards;
+    
+    iconWiggleAnimation.values = [NSArray arrayWithObjects:
+                                  [NSNumber numberWithFloat:0],
+                                  [NSNumber numberWithFloat: M_PI_4/2],
+                                  [NSNumber numberWithFloat: -M_PI_4/2],
+                                  [NSNumber numberWithFloat: M_PI_4/2],
+                                  [NSNumber numberWithFloat: -M_PI_4/2],
+                                  [NSNumber numberWithFloat:0],
+                                  [NSNumber numberWithFloat:0],
+                                  [NSNumber numberWithFloat:1],nil]; //not called
+    
+    iconWiggleAnimation.keyTimes = [NSArray arrayWithObjects:
+                                    [NSNumber numberWithFloat:0.0],
+                                    [NSNumber numberWithFloat:0.1],
+                                    [NSNumber numberWithFloat:0.15],
+                                    [NSNumber numberWithFloat:0.2],
+                                    [NSNumber numberWithFloat:0.25],
+                                    [NSNumber numberWithFloat:0.3],
+                                    [NSNumber numberWithFloat:0.35],
+                                    [NSNumber numberWithFloat:0], nil]; //not called
+    
+    [[[scenes objectAtIndex:sceneNumber] button].imageView.layer addAnimation:iconWiggleAnimation forKey:@"iconWiggle"];
 }
 -(void) addProgressBar
 {
@@ -688,9 +717,8 @@
 {
     switch ([Tumbleweed sharedClient].tumbleweedLevel) {
         
-        case 4:
-            //wait for notification from server when timer is up
-            //if seems like it's been a long wait, double-check on foursquare's push and post an update
+        case 1:
+            [coachtip removeFromSuperlayer];
             break;
             
         case 5:
@@ -727,18 +755,24 @@
     //start this loop at 1 because scene 0 is the intro and that should always be accessible
     for (int i = 1; i < scenes.count; i++)
     {
+        [[[scenes objectAtIndex:i] button].imageView.layer removeAllAnimations];
         if (![[Tumbleweed sharedClient] tumbleweedId]) {
+            //off state
             [[scenes objectAtIndex:i] button].selected = YES;
         }
         else if (([[scenes objectAtIndex:i] level] > [Tumbleweed sharedClient].tumbleweedLevel)) {
+            //unlocked
             [[scenes objectAtIndex:i] button].selected = YES;
             [[scenes objectAtIndex:i] button].highlighted = NO;
         }
         else if ([[scenes objectAtIndex:i] level] == [Tumbleweed sharedClient].tumbleweedLevel) {
+            //current level
             [[scenes objectAtIndex:i] button].selected = NO;
             [[scenes objectAtIndex:i] button].highlighted = NO;
+            [self addIconWiggleAnimation:i];
         }
         else if ([[scenes objectAtIndex:i] level] < [Tumbleweed sharedClient].tumbleweedLevel){
+            //locked
             [[scenes objectAtIndex:i] button].highlighted = YES;
         }
     }
@@ -1050,7 +1084,6 @@
         janeAvatar.name = @"janeAvatar";
         [mapCAView.layer addSublayer:janeAvatar];
     }
-
     //-->sky
     {
         UIImage *skyImage = [UIImage imageNamed:@"sky.jpg"];
@@ -1765,6 +1798,17 @@
         [saloonparty2 addAnimation:saloonparty2Anim forKey:@"opacity"];
         
 
+    }
+    //-->coach tip
+    {
+        UIImage *coachtipImg = [UIImage imageNamed:@"coach_tip_1.png"];
+        coachtip = [CALayer layer];
+        CGRect coachFrame = CGRectMake(0, 0, coachtipImg.size.width/2, coachtipImg.size.height/2);
+        [coachtip setBounds:coachFrame];
+        [coachtip setPosition:CGPointMake(1770, 50)];
+        CGImageRef coachtipimgref = [coachtipImg CGImage];
+        [coachtip setContents:(__bridge id) coachtipimgref];
+        [map4CA addSublayer:coachtip];
     }
     //-->CALayer name adds-ons
     {
