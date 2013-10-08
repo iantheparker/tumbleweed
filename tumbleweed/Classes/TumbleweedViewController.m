@@ -290,7 +290,7 @@
      */
     
     CAKeyframeAnimation *iconWiggleAnimation = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
-    iconWiggleAnimation.duration = 4.0f;
+    iconWiggleAnimation.duration = 2.0f;
     iconWiggleAnimation.repeatCount = HUGE_VALF;
     iconWiggleAnimation.removedOnCompletion = NO;
     iconWiggleAnimation.fillMode = kCAFillModeForwards;
