@@ -259,10 +259,11 @@ static int vDate = 20120927;
            itemText:(NSString*) text
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 venueId, @"venueId",
-                                 //text, @"text",
-                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 [NSNumber numberWithInt:vDate], @"v", nil];
+                       venueId, @"venueId",
+                       text, @"text",
+                       [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                       [NSNumber numberWithInt:vDate], @"v", nil];
+    
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
     [[AFFoursquareAPIClient sharedClient] postPath:[NSString stringWithFormat:@"lists/%@/additem", listId] parameters:queryParams
                                            success:^(AFHTTPRequestOperation *operation, id JSON) {

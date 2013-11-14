@@ -61,6 +61,35 @@
 
 #pragma mark Event Handlers
 
+- (void) shareAlertButton
+{
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"shareAlert"]) {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"shareAlert"];
+    
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Tell the world!"
+                                                          message:@"Make sure Twitter and Facebook are connected to your Foursquare account first."
+                                                         delegate:self
+                                                cancelButtonTitle:@"Nahh"
+                                                otherButtonTitles:@"OK", nil];
+        [message show];
+    }
+    
+    
+}
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
+    if([title isEqualToString:@"OK"])
+    {
+        NSLog(@"Button 1 was selected.");
+        NSURL *URL = [NSURL URLWithString:@"https://foursquare.com/settings/sharing"];
+        BOOL result = [[UIApplication sharedApplication] openURL:URL];
+        if (!result) {
+            NSLog(@"*** %s: cannot open url \"%@\"", __PRETTY_FUNCTION__, URL);
+        }
+    }
+}
+
 
 - (IBAction)dismissModal:(id)sender
 {
@@ -78,11 +107,13 @@
 - (IBAction)toggleFacebookShare:(id)sender
 {
     facebookButton.selected = !facebookButton.selected;
+    [self shareAlertButton];
 }
 
 - (IBAction)toggleTwitterShare:(id)sender
 {
     twitterButton.selected = !twitterButton.selected;
+    [self shareAlertButton];
 }
 
 - (IBAction)checkIn:(id)sender

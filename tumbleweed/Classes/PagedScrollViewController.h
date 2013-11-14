@@ -15,11 +15,14 @@
 @property (nonatomic, strong) IBOutlet UIImageView *text1;
 @property (nonatomic, strong) IBOutlet UIImageView *text2;
 @property (nonatomic, strong) IBOutlet UIImageView *text3;
+@property (nonatomic, strong) IBOutlet UIImageView *text4;
+@property (nonatomic, strong) IBOutlet UIImageView *bgImg;
 
 
 -(int) getRandomNumberBetween:(int)from to:(int)to;
 -(void) renderParallax;
 -(void) updateScrollDisplay: (NSTimer*) timer;
 
+- (void) handleSingleTap: (UIGestureRecognizer*) sender;
 
 @end

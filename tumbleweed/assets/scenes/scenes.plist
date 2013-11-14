@@ -47,7 +47,7 @@
 				<key>categoryId</key>
 				<string>4d4b7105d754a06378d81259</string>
 				<key>categoryHint</key>
-				<string>a SHOP where you can buy some stuff.</string>
+				<string>a SHOP where you can buy some stuff</string>
 				<key>radius</key>
 				<string>250</string>
 			</dict>
@@ -55,8 +55,8 @@
 			<string>Start exploring town - or the outskirts. There could be some shady deals going down.</string>
 			<key>checkInCopy</key>
 			<string>go to where the deals are:</string>
-			<key>bonus</key>
-			<string></string>
+			<key>bonusvID</key>
+			<string>4b65cfa5f964a52030012be3</string>
 			<key>movieButtonOn</key>
 			<string>S2_unlocked_Default.jpg</string>
 			<key>movieButtonOff</key>
@@ -85,12 +85,12 @@
 			<string> Let’s find a stool with the best vantage point. I hate being thirsty. </string>
 			<key>checkInCopy</key>
 			<string>grab a stool at a saloon:</string>
-			<key>bonus</key>
-			<string></string>
+			<key>bonusvID</key>
+			<string>4b085969f964a520c50923e3</string>
 			<key>sceneType</key>
 			<dict>
 				<key>categoryHint</key>
-				<string>a SALOON or RESTAURANT.</string>
+				<string>a SALOON or RESTAURANT</string>
 				<key>sectionId</key>
 				<string>drinks</string>
 				<key>type</key>
@@ -126,12 +126,12 @@
 			<string>Leaving town? Strangers always stop here on their way out.</string>
 			<key>checkInCopy</key>
 			<string>catch him on his way:</string>
-			<key>bonus</key>
-			<string></string>
+			<key>bonusvID</key>
+			<string>4e35b92e1838f85189a9fc2f</string>
 			<key>sceneType</key>
 			<dict>
 				<key>categoryHint</key>
-				<string>a TRAVEL HUB of any kind.</string>
+				<string>a TRAVEL HUB of any kind</string>
 				<key>query</key>
 				<string>travel</string>
 				<key>type</key>
@@ -167,12 +167,12 @@
 			<string>It&apos;s a hot day. Perfect for a dunk, a dip, and baptism...</string>
 			<key>checkInCopy</key>
 			<string>take him outside:</string>
-			<key>bonus</key>
-			<string></string>
+			<key>bonusvID</key>
+			<string>4b65cde6f964a520c0002be3</string>
 			<key>sceneType</key>
 			<dict>
 				<key>categoryHint</key>
-				<string>some OUTDOORSY place.</string>
+				<string>some OUTDOORSY place</string>
 				<key>sectionId</key>
 				<string>outdoors</string>
 				<key>type</key>
@@ -208,8 +208,8 @@
 			<string>What was that all about? I need some time to think...</string>
 			<key>checkInCopy</key>
 			<string>any last sights you wanted to see?</string>
-			<key>bonus</key>
-			<string></string>
+			<key>bonusvID</key>
+			<string>4c5c983e9b28d13a414c5770</string>
 			<key>sceneType</key>
 			<dict>
 				<key>type</key>
@@ -219,7 +219,7 @@
 				<key>radius</key>
 				<string>300</string>
 				<key>categoryHint</key>
-				<string>a SIGHT or LANDMARK of interest.</string>
+				<string>a SIGHT or LANDMARK of interest</string>
 			</dict>
 			<key>movieButtonOn</key>
 			<string>S6_unlocked_Default.jpg</string>
@@ -247,12 +247,12 @@
 			<string>Uh oh. Where can I go where no one will find me? </string>
 			<key>checkInCopy</key>
 			<string>go where you&apos;ve never been:</string>
-			<key>bonus</key>
-			<string></string>
+			<key>bonusvID</key>
+			<string>4bd38c28a8b3a593584f6a5f</string>
 			<key>sceneType</key>
 			<dict>
 				<key>categoryHint</key>
-				<string>an OUTDOORSY place you&apos;ve never been to before.</string>
+				<string>an OUTDOORSY place you&apos;ve never been to before</string>
 				<key>novelty</key>
 				<string>new</string>
 				<key>sectionId</key>
@@ -290,8 +290,8 @@
 			<string>Keep moving! You can&apos;t slow down now.</string>
 			<key>checkInCopy</key>
 			<string>get out of the danger zone:</string>
-			<key>bonus</key>
-			<string></string>
+			<key>bonusvID</key>
+			<string>4b65d2e3f964a5202b022be3</string>
 			<key>sceneType</key>
 			<dict>
 				<key>type</key>
@@ -301,7 +301,7 @@
 				<key>radius</key>
 				<string>250</string>
 				<key>categoryHint</key>
-				<string>an OUTDOORSY place your friends have never been to before.</string>
+				<string>an OUTDOORSY place your friends have never been to before</string>
 				<key>novelty</key>
 				<string>new</string>
 				<key>friendVisits</key>

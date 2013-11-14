@@ -50,6 +50,8 @@ typedef enum {
 @property (nonatomic, retain) NSString *categoryHint;
 @property (nonatomic, retain) NSString *radius;
 @property (nonatomic, retain) NSString *friendVisits;
+@property (nonatomic, retain) NSString *backupVenueID;
+
 
 @property (nonatomic) unsigned int venueSVPos;
 
@@ -59,6 +61,7 @@ typedef enum {
 -(void) launchCheckinVC: (id)sender : (NSDictionary*) dict;
 - (IBAction) launchBonusWebView;
 - (void) willPresentError:(NSError *)error;
+- (void) bypassCheckin;
 - (void) processVenues: (NSInteger) searchType : (NSArray *) items : (NSError*) err;
 - (void) searchSetup;
 - (void) tapSpriteAdvancer: (unsigned int) tapNum;
@@ -85,11 +88,12 @@ typedef enum {
     UILabel *tapLabel3;
     UIImageView *tapImage1;
     NSMutableArray *fsqannotations;
+    BOOL middleOfNowhere;
     
 }
 //plist properties
 @synthesize name, movieName, checkInCopy, bonusUrl;
-@synthesize categoryId, sectionId, noveltyId, categoryHint, queryString, sceneTypeName, sceneTypeDict, radius, friendVisits;
+@synthesize categoryId, sectionId, noveltyId, categoryHint, queryString, sceneTypeName, sceneTypeDict, radius, friendVisits, backupVenueID;
 //map properties
 @synthesize locationManager, mvFoursquare, pinsLoaded;
 //checkin properties
@@ -115,6 +119,7 @@ typedef enum {
         movieName = [scn.pListDetails objectForKey:@"movieName"];
         checkInCopy = [scn.pListDetails objectForKey:@"checkInCopy"];
         bonusUrl = [NSString stringWithFormat:@"%d", scn.level];
+        backupVenueID = [scn.pListDetails objectForKey:@"bonusvID"];
     }
     return self;
 }
@@ -153,18 +158,24 @@ typedef enum {
 }
 - (void) launchBonusWebView
 {
-    NSString *baseBonusURL = @"http://western.goddamncobras.com/";
-    /*
-    NSLog(@"launching bonus webview");
-    //BonusWebViewController *bonusView = [[BonusWebViewController alloc] initWithUrl:bonusUrl];
-    BonusWebViewController *bonusView = [[BonusWebViewController alloc] initWithUrl:baseBonusURL];
-    [self presentViewController:bonusView animated:YES completion:^{}];
-     */
-    NSURL *URL = [NSURL URLWithString:baseBonusURL];
-    BOOL result = [[UIApplication sharedApplication] openURL:URL];
-    if (!result) {
-        NSLog(@"*** %s: cannot open url \"%@\"", __PRETTY_FUNCTION__, URL);
+    //nml extras page - 371737246292829
+    // gdc page - 122858321793
+    NSString* facebookURL = [NSString stringWithFormat: @"fb://profile/371737246292829"];
+    BOOL canOpenFacebookApp = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString: facebookURL]];
+    if (canOpenFacebookApp) {
+        [[UIApplication sharedApplication] openURL: [NSURL URLWithString: facebookURL]];
     }
+    else
+    {
+        //western blog - http://western.goddamncobras.com/
+        NSString *baseBonusURL = @"https://www.facebook.com/tumbleweedme";
+        NSURL *URL = [NSURL URLWithString:baseBonusURL];
+        BOOL result = [[UIApplication sharedApplication] openURL:URL];
+        if (!result) {
+            NSLog(@"*** %s: cannot open url \"%@\"", __PRETTY_FUNCTION__, URL);
+        }
+    }
+    
     
 }
 - (IBAction) resetButton:(id)sender
@@ -183,17 +194,18 @@ typedef enum {
     if([title isEqualToString:@"YEAH!"])
     {
         NSLog(@"Button 1 was selected.");
-        /*
-        UIAlertView *message = [[UIAlertView alloc] initWithTitle:nil
-                                                          message:@"Please close No Man's Land to clear your history. Open it back up later when you're ready to play again"
-                                                         delegate:nil
-                                                cancelButtonTitle:@"OK"
-                                                otherButtonTitles:nil];
-        [message show];
-        */
         [[Tumbleweed sharedClient] resetLevel];
         [[TumbleweedViewController sharedClient] addProgressBar];
         [self dismissModal:nil];
+    }
+    if([title isEqualToString:@"Yup!"])
+    {
+        //increment level
+        //animate rewards
+        //add gps to foursquare list item
+        [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1) withVenue:@"#middleOfNowhere"];
+        [Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:backupVenueID itemText:[NSString stringWithFormat:@"I unlocked this cool scene from the movie No Man's Land at these #middleOfNowhere coordinates %.0f, %.0f  ( but this venue is the place it was actually shot at! ) Thanks tumbleweed.me", userCoordinate.latitude, userCoordinate.longitude]];
+        [self animateRewards:1:YES];
     }
 }
 - (void) resetScene
@@ -546,6 +558,10 @@ typedef enum {
     [locationManagerRC retriveUserLocationWithBlock:^(CLLocationManager *manager, CLLocation *newLocation, CLLocation *oldLocation) {
         userCoordinate = [newLocation coordinate];
 
+        if (middleOfNowhere) {
+            sectionId = nil;
+            categoryId = nil;
+        }
         if ([sceneTypeName isEqualToString:@"FSQexplorenew"]) {
             [Foursquare exploreVenuesNearByLatitude:userCoordinate.latitude longitude:userCoordinate.longitude sectionId:sectionId noveltyId:noveltyId distance:radius friendVisits:friendVisits WithBlock:^(NSArray *venues, NSError *error) {
                 if (error) {
@@ -605,7 +621,10 @@ typedef enum {
         else {
             //nothing nearby
             [checkinButton setTitle:@"Nothing Nearby" forState:UIControlStateDisabled];
-            [self willPresentError:[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDeferredFailed userInfo:nil]];
+            if (middleOfNowhere){
+                [self bypassCheckin];
+            }
+            else [self willPresentError:[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDeferredFailed userInfo:nil]];
         }
         
         //[venueView addSubview:nameLabel];
@@ -711,7 +730,6 @@ typedef enum {
                      completion:^(BOOL finished){
                          [self refreshView];
                      }];
-    
 }
 
 #pragma mark -
@@ -2910,7 +2928,6 @@ typedef enum {
 {
     NSLog(@"ignoring double tap");
 }
-
 - (void) starringTapButton;
 {
     tappedOut = NO;
@@ -2973,8 +2990,9 @@ typedef enum {
     if ([[error domain] isEqualToString:kCLErrorDomain] || [[error domain] isEqualToString:NSURLErrorDomain]) {
         switch([error code]) {
             case kCLErrorDeferredFailed:
-                errorTitle = @"Nothing nearby";
-                errorMessage = [NSString stringWithFormat:@"You must be in the middle of nowhere. Hit the re-search button on the map when you're closer to %@", categoryHint];
+                errorTitle = @"Nothing Nearby";
+                errorMessage = [NSString stringWithFormat:@"You must be in the middle of nowhere. Hit the re-search button on the map when you're closer to %@.", categoryHint];
+                middleOfNowhere = TRUE;
                 break;
             case kCLAuthorizationStatusAuthorized:
             case kCLErrorDenied:
@@ -2996,6 +3014,15 @@ typedef enum {
         
     }
     
+}
+- (void) bypassCheckin
+{
+    UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Still Nothing Nearby"
+                                                      message:[NSString stringWithFormat:@"Let's just say you are near %@ and call it a day?", categoryHint]
+                                                     delegate:self
+                                            cancelButtonTitle:@"Nahh"
+                                            otherButtonTitles:@"Yup!", nil];
+    [message show];
 }
 - (void) refreshView
 {

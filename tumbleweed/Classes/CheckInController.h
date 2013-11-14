@@ -10,7 +10,7 @@
 #import "SceneController.h"
 
 
-@interface CheckInController : UIViewController <UITextViewDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate>{
+@interface CheckInController : UIViewController <UITextViewDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate, UIAlertViewDelegate>{
     IBOutlet UIButton *backButton;
     IBOutlet UIButton *photoButton;
     IBOutlet UILabel *characterCounter;
@@ -42,6 +42,7 @@
 - (id) initWithSenderId: (SceneController *)sender;
 -(void)takePhoto: (NSInteger)sourceType;
 
+- (void) shareAlertButton;
 
 
 @end

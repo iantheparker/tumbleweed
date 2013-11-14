@@ -19,12 +19,14 @@
     CALayer *cloud1Layer;
     CALayer *cloud2Layer;
     CALayer *tumbleweedLogo;
+    CALayer *tapHint;
     CADisplayLink *displayLink;
     int middleWidth;
+    unsigned int gestureCount;
 }
 
 @synthesize scrollView = _scrollView;
-@synthesize containerView, text1, text2, text3;
+@synthesize containerView, text1, text2, text3, text4, bgImg;
 
 
 #pragma mark -
@@ -37,22 +39,142 @@
 -(void) updateScrollDisplay : (NSTimer*) timer
 {
     float loc = self.scrollView.contentOffset.y;
-    int cutoff = 150;
+    int cutoff = -20;
+    //CGPoint mapCenter = self.scrollView.center;
+    //float offset =  - self.scrollView.contentOffset.y;
     
-    if (loc <= cutoff )
-    {
-        self.scrollView.contentOffset = CGPointMake(0, loc+0.25);
+    //NSLog(@"gestureCount = %d, ", gestureCount);
+    
+    if (gestureCount == 0) {
+        //do nothing. wait for gesture
     }
-    else if ( loc > cutoff && loc <= [UIScreen mainScreen].bounds.size.height)
+    else if (gestureCount == 1)
     {
+        //wave twlogo out
+        {
+            
+            CAKeyframeAnimation *tWLogoLayerAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation.y"];
+            tWLogoLayerAnim.duration = 0.75f;
+            tWLogoLayerAnim.removedOnCompletion = NO;
+            tWLogoLayerAnim.fillMode = kCAFillModeForwards;
+            tWLogoLayerAnim.values = [NSArray arrayWithObjects:
+                                          [NSNumber numberWithFloat:0.0],
+                                          [NSNumber numberWithFloat:-200.0],
+                                          nil] ;
+            tWLogoLayerAnim.keyTimes = [NSArray arrayWithObjects:
+                                      [NSNumber numberWithFloat:0.0],
+                                      [NSNumber numberWithFloat:1.0],
+                                      nil] ;
+            tWLogoLayerAnim.timingFunctions = [NSArray arrayWithObjects:
+                                               [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],
+                                               [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],
+                                               nil] ;
+            
+            tWLogoLayerAnim.calculationMode = kCAAnimationCubic;
+            [tWLogoLayer addAnimation:tWLogoLayerAnim forKey:Nil];
+            
+            
+            CAKeyframeAnimation *tumbleweedLogoAnim = [CAKeyframeAnimation animationWithKeyPath:@"transform.rotation.z"];
+            tumbleweedLogoAnim.values = [NSArray arrayWithObjects:
+                                         [NSNumber numberWithFloat:0],
+                                         [NSNumber numberWithFloat: M_PI],
+                                         nil];
+            tumbleweedLogoAnim.keyTimes = [NSArray arrayWithObjects:
+                                           [NSNumber numberWithFloat:0.0],
+                                           [NSNumber numberWithFloat:1.0],
+                                           nil] ;
+            tumbleweedLogoAnim.timingFunctions = [NSArray arrayWithObjects:
+                                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn],
+                                                  [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault],
+                                                  nil] ;
+            tumbleweedLogoAnim.duration = tWLogoLayerAnim.duration;
+            tumbleweedLogoAnim.removedOnCompletion = NO;
+            tumbleweedLogoAnim.calculationMode = kCAAnimationCubic;
+            tumbleweedLogoAnim.fillMode = kCAFillModeForwards;
+            [tumbleweedLogo addAnimation:tumbleweedLogoAnim forKey:Nil];
+        }
+        
+        //wave 3 marketing points in
+        {
+            [UIView animateWithDuration:0.8 delay:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                text1.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, [[UIScreen mainScreen] bounds].size.width/5);
+            } completion:^(BOOL finished) {
+                //
+            }];
+            [UIView animateWithDuration:0.8 delay:0.4 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                text2.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, 2*[[UIScreen mainScreen] bounds].size.width/5-15);
+            } completion:^(BOOL finished) {
+                //
+            }];
+            [UIView animateWithDuration:0.8 delay:0.6 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                text3.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, 3*[[UIScreen mainScreen] bounds].size.width/5 -30);
+            } completion:^(BOOL finished) {
+                //
+            }];
+            [UIView animateWithDuration:0.8 delay:0.8 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                text4.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, 4*[[UIScreen mainScreen] bounds].size.width/5 -30);
+            } completion:^(BOOL finished) {
+                //
+            }];
+        }
+        
+        gestureCount++;
+    }
+    else if (gestureCount == 2)
+    {
+        //wave out marketing points
+        //gestureCount++;
+        
+    }
+    else if (gestureCount == 3)
+    {
+        //wave out marketing points
+        gestureCount++;
+        [UIView animateWithDuration:3.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            bgImg.center = CGPointMake(bgImg.center.x, 0);
+        } completion:^(BOOL finished) {
+            [self dismissViewControllerAnimated:NO completion:^{}];
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasSeenTutorial"];
+        }];
+        [UIView animateWithDuration:0.8 delay:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            text1.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, -100);
+        } completion:^(BOOL finished) {
+            //
+        }];
+        [UIView animateWithDuration:0.8 delay:0.4 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            text2.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, -100);
+        } completion:^(BOOL finished) {
+            //
+        }];
+        [UIView animateWithDuration:0.8 delay:0.6 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            text3.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, -100);
+        } completion:^(BOOL finished) {
+            //
+        }];
+        [UIView animateWithDuration:0.8 delay:0.8 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            text4.center = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, -100);
+        } completion:^(BOOL finished) {
+            //
+        }];
+    }
+    else if (gestureCount >= 4)
+    {
+        [tapHint removeFromSuperlayer];
+        //animate scroll
+        
         float highspeed = 1.25;
         float lowspeed = 0.25;
-        float middleHeight = ([UIScreen mainScreen].bounds.size.width - cutoff)/2.0 + cutoff;
-        float diffspeed = lowspeed + (highspeed - lowspeed) * pow(M_E, -pow((middleHeight - loc)/100, 6));
+        float middleHeight = ([UIScreen mainScreen].bounds.size.width - cutoff)/2.0 ;
+        float diffspeed = lowspeed + (highspeed - lowspeed) * pow(M_E, -pow((middleHeight - loc)/200, 4));
         diffspeed = roundf(diffspeed*4)/4;
         self.scrollView.contentOffset = CGPointMake(0, loc + diffspeed);
         NSLog(@"diffspeed %f", diffspeed);
+        
+        
+        
     }
+    
+    [self renderParallax];
 }
 
 -(void) renderParallax
@@ -62,19 +184,7 @@
     [CATransaction setDisableActions:YES];
     
     CGPoint mapCenter = self.scrollView.center;
-    //float offset = self.scrollView.contentOffset.y - mapCenter.y;
     float offset =  - self.scrollView.contentOffset.y;
-    float middleHeight = ([[UIScreen mainScreen] bounds].size.width/2) - offset;
-    
-    text1.layer.speed = 4;
-    text2.layer.speed = 3;
-    text3.layer.speed = 2;
-    float slowspeed = 0.2;
-    
-    tumbleweedLogo.transform = CATransform3DMakeRotation(offset*-M_PI_4*.2, 0, 0, 1);
-
-    CGPoint textCenter = CGPointMake(middleWidth, mapCenter.y + (offset * 3) );
-    [tWLogoLayer setPosition:textCenter];
     
     //-sky position- CALayer - fix the hardcoded offset here
     CGPoint cloud1Center = CGPointMake(middleWidth, mapCenter.y +(offset * cloud1Layer.speed));
@@ -84,6 +194,20 @@
     CGPoint cloud2Center = CGPointMake(middleWidth, mapCenter.y +(offset * cloud2Layer.speed));
     [cloud2Layer setPosition:cloud2Center];
     
+    /*
+         
+    float middleHeight = ([[UIScreen mainScreen] bounds].size.width/2) - offset;
+    
+    text1.layer.speed = 4;
+    text2.layer.speed = 3;
+    text3.layer.speed = 2;
+    float slowspeed = 0.2;
+     
+    tumbleweedLogo.transform = CATransform3DMakeRotation(offset*-M_PI_4*.2, 0, 0, 1);
+     
+    CGPoint textCenter = CGPointMake(middleWidth, mapCenter.y + (offset * 3) );
+    [tWLogoLayer setPosition:textCenter];
+     
     CGPoint text1WindowPoint = [text1 convertPoint:self.scrollView.bounds.origin toView:self.view];
     text1.alpha = pow(M_E, -pow((middleHeight - text1WindowPoint.y)/100, 4));
     float text1speed = text1.layer.speed - (text1.layer.speed - slowspeed) * text1.alpha;
@@ -103,7 +227,7 @@
     CGPoint text3Center = CGPointMake(middleWidth, text3.center.y + (offset * text3speed/30));
     text3.center = text3Center;
     
-    /*
+    
     basespeed = 100;
     slowspeed = 40;
     diffspeed = basespeed - slowspeed;
@@ -133,7 +257,7 @@
     skyLayer.frame = CGRectMake(0, 0, skybg.size.width, skybg.size.height);
     //set for iphone 4 size too
     //skyLayer.position = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, canvas_h/2);
-    skyLayer.contents = (__bridge id)(skybg.CGImage);
+    //skyLayer.contents = (__bridge id)(skybg.CGImage);
     //skyLayer.contentsGravity = kCAGravityBottomLeft;
     [self.scrollView.layer insertSublayer:skyLayer atIndex:0];
     
@@ -152,10 +276,10 @@
     cloud2Layer.frame = tWLogoLayer.frame; //CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.height, [[UIScreen mainScreen] bounds].size.width);;
     [self.view.layer addSublayer:cloud2Layer];
     
-    text1.center = CGPointMake(middleWidth, canvas_h/2);
+    text1.center = CGPointMake(middleWidth, canvas_h-50);
     text2.center = CGPointMake(middleWidth, canvas_h);
-    text3.center = CGPointMake(middleWidth, canvas_h*1.5);
-    //text4.center = CGPointMake(middleWidth, mapCenter.y +250);
+    text3.center = CGPointMake(middleWidth, canvas_h+50);
+    text4.center = CGPointMake(middleWidth, canvas_h+100);
     
     NSLog(@"cloud2 pos %f,%f", cloud2Layer.position.x, cloud2Layer.position.y);
     
@@ -174,6 +298,22 @@
     tumbleweedLogo.position = CGPointMake(tumbleweedLogo.bounds.size.width/2 + tumbleweedLogoType.bounds.size.width+5, 12);
     tumbleweedLogo.contents = (__bridge id)tumbleweedLogoImg.CGImage;
     [tumbleweedLogoType addSublayer:tumbleweedLogo];
+    
+    tapHint = [CALayer layer];
+    UIImage *tapHintImg = [UIImage imageNamed:@"tap_tip_1.png"];
+    tapHint.bounds = CGRectMake(0, 0, tapHintImg.size.width, tapHintImg.size.height);
+    tapHint.position = CGPointMake([[UIScreen mainScreen] bounds].size.height/2, 4.4 * [[UIScreen mainScreen] bounds].size.width/5);
+    tapHint.contents = (__bridge id)tapHintImg.CGImage;
+    [self.scrollView.layer addSublayer:tapHint];
+    
+    CABasicAnimation *tapHintAnim = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    tapHintAnim.fromValue = [NSNumber numberWithFloat:.0];
+    tapHintAnim.toValue = [NSNumber numberWithFloat: 1.0];
+    tapHintAnim.duration = 1.0f;
+    tapHintAnim.autoreverses = YES;
+    tapHintAnim.repeatCount = HUGE_VALF;
+    tapHintAnim.removedOnCompletion = NO;
+    [tapHint addAnimation:tapHintAnim forKey:@"opacity"];
     
     static const int cloudTotal = 12;
     static const CGPoint cloudPos[cloudTotal] = {
@@ -230,11 +370,22 @@
         
     }
     [self renderParallax];
-
+    
+    UITapGestureRecognizer *gestureHandler = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(handleSingleTap:)];
+    [gestureHandler setDelegate:self];
+    [self.scrollView addGestureRecognizer:gestureHandler];
+    
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateScrollDisplay:)];
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 
 }
+
+- (void) handleSingleTap: (UIGestureRecognizer*) sender
+{
+    NSLog(@"gesture recognized");
+    gestureCount++;
+}
+
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
@@ -252,11 +403,11 @@
     {
         NSLog(@"over 960");
         //self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-        [self dismissViewControllerAnimated:NO completion:^{}];
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasSeenTutorial"];
+        //[self dismissViewControllerAnimated:NO completion:^{}];
+        //[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasSeenTutorial"];
         [displayLink removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     }
-    [self renderParallax];
+    
     
 }
 
