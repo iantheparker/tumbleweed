@@ -204,7 +204,7 @@ typedef enum {
         //animate rewards
         //add gps to foursquare list item
         [[Tumbleweed sharedClient] updateLevel:(_scene.level + 1) withVenue:@"#middleOfNowhere"];
-        [Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:backupVenueID itemText:[NSString stringWithFormat:@"I unlocked this cool scene from the movie No Man's Land at these #middleOfNowhere coordinates %.0f, %.0f  ( but this venue is the place it was actually shot at! ) Thanks tumbleweed.me", userCoordinate.latitude, userCoordinate.longitude]];
+        [Foursquare addListItem:[[NSUserDefaults standardUserDefaults] stringForKey:@"fsqListId"] venue:backupVenueID itemText:[NSString stringWithFormat:@"Woah there! I unlocked a scene from the movie No Mans Land at %.0f, %.0f. Thanks tumbleweed.me", userCoordinate.latitude, userCoordinate.longitude]];
         [self animateRewards:1:YES];
     }
 }

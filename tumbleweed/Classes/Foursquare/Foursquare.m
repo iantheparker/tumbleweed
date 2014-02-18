@@ -78,7 +78,8 @@ static int vDate = 20120927;
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 [NSNumber numberWithInt:vDate], @"v", nil];
+                                 [NSNumber numberWithInt:vDate], @"v",
+                                 nil];
     [[AFFoursquareAPIClient sharedClient] getPath:@"users/self" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id response) {
                                               NSDictionary *results = [[response objectForKey:@"response"] objectForKey:@"user"];
@@ -104,10 +105,10 @@ static int vDate = 20120927;
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%f,%f", lat, lon], @"ll",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 //\@"10", @"limit",
+                                 [NSNumber numberWithInt:vDate], @"v",
                                  @"200", @"radius",
                                  category, @"categoryId",
-                                 [NSNumber numberWithInt:vDate], @"v", nil];
+                                 nil];
     [[AFFoursquareAPIClient sharedClient] getPath:@"venues/search" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
         NSMutableArray *mutableVenues = [NSMutableArray arrayWithCapacity:[JSON count]];
@@ -138,14 +139,14 @@ static int vDate = 20120927;
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSString stringWithFormat:@"%f,%f", lat, lon], @"ll",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 //@"10", @"limit",
+                                 [NSNumber numberWithInt:vDate], @"v",
                                  radius, @"radius",
                                  section, @"section",
-                                 //@"travel", @"query",
                                  novelty, @"novelty",
                                  visited, @"friendVisits",
-                                 [NSNumber numberWithInt:vDate], @"v",
                                  nil];
+    NSLog(@"explore query %@", queryParams);
+    NSLog(@"%d", vDate);
     [[AFFoursquareAPIClient sharedClient] getPath:@"venues/explore" parameters:queryParams
                                           success:^(AFHTTPRequestOperation *operation, id JSON) {
                                               NSMutableArray *mutableVenues = [NSMutableArray arrayWithCapacity:[JSON count]];
@@ -178,11 +179,12 @@ static int vDate = 20120927;
 {
     if ([[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Configuration"] isEqualToString:@"Debug"]) broadcastType = @"private";
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 [NSNumber numberWithInt:vDate], @"v",
                                  venueId, @"venueId",
                                  shoutText, @"shout",
                                  broadcastType, @"broadcast",
-                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 [NSNumber numberWithInt:vDate], @"v", nil];
+                                 nil];
     [SVProgressHUD showWithStatus:@"Checking in..." maskType:SVProgressHUDMaskTypeGradient];
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
     [[AFFoursquareAPIClient sharedClient] postPath:@"checkins/add" parameters:queryParams
@@ -205,11 +207,12 @@ static int vDate = 20120927;
        broadcast:(NSString*) broadcastType
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                                 [NSNumber numberWithInt:vDate], @"v",
                                  checkInId, @"checkinId",
                                  broadcastType, @"broadcast",
                                  [NSNumber numberWithInt:1], @"public",
-                                 [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 [NSNumber numberWithInt:vDate], @"v", nil];
+                                 nil];
     NSData *imageData = UIImageJPEGRepresentation(image, 0.5);
     NSMutableURLRequest *request = [[AFFoursquareAPIClient sharedClient] multipartFormRequestWithMethod:@"POST"
                                                                                                    path:@"photos/add"
@@ -235,10 +238,11 @@ static int vDate = 20120927;
       WithBlock:(void (^)(NSDictionary *listResponse, NSError *error))block
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithInt:vDate], @"v",
                                  @"No Man's Land Path", @"name",
                                  @"All the places I went to while watching No Man's Land from tumbleweed.me", @"description",
                                  [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                                 [NSNumber numberWithInt:vDate], @"v", nil];
+                                 nil];
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
     [[AFFoursquareAPIClient sharedClient] postPath:@"lists/add" parameters:queryParams
                                            success:^(AFHTTPRequestOperation *operation, id JSON) {
@@ -259,10 +263,12 @@ static int vDate = 20120927;
            itemText:(NSString*) text
 {
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
-                       venueId, @"venueId",
+                        [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
+                        [NSNumber numberWithInt:vDate], @"v",
+                        venueId, @"venueId",
                        text, @"text",
-                       [[NSUserDefaults standardUserDefaults] stringForKey:@"access_token"], @"oauth_token",
-                       [NSNumber numberWithInt:vDate], @"v", nil];
+                       
+                        nil];
     
     [[AFFoursquareAPIClient sharedClient] setParameterEncoding:AFFormURLParameterEncoding];
     [[AFFoursquareAPIClient sharedClient] postPath:[NSString stringWithFormat:@"lists/%@/additem", listId] parameters:queryParams
